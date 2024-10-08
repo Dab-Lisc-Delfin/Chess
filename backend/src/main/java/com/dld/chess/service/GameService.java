@@ -2,6 +2,7 @@ package com.dld.chess.service;
 
 import com.dld.chess.model.Chessboard;
 import com.dld.chess.model.Square;
+import com.dld.chess.model.pawns.Pawn;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +16,7 @@ public class GameService {
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
 
+                //TODO shorten it
                 if (i == 0) {
                     letter = 'a';
                 } else if (i == 1) {
@@ -33,7 +35,14 @@ public class GameService {
                     letter = 'h';
                 }
 
-                squares[i][j] = new Square(letter + "" + (squares.length - j));
+                if (i == 1) { //possition 2
+                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("white"), false);
+                } else if (j == 6) { //possition 7
+                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("black"), false);
+                }else{
+                    squares[i][j] = new Square(letter + "" +(squares.length - j), new Pawn());
+
+                }
             }
         }
 
@@ -43,7 +52,7 @@ public class GameService {
         for (int i = 0; i < squares.length; i++) {
             System.out.println();
             for (int j = 0; j < squares[i].length; j++) {
-                System.out.print(squares[i][j].getName() + " ");
+                System.out.print(squares[i][j].getName() + "-" + squares[i][j].getPawn().toString() + " ");
             }
         }
 
