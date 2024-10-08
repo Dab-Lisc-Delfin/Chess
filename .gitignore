@@ -6,5 +6,6 @@
 *.application.properties
 /Maven/apache-maven-3.9.9-bin/apache-maven-3.9.9/
 backend/Maven/
+backend/target/
 
 
