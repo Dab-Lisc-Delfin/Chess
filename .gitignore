@@ -1,0 +1,10 @@
+*.idea
+.idea 
+.DS_Store
+*.DS_Store
+/backend/src/main/resources/application.properties
+*.application.properties
+/Maven/apache-maven-3.9.9-bin/apache-maven-3.9.9/
+backend/Maven/
+
+
