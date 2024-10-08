@@ -29,11 +29,12 @@ export class AppComponent {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
         this.jsonResponse = res; 
-        alert(JSON.stringify(res));
+        (JSON.stringify(res));
       },
       (error) => {
         console.error('Error fetching JSON data:', error);
       }
     );
   }
+  
 }

@@ -1,0 +1,29 @@
+.black {
+    background-color: rgb(202, 140, 23);
+    color: white; 
+  }
+  
+  .white {
+    background-color: rgb(248, 220, 159);
+    color: black; 
+  }
+  .hoverWhite:hover {
+    background-color: rgb(204, 181, 131);
+  }
+  
+  .hoverBlack:hover {
+    background-color: rgb(158, 110, 21);
+  }
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
