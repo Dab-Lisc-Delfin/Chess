@@ -1,0 +1,5 @@
+com\dld\chess\config\SecurityConfig.class
+com\dld\chess\model\PawnInterface.class
+com\dld\chess\model\Chessboard.class
+com\dld\chess\DldApplication.class
+com\dld\chess\controller\HomeController.class
