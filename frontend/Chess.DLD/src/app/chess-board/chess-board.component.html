@@ -16,4 +16,11 @@
             </div>
         </div>
     </div>
+    <div *ngIf="jsonResponse">
+        <div class="grid grid-cols-8 gap-2 justify-center">
+            <div *ngFor="let pawn of jsonResponse" class="w-[45px] h-[45px] flex items-center justify-center" [ngStyle]="{'background-color': getUniqueColor(pawn.pawnColor)}">
+                <p class="text-center">{{ pawn.pawnName }}</p>
+              </div>
+        </div>
+      </div>
 </div>
