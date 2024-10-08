@@ -36,9 +36,9 @@ public class GameService {
                 }
 
                 if (i == 1) { //possition 2
-                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("white"), false);
-                } else if (j == 6) { //possition 7
                     squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("black"), false);
+                } else if (i == 6) { //possition 7
+                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("white"), false);
                 }else{
                     squares[i][j] = new Square(letter + "" +(squares.length - j), new Pawn());
 
