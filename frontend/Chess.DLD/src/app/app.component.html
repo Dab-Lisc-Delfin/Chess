@@ -10,6 +10,9 @@
     <div class="mt-6 row-span-1">
       <app-game *ngIf="showGame"></app-game>
     </div>
+    <div *ngIf="Board">
+      <app-chess-board></app-chess-board>
+    </div>
     <div *ngIf="jsonResponse">
       <h2>Odpowiedź z serwera:</h2>
       <pre>{{ jsonResponse | json }}</pre>
