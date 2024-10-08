@@ -20,21 +20,21 @@ export class AppComponent {
   showGame = false;
   test = false;
   Board = true;
-  jsonResponse: any;
+  // jsonResponse: any;
 
   toggleGameDisplay() {
     this.showGame = !this.showGame;
   }
-  constructor(private dataService: DataService) {
-    this.dataService.getJsonData().subscribe(
-      (res: any) => {
-        this.jsonResponse = res; 
-        (JSON.stringify(res));
-      },
-      (error) => {
-        console.error('Error fetching JSON data:', error);
-      }
-    );
-  }
+  // constructor(private dataService: DataService) {
+  //   this.dataService.getJsonData().subscribe(
+  //     (res: any) => {
+  //       this.jsonResponse = res; 
+  //       (JSON.stringify(res));
+  //     },
+  //     (error) => {
+  //       console.error('Error fetching JSON data:', error);
+  //     }
+  //   );
+  // }
   
 }

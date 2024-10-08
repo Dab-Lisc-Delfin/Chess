@@ -1,13 +1,58 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http';
+import { DataService } from '../data.service';
+
+interface Pawn {
+  pawnName: string;
+  pawnColor: PawnColor;
+  pawnPlacement: string;
+}
+type PawnColor = 'white' | 'black';
+
+
+
 @Component({
   selector: 'app-chess-board',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, HttpClientModule,],
   templateUrl: './chess-board.component.html',
   styleUrl: './chess-board.component.css'
 })
 export class ChessBoardComponent {
+  jsonResponse: Pawn[] = [];
+
+  constructor(private dataService: DataService) {
+  this.dataService.getJsonData().subscribe(
+    (res: any) => {
+      this.jsonResponse = res; 
+      const transformedData: Pawn[] = [];
+      
+      res.chessBoard.forEach((row: any[]) => {
+        row.forEach((pawn: any) => {
+          transformedData.push({
+            pawnName: pawn.name,
+            pawnColor: pawn.color,
+            pawnPlacement: pawn.square
+          });
+        });
+      });
+      this.jsonResponse = transformedData;
+    },
+    (error) => {
+      console.error('Error fetching JSON data:', error);
+    }
+  );
+}
+
+getUniqueColor(color: PawnColor): string {
+  const colorMap: Record<PawnColor, string> = {
+    white: '#cccccc', 
+    black: '#666666',
+  };
+  return colorMap[color] || color;
+}
+
   chessBoard:{square: string;color:string;}[]=[
     {square: 'a8', color:'white'},
     {square: 'b8', color:'black'},
