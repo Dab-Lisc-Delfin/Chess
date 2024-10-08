@@ -2,7 +2,7 @@ package com.dld.chess.service;
 
 import com.dld.chess.model.Chessboard;
 import com.dld.chess.model.Square;
-import com.dld.chess.model.pawns.Pawn;
+import com.dld.chess.model.pawns.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,10 +41,49 @@ public class GameService {
                     squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("white"), false);
                 }else{
                     squares[i][j] = new Square(letter + "" +(squares.length - j), new Pawn());
-
                 }
             }
         }
+
+        //put Rocks TODO - separate method
+        squares[0][0].setPawn(new Rock("black"));
+        squares[0][7].setPawn(new Rock("black"));
+
+        squares[7][0].setPawn(new Rock("white"));
+        squares[7][7].setPawn(new Rock("white"));
+        //////
+
+        //put Knights TODO - separate method
+        squares[0][1].setPawn(new Knight("black"));
+        squares[0][6].setPawn(new Knight("black"));
+
+        squares[7][1].setPawn(new Knight("white"));
+        squares[7][6].setPawn(new Knight("white"));
+        ///////
+
+        //put Bishops TODO - separate method
+        squares[0][2].setPawn(new Bishop("black"));
+        squares[0][5].setPawn(new Bishop("black"));
+
+        squares[7][2].setPawn(new Bishop("white"));
+        squares[7][5].setPawn(new Bishop("white"));
+        ///////
+
+        //put Queens TODO - separate method
+        squares[0][3].setPawn(new Queen("black"));
+
+        squares[7][3].setPawn(new Queen("white"));
+        ///////
+
+
+        //put Kings TODO - separate method
+        squares[0][4].setPawn(new King("black"));
+
+        squares[7][4].setPawn(new King("white"));
+        ///////
+
+
+
 
         chessboard.setSquares(squares);
 

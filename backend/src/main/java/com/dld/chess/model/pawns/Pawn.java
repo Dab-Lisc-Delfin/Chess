@@ -24,8 +24,4 @@ public class Pawn extends PawnAbstract{
         //just one square
     }
 
-    @Override
-    public String toString() {
-        return this.getName() + " " + this.getColor();
-    }
 }
