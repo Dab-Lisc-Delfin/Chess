@@ -5,22 +5,22 @@
 <!--  -->
 <!--  -->
 
-<div class="grid  justify-center flex">
-    <div class="grid-row  content-center  rounded   flex">
+<div class="grid justify-center flex">
+    <div class="grid-row content-center rounded flex">
         <div class="grid grid-cols-8">
-            <div *ngFor="let square of chessBoard " class="w-[90px] h-[90px] flex items-center justify-center "
-                [ngClass]="square.color ">
-                <p class="text-center w-[90px] h-[90px]"
-                    [ngClass]="{'hoverWhite': square.color === 'white','hoverBlack': square.color === 'black'}">
-                    {{ square.square }}</p>
+            <div *ngFor="let square of chessBoard" class="w-[90px] h-[90px] flex items-center justify-center"
+                [ngClass]="square.color">
+                <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
+                    <p class="text-center w-[45px] h-[45px]" [ngStyle]="{'background-color': getUniqueColor(pawn.pawnColor)}">
+                        {{ pawn.pawnName }}
+                    </p>
+                </ng-container>
+                <ng-container *ngIf="!getPawnOnSquare(square.square)">
+                    <!-- <p class="text-center w-[90px] h-[90px]">
+                        {{ square.square }}
+                    </p> -->
+                </ng-container>
             </div>
         </div>
     </div>
-    <div *ngIf="jsonResponse">
-        <div class="grid grid-cols-8 gap-2 justify-center">
-            <div *ngFor="let pawn of jsonResponse" class="w-[45px] h-[45px] flex items-center justify-center" [ngStyle]="{'background-color': getUniqueColor(pawn.pawnColor)}">
-                <p class="text-center">{{ pawn.pawnName }}</p>
-              </div>
-        </div>
-      </div>
 </div>
