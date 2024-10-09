@@ -5,37 +5,39 @@
 <!--  -->
 <!--  -->
 
-<div class="flex flex-col items-center justify-center">
-    <div class="flex flex-col items-center justify-center">
-        <div *ngFor="let square of chessBoard.slice(0, 8)"
-            class="w-[90px] h-[90px] flex items-center justify-center">
+<div class="grid justify-center flex flex-col">
+    <div class="grid-row content-center rounded flex mr-[90px]">
+        <div class="flex flex-col items-center justify-center">
+            <div *ngFor="let number of [8, 7, 6, 5, 4, 3, 2, 1]"
+                class="w-[90px] h-[90px] flex items-center justify-center">
+                <p>{{ number }}</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-8">
+            <div *ngFor="let square of chessBoard" class="w-[90px] h-[90px] flex items-center justify-center" [ngClass]="{
+                        'hoverWhite': square.color === 'white',
+                        'hoverBlack': square.color === 'black',
+                        'white': square.color === 'white',
+                        'black': square.color === 'black'
+                    }"
+                    (click)="showSquareDetails(square)">
+                <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
+                    <p class="text-center w-[45px] h-[45px]"
+                        [ngStyle]="{'background-color': getUniqueColor(pawn.pawnColor)}">
+                        {{ pawn.pawnName }}
+                    </p>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-9 justify-center mr-[90px]">
+        <div class="w-[90px] h-[90px] flex items-center justify-center ">
+            <p></p>
+        </div>
+        <div *ngFor="let square of chessBoard.slice(0, 8)" class="w-[90px] h-[90px] flex items-center justify-center ">
             <p>{{ square.square.slice(0, 1) }}</p>
         </div>
     </div>
 
-    <div class="grid grid-cols-8">
-        <div *ngFor="let square of chessBoard" class="w-[90px] h-[90px] flex items-center justify-center" [ngClass]="{
-                    'hoverWhite': square.color === 'white', 
-                    'hoverBlack': square.color === 'black',
-                    'white': square.color === 'white',
-                    'black': square.color === 'black'
-                }">
-            <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
-                <p class="text-center w-[45px] h-[45px]"
-                    [ngStyle]="{'background-color': getUniqueColor(pawn.pawnColor)}">
-                    {{ pawn.pawnName }}
-                </p>
-            </ng-container>
-        </div>
-    </div>
-    <div class="grid grid-cols-8">
-        <div *ngFor="let square of chessBoard.slice(0, 8)"
-            class="w-[90px] h-[90px] flex items-center justify-center">
-            <p>{{ square.square.slice(0, 1) }}</p>
-        </div>
-    </div>
 </div>
-
-
-
-
