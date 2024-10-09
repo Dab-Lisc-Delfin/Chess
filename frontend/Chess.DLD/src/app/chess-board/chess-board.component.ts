@@ -44,6 +44,9 @@ export class ChessBoardComponent {
     }
   );
 }
+getPawnOnSquare(square: string): Pawn | undefined {
+  return this.jsonResponse.find(pawn => pawn.pawnPlacement === square);
+}
 
 getUniqueColor(color: PawnColor): string {
   const colorMap: Record<PawnColor, string> = {
