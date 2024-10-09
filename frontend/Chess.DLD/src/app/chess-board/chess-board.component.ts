@@ -55,6 +55,19 @@ getUniqueColor(color: PawnColor): string {
   };
   return colorMap[color] || color;
 }
+showSquareDetails(square: any) {
+  const pawn = this.getPawnOnSquare(square.square);
+  let message = ``;
+  
+  if (pawn) {
+      message += `\nPionek: ${pawn.pawnName}\nKolor pionka: ${pawn.pawnColor}\nPole: ${pawn.pawnPlacement}`;
+  } else {
+      message += `\nBrak pionka na tym polu.`;
+  }
+
+  alert(message);
+}
+
 
   chessBoard:{square: string;color:string;}[]=[
     {square: 'a8', color:'white'},
