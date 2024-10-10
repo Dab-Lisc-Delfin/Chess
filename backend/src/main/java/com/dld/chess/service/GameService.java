@@ -195,5 +195,6 @@ public class GameService {
         squareTo.setName(moveDTO.getMoveTo());
         squareTo.setEmpty(false);
         squareFrom.setEmpty(true);
+        squareFrom.setPawn(null);
     }
 }
