@@ -24,7 +24,10 @@ export class ChessBoardComponent {
   availableMoves: string[] = [];
   highlightedSquares: string[] = [];
   private selectedPawnInfo: any = null;
-  
+  private originalPosition: string | null = null;
+
+
+
 
   constructor(private dataService: DataService) {
     this.dataService.getJsonData().subscribe(
@@ -51,7 +54,19 @@ export class ChessBoardComponent {
   getPawnOnSquare(square: string): Pawn | undefined {
     return this.jsonResponse.find(pawn => pawn.pawnPlacement === square);
   }
+  highlightMoves(square: any) {
+    const pawnInfo = this.getPawnOnSquare(square.square);
 
+    if (pawnInfo) {
+      this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
+      this.highlightedSquares = this.availableMoves;
+    }
+  }
+
+  clearHighlights() {
+    this.highlightedSquares = [];
+    this.availableMoves = [];
+  }
   getUniqueColor(color: PawnColor): string {
     const colorMap: Record<PawnColor, string> = {
       white: '#cccccc',
@@ -59,42 +74,78 @@ export class ChessBoardComponent {
     };
     return colorMap[color] || color;
   }
-  
+
   showSquareDetails(square: any) {
     const pawnInfo = this.getPawnOnSquare(square.square);
-    
+
     if (this.highlightedSquares.includes(square.square)) {
-        if (this.selectedPawnInfo) {
-            const moveDetails = {
-                mov_from: this.selectedPawnInfo.pawnPlacement,
-                mov_to: square.square,
-                pawnName: this.selectedPawnInfo.pawnName,
-                pawnColor: this.selectedPawnInfo.pawnColor
-            };
-            
-            alert(JSON.stringify(moveDetails, null, 2));
-            this.selectedPawnInfo = null;
-            this.highlightedSquares = [];
-            return;
-        }
+      if (this.selectedPawnInfo) {
+        const moveDetails = {
+          mov_from: this.selectedPawnInfo.pawnPlacement,
+          mov_to: square.square,
+          pawnName: this.selectedPawnInfo.pawnName,
+          pawnColor: this.selectedPawnInfo.pawnColor
+        };
+
+        alert(JSON.stringify(moveDetails, null, 2));
+        this.selectedPawnInfo = null;
+        this.highlightedSquares = [];
+        return;
+      }
     }
 
     this.selectedPawnInfo = pawnInfo;
 
     this.highlightedSquares = [];
     if (pawnInfo) {
-        this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
-        this.highlightedSquares = this.availableMoves;
+      this.originalPosition = pawnInfo.pawnPlacement || '';
+
+
+      this.selectedPawnInfo = pawnInfo;
+
+      this.highlightedSquares = [];
+      this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
+      this.highlightedSquares = this.availableMoves;
     } else {
-        this.availableMoves = [];
+      this.availableMoves = [];
     }
-}
+  }
+
+  dropSquare(square: any) {
+    if (this.highlightedSquares.includes(square.square)) {
+      if (this.originalPosition) {
+        const moveDetails = {
+          mov_from: this.originalPosition,
+          mov_to: square.square,
+          pawnName: this.selectedPawnInfo?.pawnName,
+          pawnColor: this.selectedPawnInfo?.pawnColor
+        };
+
+        alert(JSON.stringify(moveDetails, null, 2));
+
+      }
+    } else {
+      if (this.originalPosition) {
+        const pawn = this.jsonResponse.find(p => p.pawnPlacement === this.originalPosition);
+        if (pawn) {
+          pawn.pawnPlacement = this.originalPosition;
+        }
+      }
+    }
+
+    this.selectedPawnInfo = null;
+    this.highlightedSquares = [];
+    this.originalPosition = null;
+  }
 
 
-  
-  
 
-  
+  allowDrop(event: DragEvent) {
+    event.preventDefault();
+  }
+
+
+
 
   getPossibleMoves(pawn: any, chessBoard: any) {
     let possibleMoves = [];
@@ -119,14 +170,14 @@ export class ChessBoardComponent {
   getPawnMoves(pawn: any, chessBoard: any, jsonResponse: any) {
 
     const combinedBoard = chessBoard.map((square: any) => {
-      
+
       const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
-  
+
       return {
-          ...square,
-          pawn: correspondingPawn ? correspondingPawn.pawnName : null
+        ...square,
+        pawn: correspondingPawn ? correspondingPawn.pawnName : null
       };
-  });
+    });
     let moves = [];
     const currentPosition = pawn.pawnPlacement;
     const currentRow = parseInt(currentPosition[1]);
@@ -136,9 +187,9 @@ export class ChessBoardComponent {
       const square = combinedBoard.find((s: any) => {
         return s.square === targetSquare;
       });
-  
+
       if (square) {
-        
+
         if (square.pawn) {
           return square.pawn.pawnColor !== pawn.pawnColor;
         } else {
@@ -174,8 +225,8 @@ export class ChessBoardComponent {
         const firstMoveRow = currentRow - 2;
         moves.push(currentPosition[0] + firstMoveRow);
       }
-      const leftCol = String.fromCharCode(currentCol.charCodeAt(0) - 1); 
-      const rightCol = String.fromCharCode(currentCol.charCodeAt(0) + 1); 
+      const leftCol = String.fromCharCode(currentCol.charCodeAt(0) - 1);
+      const rightCol = String.fromCharCode(currentCol.charCodeAt(0) + 1);
 
       if (isOpponentPawn(newRow, leftCol)) {
         moves.push(leftCol + newRow);
