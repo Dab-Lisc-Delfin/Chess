@@ -5,7 +5,7 @@ public class Bishop extends PawnAbstract{
     public Bishop(String color){
         this.setColor(color);
         this.setAlive(true);
-        this.setName("Bishop");
+        this.setName("bishop");
     }
 
     @Override

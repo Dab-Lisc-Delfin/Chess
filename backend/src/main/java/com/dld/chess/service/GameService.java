@@ -1,6 +1,7 @@
 package com.dld.chess.service;
 
 import com.dld.chess.dto.GameStatementDTO;
+import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.dto.SquareDTO;
 import com.dld.chess.model.Chessboard;
 import com.dld.chess.model.Game;
@@ -29,30 +30,30 @@ public class GameService {
             for (int j = 0; j < squares[i].length; j++) {
 
                 //TODO shorten it
-                if (i == 0) {
+                if (j == 0) {
                     letter = 'a';
-                } else if (i == 1) {
+                } else if (j == 1) {
                     letter = 'b';
-                } else if (i == 2) {
+                } else if (j == 2) {
                     letter = 'c';
-                } else if (i == 3) {
+                } else if (j == 3) {
                     letter = 'd';
-                } else if (i == 4) {
+                } else if (j == 4) {
                     letter = 'e';
-                } else if (i == 5) {
+                } else if (j == 5) {
                     letter = 'f';
-                } else if (i == 6) {
+                } else if (j == 6) {
                     letter = 'g';
-                } else if (i == 7) {
+                } else if (j == 7) {
                     letter = 'h';
                 }
 
                 if (i == 1) { //possition 2
-                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("black"));
+                    squares[i][j] = new Square(letter + "" + (squares.length-i), new Pawn("black"));
                 } else if (i == 6) { //possition 7
-                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("white"));
+                    squares[i][j] = new Square(letter + "" + (squares.length-i), new Pawn("white"));
                 } else {
-                    squares[i][j] = new Square(letter + "" + (squares.length - j));
+                    squares[i][j] = new Square(letter + "" + (squares.length-i));
                 }
             }
         }
@@ -131,13 +132,13 @@ public class GameService {
     }
 
 
-    String checkPosition(String position) {
+    Square getSquare(String position) {
         Square[][] gameSquare = game.getSquares();
 
         for (int i = 0; i < gameSquare.length; i++) {
             for (int j = 0; j < gameSquare[i].length; j++) {
                 if (gameSquare[i][j].getName().equals(position)) {
-                    return gameSquare[i][j].getName();
+                    return gameSquare[i][j];
                 }
             }
         }
@@ -172,8 +173,8 @@ public class GameService {
                 if (squares[i][j].isEmpty() == false) {
                     System.out.println(squares[i][j].getPawn().getName());
                     SquareDTO squareDTO = new SquareDTO();
-                    squareDTO.setName(squares[i][j].getName());
-                    squareDTO.setSquare(squares[i][j].getPawn().getName());
+                    squareDTO.setName(squares[i][j].getPawn().getName());
+                    squareDTO.setSquare(squares[i][j].getName());
                     squareDTO.setColor(squares[i][j].getPawn().getColor());
 
                     squareDTOS.add(squareDTO);
@@ -183,5 +184,17 @@ public class GameService {
 
         gameStatementDTO.setChessBoard(squareDTOS);
         return gameStatementDTO;
+    }
+
+
+    public void processMove(MoveDTO moveDTO) {
+        Square squareFrom =  getSquare(moveDTO.getMoveFrom());
+        Square squareTo =  getSquare(moveDTO.getMoveTo());
+
+        squareTo.setPawn(squareFrom.getPawn());
+        squareTo.setName(moveDTO.getMoveTo());
+        squareTo.setEmpty(false);
+        squareFrom.setEmpty(true);
+        squareFrom.setPawn(null);
     }
 }

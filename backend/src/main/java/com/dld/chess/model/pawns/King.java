@@ -5,7 +5,7 @@ public class King extends PawnAbstract{
     public King(String color) {
         this.setColor(color);
         this.setAlive(true);
-        this.setName("King");
+        this.setName("king");
     }
     @Override
     public void makeMove(String moveFROM, String moveTO, String name, String color){

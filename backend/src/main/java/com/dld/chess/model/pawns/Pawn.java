@@ -3,7 +3,7 @@ public class Pawn extends PawnAbstract{
     public Pawn(String color){
         this.setColor(color);
         this.setAlive(true);
-        this.setName("Pawn");
+        this.setName("pawn");
     }
 
     @Override

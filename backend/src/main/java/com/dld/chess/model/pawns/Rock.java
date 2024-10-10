@@ -5,7 +5,7 @@ public class Rock extends PawnAbstract{
     public Rock(String color){
         this.setColor(color);
         this.setAlive(true);
-        this.setName("Rock");
+        this.setName("rock");
     }
 
     @Override
