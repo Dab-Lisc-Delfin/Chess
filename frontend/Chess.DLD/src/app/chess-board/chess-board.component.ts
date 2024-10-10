@@ -74,14 +74,22 @@ export class ChessBoardComponent {
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
         const moveDetails = {
-          mov_from: this.selectedPawnInfo.pawnPlacement,
-          mov_to: square.square,
+          moveFrom: this.selectedPawnInfo.pawnPlacement,
+          moveTo: square.square,
           pawnName: this.selectedPawnInfo.pawnName,
           pawnColor: this.selectedPawnInfo.pawnColor
         };
 
-        alert(JSON.stringify(moveDetails, null, 2));
-        console.log(JSON.stringify(moveDetails, null, 2))
+        console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
+
+        this.dataService.sendMoveDetails(moveDetails).subscribe(
+          (response) => {
+            console.log('Move details sent successfully:', response);
+          },
+          (error) => {
+            console.error('Error sending move details:', error);
+          }
+        );
         this.selectedPawnInfo = null;
         this.highlightedSquares = [];
         return;
@@ -109,14 +117,21 @@ export class ChessBoardComponent {
     if (this.highlightedSquares.includes(square.square)) {
       if (this.originalPosition) {
         const moveDetails = {
-          mov_from: this.originalPosition,
-          mov_to: square.square,
+          moveFrom: this.originalPosition,
+          moveTo: square.square,
           pawnName: this.selectedPawnInfo?.pawnName,
           pawnColor: this.selectedPawnInfo?.pawnColor
         };
+        console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
 
-        alert(JSON.stringify(moveDetails, null, 2));
-
+        this.dataService.sendMoveDetails(moveDetails).subscribe(
+          (response) => {
+            console.log('Move details sent successfully:', response);
+          },
+          (error) => {
+            console.error('Error sending move details:', error);
+          }
+        );
       }
     } else {
       if (this.originalPosition) {

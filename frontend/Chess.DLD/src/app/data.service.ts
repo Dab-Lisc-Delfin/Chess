@@ -6,9 +6,13 @@ import { HttpClient } from '@angular/common/http';
 })
 export class DataService {
   private apiUrl = 'http://localhost:8080/api/home';
+  private apiUrlMove = 'http://localhost:8080/api/make-move';
   constructor(private http: HttpClient) {}
 
   getJsonData(){
     return this.http.post<any>(this.apiUrl, {});
+  }
+  sendMoveDetails(moveDetails: any) {
+    return this.http.post(this.apiUrlMove, moveDetails);
   }
 }
