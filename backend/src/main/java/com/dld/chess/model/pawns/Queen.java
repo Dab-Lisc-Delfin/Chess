@@ -5,7 +5,7 @@ public class Queen extends PawnAbstract {
     public Queen(String color) {
         this.setColor(color);
         this.setAlive(true);
-        this.setName("Queen");
+        this.setName("queen");
     }
 
     @Override
