@@ -1,12 +1,19 @@
 package com.dld.chess.service;
 
 import com.dld.chess.model.Chessboard;
+import com.dld.chess.model.Game;
 import com.dld.chess.model.Square;
 import com.dld.chess.model.pawns.*;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GameService {
+    private Game game;
+
+    public GameService(Game game) {
+        this.game = game;
+    }
+
     public void createNewGame() {
         Chessboard chessboard = new Chessboard();
         Square[][] squares = new Square[8][8];
@@ -39,8 +46,8 @@ public class GameService {
                     squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("black"), false);
                 } else if (i == 6) { //possition 7
                     squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("white"), false);
-                }else{
-                    squares[i][j] = new Square(letter + "" +(squares.length - j), new Pawn());
+                } else {
+                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn());
                 }
             }
         }
@@ -82,18 +89,49 @@ public class GameService {
         squares[7][4].setPawn(new King("white"));
         ///////
 
-
-
-
         chessboard.setSquares(squares);
 
-//        prints all chessboard squares
+        game.setOn(true);
+        game.setSquares(squares);
+    }
+
+
+    PawnAbstract getPawnFromPosition(String position) {
+        Square[][] gameSquare = game.getSquares();
+
+        for (int i = 0; i < gameSquare.length; i++) {
+            for (int j = 0; j < gameSquare[i].length; j++) {
+                if (gameSquare[i][j].getName().equals(position)) {
+                    return gameSquare[i][j].getPawn();
+                }
+            }
+        }
+        return null;
+    }
+
+
+    String checkPosition(String position) {
+        Square[][] gameSquare = game.getSquares();
+
+        for (int i = 0; i < gameSquare.length; i++) {
+            for (int j = 0; j < gameSquare[i].length; j++) {
+                if (gameSquare[i][j].getName().equals(position)) {
+                    return gameSquare[i][j].getName();
+                }
+            }
+        }
+        return null;
+    }
+
+
+    public void printAllChessBoardSquares() {
+        Square[][] squares = game.getSquares();
         for (int i = 0; i < squares.length; i++) {
             System.out.println();
             for (int j = 0; j < squares[i].length; j++) {
                 System.out.print(squares[i][j].getName() + "-" + squares[i][j].getPawn().toString() + " ");
             }
         }
-
     }
+
 }

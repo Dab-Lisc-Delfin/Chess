@@ -8,7 +8,7 @@ public class King extends PawnAbstract{
         this.setName("King");
     }
     @Override
-    public void makeMove() {
+    public void makeMove(String moveFROM, String moveTO, String name, String color){
         //one square in any direction
     }
 }

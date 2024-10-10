@@ -5,13 +5,20 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public abstract class PawnAbstract implements PawnInterface {
-    private boolean isAlive;
-    private String color;
-    private String name;
+public abstract class PawnAbstract {
+    protected boolean isAlive;
+    protected String color;
+    protected String name;
+
+    public void makeMove() {
+    }
+
+
+    public abstract void makeMove(String moveFROM, String moveTO, String name, String color);
 
 
     public String toString() {
         return this.getName() + " " + this.getColor();
     }
+
 }

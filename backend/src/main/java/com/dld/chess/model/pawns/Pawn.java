@@ -1,10 +1,4 @@
 package com.dld.chess.model.pawns;
-
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
 public class Pawn extends PawnAbstract{
 
     public Pawn(){
@@ -20,8 +14,7 @@ public class Pawn extends PawnAbstract{
     }
 
     @Override
-    public void makeMove() {
+    public void makeMove(String moveFROM, String moveTO, String name, String color) {
         //just one square
     }
-
 }

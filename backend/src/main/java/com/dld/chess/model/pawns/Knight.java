@@ -9,7 +9,7 @@ public class Knight extends PawnAbstract{
     }
 
     @Override
-    public void makeMove() {
+    public void makeMove(String moveFROM, String moveTO, String name, String color){
         //move in L-shape
     }
 }
