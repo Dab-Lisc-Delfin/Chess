@@ -54,14 +54,7 @@ export class ChessBoardComponent {
   getPawnOnSquare(square: string): Pawn | undefined {
     return this.jsonResponse.find(pawn => pawn.pawnPlacement === square);
   }
-  highlightMoves(square: any) {
-    const pawnInfo = this.getPawnOnSquare(square.square);
 
-    if (pawnInfo) {
-      this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
-      this.highlightedSquares = this.availableMoves;
-    }
-  }
 
   clearHighlights() {
     this.highlightedSquares = [];
@@ -146,7 +139,18 @@ export class ChessBoardComponent {
   }
 
 
+  highlightAvailableMoves(pawn: Pawn, moves: string[]) {
+    this.highlightedSquares = moves;
+  }
 
+  highlightMoves(square: any) {
+    const pawnInfo = this.getPawnOnSquare(square.square);
+
+    if (pawnInfo) {
+      this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
+      this.highlightAvailableMoves(pawnInfo, this.availableMoves); // Dodaj to
+    }
+  }
 
   getPossibleMoves(pawn: any, chessBoard: any) {
     let possibleMoves = [];
@@ -154,21 +158,35 @@ export class ChessBoardComponent {
     switch (pawn.pawnName.toLowerCase()) {
       case 'pawn':
         possibleMoves = this.getPawnMoves(pawn, chessBoard, this.jsonResponse);
+        this.highlightAvailableMoves(pawn, possibleMoves);
         break;
-      // case 'rook':
-      //     possibleMoves = this.getRookMoves(pawn);
-      //     break;
-      // case 'knight':
-      //     possibleMoves = this.getKnightMoves(pawn);
-      //     break;
+      case 'knight':
+        possibleMoves = this.getKnightMoves(pawn, chessBoard, this.jsonResponse);
+        this.highlightAvailableMoves(pawn, possibleMoves);
+        break;
+        case 'rook':
+        possibleMoves = this.getRookMoves(pawn, chessBoard, this.jsonResponse);
+        this.highlightAvailableMoves(pawn, possibleMoves);
+        break;
+        case 'bishop':
+        possibleMoves = this.getBishopMoves(pawn, chessBoard, this.jsonResponse);
+        this.highlightAvailableMoves(pawn, possibleMoves);
+        break;
+        case 'king':
+        possibleMoves = this.getKingMoves(pawn, chessBoard, this.jsonResponse);
+        this.highlightAvailableMoves(pawn, possibleMoves);
+        break;
+        case 'queen':
+        possibleMoves = this.getQueenMoves(pawn, chessBoard, this.jsonResponse);
+        this.highlightAvailableMoves(pawn, possibleMoves);
+        break;
       default:
         break;
     }
 
     return possibleMoves;
   }
-
-  getPawnMoves(pawn: any, chessBoard: any, jsonResponse: any) {
+  getKingMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
     const combinedBoard = chessBoard.map((square: any) => {
         const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
         return {
@@ -177,79 +195,319 @@ export class ChessBoardComponent {
         };
     });
 
+    const moves: string[] = [];
+    const currentPosition = pawn.pawnPlacement;
+    const currentRow = parseInt(currentPosition[1]);
+    const currentCol = currentPosition[0].charCodeAt(0); 
+
+    const kingMoves = [
+        { rowOffset: 1, colOffset: 0 },   
+        { rowOffset: -1, colOffset: 0 },  
+        { rowOffset: 0, colOffset: 1 },    
+        { rowOffset: 0, colOffset: -1 },   
+        { rowOffset: 1, colOffset: 1 },     
+        { rowOffset: 1, colOffset: -1 },    
+        { rowOffset: -1, colOffset: 1 },   
+        { rowOffset: -1, colOffset: -1 }    
+    ];
+
+    for (const { rowOffset, colOffset } of kingMoves) {
+        const newRow = currentRow + rowOffset;
+        const newCol = String.fromCharCode(currentCol + colOffset);
+
+        if (newRow >= 1 && newRow <= 8 && newCol >= 'a' && newCol <= 'h') {
+            const targetSquare = newCol + newRow;
+            const square = combinedBoard.find((s: any) => s.square === targetSquare);
+
+            if (square && !square.pawn) {
+                moves.push(targetSquare);
+            } else if (square && square.pawn) {
+                if (square.pawn.pawnColor !== pawn.pawnColor) {
+                    moves.push(targetSquare);
+                }
+            }
+        }
+    }
+
+    return moves;
+}
+getQueenMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
+  const combinedBoard = chessBoard.map((square: any) => {
+      const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
+      return {
+          ...square,
+          pawn: correspondingPawn ? correspondingPawn : null
+      };
+  });
+
+  const moves: string[] = [];
+  const currentPosition = pawn.pawnPlacement;
+  const currentRow = parseInt(currentPosition[1]);
+  const currentCol = currentPosition[0].charCodeAt(0); 
+
+  const directions = [
+      { rowOffset: 1, colOffset: 1 }, 
+      { rowOffset: 1, colOffset: -1 },
+      { rowOffset: -1, colOffset: 1 },
+      { rowOffset: -1, colOffset: -1 },
+      { rowOffset: -1, colOffset: 0 },
+      { rowOffset: 1, colOffset: 0 },
+      { rowOffset: 0, colOffset: 1 },
+      { rowOffset: 0, colOffset: -1 } 
+  ];
+
+  for (const { rowOffset, colOffset } of directions) {
+      let newRow = currentRow;
+      let newCol = currentCol;
+
+      while (true) {
+          newRow += rowOffset;
+          newCol += colOffset;
+
+          if (newRow < 1 || newRow > 8 || newCol < 'a'.charCodeAt(0) || newCol > 'h'.charCodeAt(0)) {
+              break; 
+          }
+
+          const targetSquare = String.fromCharCode(newCol) + newRow;
+          const square = combinedBoard.find((s: any) => s.square === targetSquare);
+
+          if (square && !square.pawn) {
+              moves.push(targetSquare);
+          } else if (square && square.pawn) {
+              if (square.pawn.pawnColor !== pawn.pawnColor) {
+                  moves.push(targetSquare);
+              }
+              break; 
+          }
+      }
+  }
+
+  return moves;
+}
+  getBishopMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
+    const combinedBoard = chessBoard.map((square: any) => {
+        const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
+        return {
+            ...square,
+            pawn: correspondingPawn ? correspondingPawn : null
+        };
+    });
+
+    const moves: string[] = [];
+    const currentPosition = pawn.pawnPlacement;
+    const currentRow = parseInt(currentPosition[1]);
+    const currentCol = currentPosition[0].charCodeAt(0); 
+
+    const directions = [
+        { rowOffset: 1, colOffset: 1 }, 
+        { rowOffset: 1, colOffset: -1 },
+        { rowOffset: -1, colOffset: 1 },
+        { rowOffset: -1, colOffset: -1 } 
+    ];
+
+    for (const { rowOffset, colOffset } of directions) {
+        let newRow = currentRow;
+        let newCol = currentCol;
+
+        while (true) {
+            newRow += rowOffset;
+            newCol += colOffset;
+
+            if (newRow < 1 || newRow > 8 || newCol < 'a'.charCodeAt(0) || newCol > 'h'.charCodeAt(0)) {
+                break; 
+            }
+
+            const targetSquare = String.fromCharCode(newCol) + newRow;
+            const square = combinedBoard.find((s: any) => s.square === targetSquare);
+
+            if (square && !square.pawn) {
+                moves.push(targetSquare);
+            } else if (square && square.pawn) {
+                if (square.pawn.pawnColor !== pawn.pawnColor) {
+                    moves.push(targetSquare);
+                }
+                break; 
+            }
+        }
+    }
+
+    return moves;
+}
+
+  getRookMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
+    const combinedBoard = chessBoard.map((square: any) => {
+        const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
+        return {
+            ...square,
+            pawn: correspondingPawn ? correspondingPawn : null
+        };
+    });
+
+    const moves: string[] = [];
+    const currentPosition = pawn.pawnPlacement;
+    const currentRow = parseInt(currentPosition[1]);
+    const currentCol = currentPosition[0].charCodeAt(0); 
+
+    const directions = [
+        { rowOffset: 1, colOffset: 0 },  
+        { rowOffset: -1, colOffset: 0 }, 
+        { rowOffset: 0, colOffset: 1 }, 
+        { rowOffset: 0, colOffset: -1 }  
+    ];
+
+    for (const { rowOffset, colOffset } of directions) {
+        let newRow = currentRow;
+        let newCol = currentCol;
+
+        while (true) {
+            newRow += rowOffset;
+            newCol += colOffset;
+
+            if (newRow < 1 || newRow > 8 || newCol < 'a'.charCodeAt(0) || newCol > 'h'.charCodeAt(0)) {
+                break; 
+            }
+
+            const targetSquare = String.fromCharCode(newCol) + newRow;
+            const square = combinedBoard.find((s: any) => s.square === targetSquare);
+
+            if (square && !square.pawn) {
+                moves.push(targetSquare);
+            } else if (square && square.pawn) {
+                if (square.pawn.pawnColor !== pawn.pawnColor) {
+                    moves.push(targetSquare);
+                }
+                break; 
+            }
+        }
+    }
+
+    return moves;
+}
+
+
+  
+  getKnightMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
+    const combinedBoard = chessBoard.map((square: any) => {
+      const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
+      return {
+        ...square,
+        pawn: correspondingPawn ? correspondingPawn : null
+      };
+    });
+
+    const moves: string[] = [];
+    const currentPosition = pawn.pawnPlacement;
+    const currentRow = parseInt(currentPosition[1]);
+    const currentCol = currentPosition[0].charCodeAt(0);
+
+    const knightMoves = [
+      [2, 1], [2, -1], [-2, 1], [-2, -1],
+      [1, 2], [1, -2], [-1, 2], [-1, -2]
+    ];
+
+
+    for (const [rowOffset, colOffset] of knightMoves) {
+      const newRow = currentRow + rowOffset;
+      const newCol = String.fromCharCode(currentCol + colOffset);
+
+      if (newRow >= 1 && newRow <= 8 && newCol >= 'a' && newCol <= 'h') {
+        const targetSquare = newCol + newRow;
+        const square = combinedBoard.find((s: any) => s.square === targetSquare);
+
+        if (square && square.pawn && square.pawn.pawnColor === pawn.pawnColor) {
+          continue;
+        }
+
+        moves.push(targetSquare);
+      } else {
+      }
+    }
+
+    return moves;
+  }
+
+  getPawnMoves(pawn: any, chessBoard: any, jsonResponse: any) {
+    const combinedBoard = chessBoard.map((square: any) => {
+      const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
+      return {
+        ...square,
+        pawn: correspondingPawn ? correspondingPawn : null
+      };
+    });
+
     let moves = [];
     const currentPosition = pawn.pawnPlacement;
     const currentRow = parseInt(currentPosition[1]);
     const currentCol = currentPosition[0];
 
     const isOpponentPawn = (row: number, col: string) => {
-        const targetSquare = col + row;
-        const square = combinedBoard.find((s: any) => s.square === targetSquare);
-        return square && square.pawn && square.pawn.pawnColor !== pawn.pawnColor;
+      const targetSquare = col + row;
+      const square = combinedBoard.find((s: any) => s.square === targetSquare);
+      return square && square.pawn && square.pawn.pawnColor !== pawn.pawnColor;
     };
 
     const isSameColorPawn = (row: number, col: string) => {
-        const targetSquare = col + row;
-        const square = combinedBoard.find((s: any) => s.square === targetSquare);
-        return square && square.pawn && square.pawn.pawnColor === pawn.pawnColor;
+      const targetSquare = col + row;
+      const square = combinedBoard.find((s: any) => s.square === targetSquare);
+      return square && square.pawn && square.pawn.pawnColor === pawn.pawnColor;
     };
 
     const isBlocked = (row: number, col: string) => {
       const targetSquare = col + row;
       const square = combinedBoard.find((s: any) => s.square === targetSquare);
       return square && square.pawn !== null;
-  };
+    };
 
     if (pawn.pawnColor === 'white') {
-        const newRow = currentRow + 1;
-        if (!isBlocked(newRow, currentCol) && !isSameColorPawn(newRow, currentCol)) {
-          moves.push(currentCol + newRow);
+      const newRow = currentRow + 1;
+      if (!isBlocked(newRow, currentCol) && !isSameColorPawn(newRow, currentCol)) {
+        moves.push(currentCol + newRow);
       }
 
-        if (currentRow === 2) {
-            const firstMoveRow = currentRow + 2;
-            if (!isSameColorPawn(firstMoveRow, currentCol)) {
-                moves.push(currentPosition[0] + firstMoveRow);
-            }
+      if (currentRow === 2) {
+        const firstMoveRow = currentRow + 2;
+        if (!isBlocked(newRow, currentCol) && !isBlocked(firstMoveRow, currentCol) && !isSameColorPawn(firstMoveRow, currentCol)) {
+          moves.push(currentPosition[0] + firstMoveRow);
         }
+      }
 
-        const leftCol = String.fromCharCode(currentCol.charCodeAt(0) - 1);
-        const rightCol = String.fromCharCode(currentCol.charCodeAt(0) + 1);
-        
-        if (isOpponentPawn(newRow, leftCol)) {
-            moves.push(leftCol + newRow);
-        }
+      const leftCol = String.fromCharCode(currentCol.charCodeAt(0) - 1);
+      const rightCol = String.fromCharCode(currentCol.charCodeAt(0) + 1);
 
-        if (isOpponentPawn(newRow, rightCol)) {
-            moves.push(rightCol + newRow);
-        }
+      if (isOpponentPawn(newRow, leftCol)) {
+        moves.push(leftCol + newRow);
+      }
+
+      if (isOpponentPawn(newRow, rightCol)) {
+        moves.push(rightCol + newRow);
+      }
     } else {
-        const newRow = currentRow - 1;
-        if (!isBlocked(newRow, currentCol) && !isSameColorPawn(newRow, currentCol)) {
-          moves.push(currentCol + newRow);
+      const newRow = currentRow - 1;
+      if (!isBlocked(newRow, currentCol) && !isSameColorPawn(newRow, currentCol)) {
+        moves.push(currentCol + newRow);
       }
 
-        if (currentRow === 7) {
-            const firstMoveRow = currentRow - 2;
-            if (!isSameColorPawn(firstMoveRow, currentCol)) {
-                moves.push(currentPosition[0] + firstMoveRow);
-            }
+      if (currentRow === 7) {
+        const firstMoveRow = currentRow - 2;
+        if (!isBlocked(newRow, currentCol) && !isBlocked(firstMoveRow, currentCol) && !isSameColorPawn(firstMoveRow, currentCol)) {
+          moves.push(currentPosition[0] + firstMoveRow);
         }
+      }
 
-        const leftCol = String.fromCharCode(currentCol.charCodeAt(0) - 1);
-        const rightCol = String.fromCharCode(currentCol.charCodeAt(0) + 1);
+      const leftCol = String.fromCharCode(currentCol.charCodeAt(0) - 1);
+      const rightCol = String.fromCharCode(currentCol.charCodeAt(0) + 1);
 
-        if (isOpponentPawn(newRow, leftCol)) {
-            moves.push(leftCol + newRow);
-        }
+      if (isOpponentPawn(newRow, leftCol)) {
+        moves.push(leftCol + newRow);
+      }
 
-        if (isOpponentPawn(newRow, rightCol)) {
-            moves.push(rightCol + newRow);
-        }
+      if (isOpponentPawn(newRow, rightCol)) {
+        moves.push(rightCol + newRow);
+      }
     }
 
     return moves;
-}
+  }
 
 
 

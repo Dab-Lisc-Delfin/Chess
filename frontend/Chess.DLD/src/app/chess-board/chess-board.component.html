@@ -14,22 +14,26 @@
             </div>
         </div>
         <div class="grid grid-cols-8">
-            <div *ngFor="let square of chessBoard" class="w-[90px] h-[90px] flex items-center justify-center" [ngClass]="{
+            <div *ngFor="let square of chessBoard" class="w-[90px] h-[90px] flex items-center justify-center" 
+     [ngClass]="{
          'hoverWhite': square.color === 'white',
          'hoverBlack': square.color === 'black',
          'white': square.color === 'white',
          'black': square.color === 'black',
          'highlighted': highlightedSquares.includes(square.square)
-     }" (click)="showSquareDetails(square)" (dragover)="allowDrop($event)" (drop)="dropSquare(square)">
-                <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
-                    <div class="text-center w-[45px] h-[45px]" draggable="true" (dragstart)="showSquareDetails(square)">
-                        <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
-                            <img [src]="'/' + (pawn.pawnColor === 'white' ? (pawn.pawnName + 'white.png') : (pawn.pawnName + 'black.png'))" 
-                                 alt="{{ pawn.pawnName }}" class="w-full h-full object-contain" />
-                        </ng-container>
-                    </div>
-                </ng-container>
-            </div>
+     }" 
+     (click)="showSquareDetails(square)" 
+     (dragover)="allowDrop($event)" 
+     (drop)="dropSquare(square)">
+    <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
+        <div class="text-center w-[45px] h-[45px]" draggable="true" (dragstart)="showSquareDetails(square)">
+            <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
+                <img [src]="'/' + (pawn.pawnColor === 'white' ? (pawn.pawnName + 'white.png') : (pawn.pawnName + 'black.png'))" 
+                     alt="{{ pawn.pawnName }}" class="w-full h-full object-contain" />
+            </ng-container>
+        </div>
+    </ng-container>
+</div>
 
         </div>
     </div>
