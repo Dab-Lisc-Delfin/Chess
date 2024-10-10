@@ -1,6 +1,7 @@
 package com.dld.chess.service;
 
 import com.dld.chess.dto.GameStatementDTO;
+import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.dto.SquareDTO;
 import com.dld.chess.model.Chessboard;
 import com.dld.chess.model.Game;
@@ -14,11 +15,9 @@ import java.util.List;
 @Service
 public class GameService {
     private Game game;
-    private MoveService moveService;
 
     public GameService(Game game) {
         this.game = game;
-        this.moveService = new MoveService();
     }
 
     public void createNewGame() {
@@ -174,8 +173,8 @@ public class GameService {
                 if (squares[i][j].isEmpty() == false) {
                     System.out.println(squares[i][j].getPawn().getName());
                     SquareDTO squareDTO = new SquareDTO();
-                    squareDTO.setName(squares[i][j].getName());
-                    squareDTO.setSquare(squares[i][j].getPawn().getName());
+                    squareDTO.setName(squares[i][j].getPawn().getName());
+                    squareDTO.setSquare(squares[i][j].getName());
                     squareDTO.setColor(squares[i][j].getPawn().getColor());
 
                     squareDTOS.add(squareDTO);
@@ -188,16 +187,13 @@ public class GameService {
     }
 
 
-    public void processMove() {
+    public void processMove(MoveDTO moveDTO) {
+        Square squareFrom =  getSquare(moveDTO.getMoveFrom());
+        Square squareTo =  getSquare(moveDTO.getMoveTo());
 
+        squareTo.setPawn(squareFrom.getPawn());
+        squareTo.setName(moveDTO.getMoveTo());
+        squareTo.setEmpty(false);
+        squareFrom.setEmpty(true);
     }
-
-
-    //{
-//  "mov_from": "e4",
-//  "mov_to": "e5",
-//  "pawnName": "pawn",
-//  "pawnColor": "white"
-//}
-
 }

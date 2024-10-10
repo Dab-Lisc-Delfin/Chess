@@ -29,7 +29,6 @@ class GameServiceTest {
     }
 
 
-
     @Test
     void createNewGame_whenGameStarted() {
         gameService.printAllChessBoardSquares();
@@ -50,27 +49,29 @@ class GameServiceTest {
     }
 
 
-    //{
-//  "mov_from": "b2",
-//  "mov_to": "b4",
-//  "pawnName": "pawn",
-//  "pawnColor": "white"
-//}
     @Test
     void processMove() {
-        //musze dostac wynik z e5 rowny "pawnName": "pawn", "pawnColor": "white"
-        //move from ma byc puste +sprawdzic czy tam na pewno byl "pawnName": "pawn", "pawnColor": "white" przed czyszczeniem
+        MoveDTO moveDTO = new MoveDTO();
+        moveDTO.setMoveFrom("b7");
+        moveDTO.setMoveTo("b5");
+        moveDTO.setPawnName("pawn");
+        moveDTO.setPawnColor("black");
 
-        Map<String, String> mockMoveDTO = new HashMap<>();
-        mockMoveDTO.put("moveFrom", "b2");
-        mockMoveDTO.put("moveTo", "b4");
-        mockMoveDTO.put("pawnName", "pawn");
-        mockMoveDTO.put("pawnColor", "black");
+        Square squareFrom = gameService.getSquare("b7");
 
-        Square squareFrom = gameService.getSquare("b2");
+        //moveFrom
+        assertEquals(squareFrom.getName(), moveDTO.getMoveFrom());
+        assertEquals(squareFrom.getPawn().getName(), moveDTO.getPawnName());
+        assertEquals(squareFrom.getPawn().getColor(), moveDTO.getPawnColor());
 
-        assertEquals(squareFrom.getName(), mockMoveDTO.get("moveFrom"));
-        assertEquals(squareFrom.getPawn().getName(), mockMoveDTO.get("pawnName"));
-        assertEquals(squareFrom.getPawn().getColor(), mockMoveDTO.get("pawnColor"));
+        gameService.processMove(moveDTO);
+        assertTrue(gameService.getSquare("b7").isEmpty());
+
+        //moveTo
+        Square squareTo = gameService.getSquare("b5");
+
+        System.out.println("sososo " + squareTo.getName() + moveDTO.getMoveTo());
+        assertEquals(squareTo.getPawn().getName(), moveDTO.getPawnName());
+        assertFalse(squareTo.isEmpty());
     }
 }
