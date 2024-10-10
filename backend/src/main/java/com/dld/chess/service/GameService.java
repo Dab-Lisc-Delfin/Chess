@@ -1,10 +1,15 @@
 package com.dld.chess.service;
 
+import com.dld.chess.dto.GameStatementDTO;
+import com.dld.chess.dto.SquareDTO;
 import com.dld.chess.model.Chessboard;
 import com.dld.chess.model.Game;
 import com.dld.chess.model.Square;
 import com.dld.chess.model.pawns.*;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class GameService {
@@ -43,49 +48,65 @@ public class GameService {
                 }
 
                 if (i == 1) { //possition 2
-                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("black"), false);
+                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("black"));
                 } else if (i == 6) { //possition 7
-                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("white"), false);
+                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn("white"));
                 } else {
-                    squares[i][j] = new Square(letter + "" + (squares.length - j), new Pawn());
+                    squares[i][j] = new Square(letter + "" + (squares.length - j));
                 }
             }
         }
 
         //put Rocks TODO - separate method
+        squares[0][0].setEmpty(false);
         squares[0][0].setPawn(new Rock("black"));
+        squares[0][7].setEmpty(false);
         squares[0][7].setPawn(new Rock("black"));
 
+        squares[7][0].setEmpty(false);
         squares[7][0].setPawn(new Rock("white"));
+        squares[7][7].setEmpty(false);
         squares[7][7].setPawn(new Rock("white"));
         //////
 
         //put Knights TODO - separate method
+        squares[0][1].setEmpty(false);
         squares[0][1].setPawn(new Knight("black"));
+        squares[0][6].setEmpty(false);
         squares[0][6].setPawn(new Knight("black"));
 
+        squares[7][1].setEmpty(false);
         squares[7][1].setPawn(new Knight("white"));
+        squares[7][6].setEmpty(false);
         squares[7][6].setPawn(new Knight("white"));
         ///////
 
         //put Bishops TODO - separate method
+        squares[0][2].setEmpty(false);
         squares[0][2].setPawn(new Bishop("black"));
+        squares[0][5].setEmpty(false);
         squares[0][5].setPawn(new Bishop("black"));
 
+        squares[7][2].setEmpty(false);
         squares[7][2].setPawn(new Bishop("white"));
+        squares[7][5].setEmpty(false);
         squares[7][5].setPawn(new Bishop("white"));
         ///////
 
         //put Queens TODO - separate method
+        squares[0][3].setEmpty(false);
         squares[0][3].setPawn(new Queen("black"));
 
+        squares[7][3].setEmpty(false);
         squares[7][3].setPawn(new Queen("white"));
         ///////
 
 
         //put Kings TODO - separate method
+        squares[0][4].setEmpty(false);
         squares[0][4].setPawn(new King("black"));
 
+        squares[7][4].setEmpty(false);
         squares[7][4].setPawn(new King("white"));
         ///////
 
@@ -129,9 +150,38 @@ public class GameService {
         for (int i = 0; i < squares.length; i++) {
             System.out.println();
             for (int j = 0; j < squares[i].length; j++) {
-                System.out.print(squares[i][j].getName() + "-" + squares[i][j].getPawn().toString() + " ");
+                if (squares[i][j].isEmpty() == false) {
+                    System.out.print(squares[i][j].getName() + "-" + squares[i][j].getPawn().toString() + " ");
+                } else {
+                    System.out.print(squares[i][j].getName() + " ");
+
+                }
             }
         }
     }
 
+
+    public GameStatementDTO getGameStatement() {
+        Square[][] squares = game.getSquares();
+        printAllChessBoardSquares();
+        GameStatementDTO gameStatementDTO = new GameStatementDTO();
+        List<SquareDTO> squareDTOS = new ArrayList<>();
+
+        for (int i = 0; i < squares.length; i++) {
+            for (int j = 0; j < squares[i].length; j++) {
+                if (squares[i][j].isEmpty() == false) {
+                    System.out.println(squares[i][j].getPawn().getName());
+                    SquareDTO squareDTO = new SquareDTO();
+                    squareDTO.setName(squares[i][j].getName());
+                    squareDTO.setSquare(squares[i][j].getPawn().getName());
+                    squareDTO.setColor(squares[i][j].getPawn().getColor());
+
+                    squareDTOS.add(squareDTO);
+                }
+            }
+        }
+
+        gameStatementDTO.setChessBoard(squareDTOS);
+        return gameStatementDTO;
+    }
 }

@@ -9,26 +9,20 @@ import lombok.Setter;
 public class Square {
 
     private String name;
-    private boolean isEmpty = true;
+    private boolean isEmpty;
     private PawnAbstract pawn;
 
 
     public Square(String name) {
         this.name = name;
         this.isEmpty = true;
+        this.pawn = null;
     }
 
 
     public Square(String name, PawnAbstract pawn) {
         this.name = name;
         this.pawn = pawn;
-        this.isEmpty = true;
-    }
-
-
-    public Square(String name, PawnAbstract pawn, boolean isEmpty) {
-        this.name = name;
-        this.pawn = pawn;
-        this.isEmpty = isEmpty;
+        this.isEmpty = false;
     }
 }
