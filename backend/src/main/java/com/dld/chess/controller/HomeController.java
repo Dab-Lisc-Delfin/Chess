@@ -17,6 +17,7 @@ public class HomeController {
         return "home";
     }
 
+
     @PostMapping("/api/home")
     public ResponseEntity<String> getHomeJSON() {
         System.out.println("JSON was called");
