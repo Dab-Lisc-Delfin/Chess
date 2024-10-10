@@ -9,8 +9,8 @@
     <div class="grid-row content-center rounded flex mr-[90px]">
         <div class="flex flex-col items-center justify-center">
             <div *ngFor="let number of [8, 7, 6, 5, 4, 3, 2, 1]"
-                class="w-[90px] h-[90px] flex items-center justify-center">
-                <p>{{ number }}</p>
+                class="w-[90px] h-[90px] flex items-center justify-end ">
+                <p class="mr-[25px]">{{ number }}</p>
             </div>
         </div>
         <div class="grid grid-cols-8">
@@ -26,7 +26,7 @@
      (dragover)="allowDrop($event)" 
      (drop)="dropSquare(square)">
     <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
-        <div class="text-center w-[45px] h-[45px]" draggable="true" (dragstart)="showSquareDetails(square)">
+        <div class="text-center w-[72px] h-[72px]" draggable="true" (dragstart)="showSquareDetails(square)">
             <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
                 <img [src]="'/' + (pawn.pawnColor === 'white' ? (pawn.pawnName + 'white.png') : (pawn.pawnName + 'black.png'))" 
                      alt="{{ pawn.pawnName }}" class="w-full h-full object-contain" />
@@ -38,12 +38,12 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-9 justify-center mr-[90px]">
-        <div class="w-[90px] h-[90px] flex items-center justify-center ">
+    <div class="grid grid-cols-9  mr-[90px]">
+        <div class="w-[90px] h-[90px] flex ">
             <p></p>
         </div>
-        <div *ngFor="let square of chessBoard.slice(0, 8)" class="w-[90px] h-[90px] flex items-center justify-center ">
-            <p>{{ square.square.slice(0, 1) }}</p>
+        <div *ngFor="let square of chessBoard.slice(0, 8)" class="w-[90px]  h-[90px] flex  justify-center ">
+            <p class="mt-[15px]">{{ square.square.slice(0, 1) }}</p>
         </div>
     </div>
 
