@@ -19,11 +19,13 @@ export class DataService {
   sendMoveDetails(moveDetails: any) {
     // this.SendCount++;
     // console.log(`Move details sent ${this.SendCount} times.`);
-    return this.http.post(this.apiUrlMove, moveDetails);
+    return this.http.post(this.apiUrlMove, moveDetails, {
+      responseType: 'text' // Ustawienie oczekiwanego typu odpowiedzi jako tekst
+    });
   }
-  GetBoardDetails(moveDetails: any) {
+  GetBoardDetails() {
     // this.BoardCount++;
     // console.log(`Board details sent ${this.BoardCount} times.`);
-    return this.http.post(this.apiBoard, moveDetails);
+    return this.http.post<any>(this.apiBoard, {});
   }
 }

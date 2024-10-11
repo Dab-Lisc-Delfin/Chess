@@ -46,7 +46,11 @@ export class ChessBoardComponent {
     );
   }
   dropSquare(square: any) {
+    console.log('DropSquare called with square:', square);
+
+
     if (this.highlightedSquares.includes(square.square)) {
+
       if (this.originalPosition) {
         const moveDetails = {
           moveFrom: this.originalPosition,
@@ -54,33 +58,37 @@ export class ChessBoardComponent {
           pawnName: this.selectedPawnInfo?.pawnName,
           pawnColor: this.selectedPawnInfo?.pawnColor
         };
-        console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
   
+        console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
+        // JSON RUCHU
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             console.log('Move details sent successfully:', response);
+  
+            this.dataService.GetBoardDetails().subscribe(
+              (response: any) => {
+                console.log('BoardUpdated', response);
+  
+                const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+                  pawnName: pawn.name,
+                  pawnColor: pawn.color,
+                  pawnPlacement: pawn.square
+                }));
+  
+                this.jsonResponse = updatedChessBoardData;
+                console.log('Updated Chess Board Data:', JSON.stringify(this.jsonResponse, null, 2));
+              },
+              (error) => {
+                console.error('Error Updating Board', error);
+              }
+            );
           },
           (error) => {
             console.error('Error sending move details:', error);
           }
         );
-  
-        this.dataService.GetBoardDetails(moveDetails).subscribe(
-          (response: any) => {
-            console.log('BoardUpdated', response);
-  
-            const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
-              pawnName: pawn.name,
-              pawnColor: pawn.color,
-              pawnPlacement: pawn.square
-            }));
-  
-            this.jsonResponse = updatedChessBoardData;
-          },
-          (error) => {
-            console.error('Error Updating Board', error);
-          }
-        );
+        
+        
       }
     } else {
       if (this.originalPosition) {
@@ -97,8 +105,11 @@ export class ChessBoardComponent {
   }
   
   showSquareDetails(square: any) {
+    console.log('ShowSquareDetails called with square:', square);
+  
     const pawnInfo = this.getPawnOnSquare(square.square);
-
+    console.log('Pawn info for square:', pawnInfo);
+  
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
         const moveDetails = {
@@ -107,55 +118,57 @@ export class ChessBoardComponent {
           pawnName: this.selectedPawnInfo.pawnName,
           pawnColor: this.selectedPawnInfo.pawnColor
         };
-
+  
         console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
-        //JSON RUCHU
+        // JSON RUCHU
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             console.log('Move details sent successfully:', response);
+  
+            this.dataService.GetBoardDetails().subscribe(
+              (response: any) => {
+                console.log('BoardUpdated', response);
+  
+                const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+                  pawnName: pawn.name,
+                  pawnColor: pawn.color,
+                  pawnPlacement: pawn.square
+                }));
+  
+                this.jsonResponse = updatedChessBoardData;
+                console.log('Updated Chess Board Data:', JSON.stringify(this.jsonResponse, null, 2));
+              },
+              (error) => {
+                console.error('Error Updating Board', error);
+              }
+            );
           },
           (error) => {
             console.error('Error sending move details:', error);
           }
         );
-        this.dataService.GetBoardDetails(moveDetails).subscribe(
-          (response: any) => {
-            console.log('BoardUpdated', response);
   
-            const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
-              pawnName: pawn.name,
-              pawnColor: pawn.color,
-              pawnPlacement: pawn.square
-            }));
-  
-            this.jsonResponse = updatedChessBoardData;
-          },
-          (error) => {
-            console.error('Error Updating Board', error);
-          }
-        );
         this.selectedPawnInfo = null;
         this.highlightedSquares = [];
         return;
       }
     }
-
+  
     this.selectedPawnInfo = pawnInfo;
-
+  
     this.highlightedSquares = [];
     if (pawnInfo) {
       this.originalPosition = pawnInfo.pawnPlacement || '';
-
-
-      this.selectedPawnInfo = pawnInfo;
-
-      this.highlightedSquares = [];
+      console.log('Selected pawn info:', pawnInfo);
       this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
       this.highlightedSquares = this.availableMoves;
+      console.log('Available moves for selected pawn:', this.availableMoves);
     } else {
       this.availableMoves = [];
+      console.log('No available moves found.');
     }
   }
+  
 
 
 
