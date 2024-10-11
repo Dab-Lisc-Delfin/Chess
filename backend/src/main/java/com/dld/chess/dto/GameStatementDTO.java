@@ -8,5 +8,6 @@ import java.util.List;
 @Setter
 @Getter
 public class GameStatementDTO {
-    List<SquareDTO> chessBoard;
+    private List<SquareDTO> chessBoard;
+    private boolean isGameActive;
 }

@@ -115,7 +115,7 @@ public class GameService {
 
         chessboard.setSquares(squares);
 
-        game.setOn(true);
+        game.setActive(true);
         game.setSquares(squares);
     }
 
@@ -166,8 +166,9 @@ public class GameService {
 
 
     public GameStatementDTO getGameStatement() {
-        Square[][] squares = game.getSquares();
         GameStatementDTO gameStatementDTO = new GameStatementDTO();
+
+        Square[][] squares = game.getSquares();
         List<SquareDTO> squareDTOS = new ArrayList<>();
 
         for (int i = 0; i < squares.length; i++) {
@@ -185,11 +186,13 @@ public class GameService {
         }
 
         gameStatementDTO.setChessBoard(squareDTOS);
+        gameStatementDTO.setGameActive(game.isActive());
         return gameStatementDTO;
     }
 
 
     public void processMove(MoveDTO moveDTO) {
+        checkIfCheckMate(moveDTO);
 
         Square squareFrom = getSquare(moveDTO.getMoveFrom());
         Square squareTo = getSquare(moveDTO.getMoveTo());
@@ -198,6 +201,7 @@ public class GameService {
         squareTo.setEmpty(false);
         squareFrom.setPawn(null);
         squareFrom.setEmpty(true);
+
 
         Square[][] squares = game.getSquares();
         for (int i = 0; i < squares.length; i++) {
@@ -212,4 +216,17 @@ public class GameService {
             game.setSquares(squares);
         }
     }
+
+    public boolean checkIfCheckMate(MoveDTO moveDTO) {
+        Square squareTo = getSquare(moveDTO.getMoveTo());
+        if (!squareTo.isEmpty()) {
+            if (squareTo.getPawn().getName().equals("king") && !squareTo.getPawn().getColor().equals(moveDTO.getPawnColor())) {
+                log.info("CHECKMATE");
+                game.setActive(false);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
