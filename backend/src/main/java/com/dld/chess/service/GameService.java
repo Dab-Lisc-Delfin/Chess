@@ -212,4 +212,12 @@ public class GameService {
             game.setSquares(squares);
         }
     }
+
+    public void checkIfCheckMate(MoveDTO moveDTO){
+        Square squareTo = getSquare(moveDTO.getMoveTo());
+        if(!squareTo.isEmpty()){
+            if (squareTo.getPawn().getName().equals("king"));
+        }
+    }
+
 }
