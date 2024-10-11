@@ -32,7 +32,7 @@ class GameServiceTest {
     @Test
     void createNewGame_whenGameStarted() {
         gameService.printAllChessBoardSquares();
-        assertTrue(game.isOn());
+        assertTrue(game.isActive());
     }
 
 
@@ -73,4 +73,10 @@ class GameServiceTest {
         assertEquals(squareTo.getPawn().getName(), moveDTO.getPawnName());
         assertFalse(squareTo.isEmpty());
     }
+
+
+
+    void checkIfCheckMate(){
+    }
+
 }
