@@ -25,4 +25,5 @@ public class Square {
         this.pawn = pawn;
         this.isEmpty = false;
     }
+
 }
