@@ -25,7 +25,7 @@ export class ChessBoardComponent {
   highlightedSquares: string[] = [];
   private selectedPawnInfo: any = null;
   private originalPosition: string | null = null;
-
+  // moveSendCount: number = 0;
 
 
 
@@ -55,10 +55,12 @@ export class ChessBoardComponent {
           pawnColor: this.selectedPawnInfo?.pawnColor
         };
         console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
-  
+
+        //JSON RUCHU
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             console.log('Move details sent successfully:', response);
+            // this.moveSendCount++;
           },
           (error) => {
             console.error('Error sending move details:', error);
@@ -94,9 +96,11 @@ export class ChessBoardComponent {
     this.selectedPawnInfo = null;
     this.highlightedSquares = [];
     this.originalPosition = null;
+
   }
   
   showSquareDetails(square: any) {
+
     const pawnInfo = this.getPawnOnSquare(square.square);
 
     if (this.highlightedSquares.includes(square.square)) {
@@ -109,10 +113,13 @@ export class ChessBoardComponent {
         };
 
         console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
+        
+
         //JSON RUCHU
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             console.log('Move details sent successfully:', response);
+            // this.moveSendCount++;
           },
           (error) => {
             console.error('Error sending move details:', error);
@@ -136,6 +143,8 @@ export class ChessBoardComponent {
         );
         this.selectedPawnInfo = null;
         this.highlightedSquares = [];
+
+        // console.log(`Move details sent ${this.moveSendCount} times.`);
         return;
       }
     }
@@ -228,6 +237,7 @@ export class ChessBoardComponent {
 
     return possibleMoves;
   }
+
   getKingMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
     const combinedBoard = chessBoard.map((square: any) => {
         const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
@@ -259,6 +269,7 @@ export class ChessBoardComponent {
 
         if (newRow >= 1 && newRow <= 8 && newCol >= 'a' && newCol <= 'h') {
             const targetSquare = newCol + newRow;
+            
             const square = combinedBoard.find((s: any) => s.square === targetSquare);
 
             if (square && !square.pawn) {
@@ -271,8 +282,46 @@ export class ChessBoardComponent {
         }
     }
 
+    if (pawn.pawnName === 'king') {
+        if (pawn.pawnColor === 'white') {
+            if (currentPosition === 'e1') {
+                const rook = this.getPawnOnSquare('h1');
+                if (rook && rook.pawnName === 'rook' && 
+                    !combinedBoard.find((s: any) => s.square === 'f1' && s.pawn) && 
+                    !combinedBoard.find((s: any) => s.square === 'g1' && s.pawn)) {
+                    moves.push('g1'); 
+                }
+                const rook2 = this.getPawnOnSquare('a1');
+                if (rook2 && rook2.pawnName === 'rook' && 
+                    !combinedBoard.find((s: any) => s.square === 'd1' && s.pawn) && 
+                    !combinedBoard.find((s: any) => s.square === 'c1' && s.pawn)) {
+                    moves.push('c1'); 
+                }
+            }
+        } 
+        else if (pawn.pawnColor === 'black') {
+            if (currentPosition === 'e8') {
+                const rook = this.getPawnOnSquare('h8');
+                if (rook && rook.pawnName === 'rook' && 
+                    !combinedBoard.find((s: any) => s.square === 'f8' && s.pawn) && 
+                    !combinedBoard.find((s: any) => s.square === 'g8' && s.pawn)) {
+                    moves.push('g8');
+                }
+                const rook2 = this.getPawnOnSquare('a8');
+                if (rook2 && rook2.pawnName === 'rook' && 
+                    !combinedBoard.find((s: any) => s.square === 'd8' && s.pawn) && 
+                    !combinedBoard.find((s: any) => s.square === 'c8' && s.pawn)) {
+                    moves.push('c8'); 
+                }
+            }
+        }
+    }
+
     return moves;
 }
+
+
+
 getQueenMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
   const combinedBoard = chessBoard.map((square: any) => {
       const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
