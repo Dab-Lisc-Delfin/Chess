@@ -70,7 +70,6 @@ class GameServiceTest {
         //moveTo
         Square squareTo = gameService.getSquare("b5");
 
-        System.out.println("sososo " + squareTo.getName() + moveDTO.getMoveTo());
         assertEquals(squareTo.getPawn().getName(), moveDTO.getPawnName());
         assertFalse(squareTo.isEmpty());
     }

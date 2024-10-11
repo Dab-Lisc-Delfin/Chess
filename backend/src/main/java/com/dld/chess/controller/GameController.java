@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Slf4j
 @CrossOrigin(origins = "http://localhost:4200")
 public class GameController {
+    public int counter = 1;
 
     GameService gameService;
 
@@ -24,17 +25,27 @@ public class GameController {
     @PostMapping("/api/start-game")
     public ResponseEntity<GameStatementDTO> startGame() {
         gameService.createNewGame();
+//        gameService.printAllChessBoardSquares();
         GameStatementDTO gameStatementDTO = gameService.getGameStatement();
-        log.info("gameStatementDTO -> {}", gameStatementDTO.getChessBoard());
 
         return ResponseEntity.ok(gameStatementDTO);
     }
 
 
     @PostMapping("/api/make-move")
-    public ResponseEntity<GameStatementDTO> makeMove(@RequestBody MoveDTO moveDTO) {
+    public ResponseEntity<String> makeMove(@RequestBody MoveDTO moveDTO) {
+        log.info("counter: {}", counter);
         gameService.processMove(moveDTO);
-        return ResponseEntity.ok(gameService.getGameStatement());
+//        gameService.printAllChessBoardSquares();
+
+        return ResponseEntity.ok("OK");
     }
 
+
+    @PostMapping("/api/game-statement")
+    public ResponseEntity<GameStatementDTO> returnGameStatement(){
+        GameStatementDTO gameStatementDTO = gameService.getGameStatement();
+        gameService.printAllChessBoardSquares();
+        return ResponseEntity.ok(gameStatementDTO);
+    }
 }

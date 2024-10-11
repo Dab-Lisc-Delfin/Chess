@@ -7,6 +7,8 @@ import { HttpClient } from '@angular/common/http';
 export class DataService {
   private apiUrl = 'http://localhost:8080/api/start-game';
   private apiUrlMove = 'http://localhost:8080/api/make-move';
+  private apiBoard = 'http://localhost:8080/api/game-statement';
+
   constructor(private http: HttpClient) {}
   // BoardCount: number = 0;
   // SendCount: number = 0;
@@ -17,11 +19,13 @@ export class DataService {
   sendMoveDetails(moveDetails: any) {
     // this.SendCount++;
     // console.log(`Move details sent ${this.SendCount} times.`);
-    return this.http.post(this.apiUrlMove, moveDetails);
+    return this.http.post(this.apiUrlMove, moveDetails, {
+      responseType: 'text' // Ustawienie oczekiwanego typu odpowiedzi jako tekst
+    });
   }
-  GetBoardDetails(moveDetails: any) {
+  GetBoardDetails() {
     // this.BoardCount++;
     // console.log(`Board details sent ${this.BoardCount} times.`);
-    return this.http.post(this.apiUrlMove, moveDetails);
+    return this.http.post<any>(this.apiBoard, {});
   }
 }

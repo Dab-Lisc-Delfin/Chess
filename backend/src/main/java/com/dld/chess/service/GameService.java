@@ -7,12 +7,14 @@ import com.dld.chess.model.Chessboard;
 import com.dld.chess.model.Game;
 import com.dld.chess.model.Square;
 import com.dld.chess.model.pawns.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public class GameService {
     private Game game;
 
@@ -49,16 +51,16 @@ public class GameService {
                 }
 
                 if (i == 1) { //possition 2
-                    squares[i][j] = new Square(letter + "" + (squares.length-i), new Pawn("black"));
+                    squares[i][j] = new Square(letter + "" + (squares.length - i), new Pawn("black"));
                 } else if (i == 6) { //possition 7
-                    squares[i][j] = new Square(letter + "" + (squares.length-i), new Pawn("white"));
+                    squares[i][j] = new Square(letter + "" + (squares.length - i), new Pawn("white"));
                 } else {
-                    squares[i][j] = new Square(letter + "" + (squares.length-i));
+                    squares[i][j] = new Square(letter + "" + (squares.length - i));
                 }
             }
         }
 
-        //put Rocks TODO - separate method
+        //put Rooks TODO - separate method
         squares[0][0].setEmpty(false);
         squares[0][0].setPawn(new Rook("black"));
         squares[0][7].setEmpty(false);
@@ -151,7 +153,8 @@ public class GameService {
         for (int i = 0; i < squares.length; i++) {
             System.out.println();
             for (int j = 0; j < squares[i].length; j++) {
-                if (squares[i][j].isEmpty() == false) {
+
+                if (!squares[i][j].isEmpty()) {
                     System.out.print(squares[i][j].getName() + "-" + squares[i][j].getPawn().toString() + " ");
                 } else {
                     System.out.print(squares[i][j].getName() + " ");
@@ -164,17 +167,16 @@ public class GameService {
 
     public GameStatementDTO getGameStatement() {
         Square[][] squares = game.getSquares();
-        printAllChessBoardSquares();
         GameStatementDTO gameStatementDTO = new GameStatementDTO();
         List<SquareDTO> squareDTOS = new ArrayList<>();
 
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
-                if (squares[i][j].isEmpty() == false) {
-                    System.out.println(squares[i][j].getPawn().getName());
+                if (!squares[i][j].isEmpty()) {
+//                    log.info("KTORY WYWALA NULLA: " + squares[i][j].getName());
                     SquareDTO squareDTO = new SquareDTO();
-                    squareDTO.setName(squares[i][j].getPawn().getName());
                     squareDTO.setSquare(squares[i][j].getName());
+                    squareDTO.setName(squares[i][j].getPawn().getName());
                     squareDTO.setColor(squares[i][j].getPawn().getColor());
 
                     squareDTOS.add(squareDTO);
@@ -188,13 +190,26 @@ public class GameService {
 
 
     public void processMove(MoveDTO moveDTO) {
-        Square squareFrom =  getSquare(moveDTO.getMoveFrom());
-        Square squareTo =  getSquare(moveDTO.getMoveTo());
 
-        squareTo.setPawn(squareFrom.getPawn());
-        squareTo.setName(moveDTO.getMoveTo());
+        Square squareFrom = getSquare(moveDTO.getMoveFrom());
+        Square squareTo = getSquare(moveDTO.getMoveTo());
+
+        squareTo.setPawn(getPawnFromPosition(moveDTO.getMoveFrom()));
         squareTo.setEmpty(false);
-        squareFrom.setEmpty(true);
         squareFrom.setPawn(null);
+        squareFrom.setEmpty(true);
+
+        Square[][] squares = game.getSquares();
+        for (int i = 0; i < squares.length; i++) {
+            for (int j = 0; j < squares[i].length; j++) {
+                if (squares[i][j].getName().equals(squareFrom.getName())) {
+                    squares[i][j] = squareFrom;
+                } else if (squares[i][j].getName().equals(squareTo.getName())) {
+                    squares[i][j] = squareTo;
+                }
+            }
+
+            game.setSquares(squares);
+        }
     }
 }

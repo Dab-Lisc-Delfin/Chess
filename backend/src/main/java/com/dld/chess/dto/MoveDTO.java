@@ -10,4 +10,9 @@ public class MoveDTO {
     protected String moveTo;
     protected String pawnName;
     protected String pawnColor;
+
+    @Override
+    public String toString() {
+        return "moveFrom : " + moveFrom + " moveTo : " + moveTo + " pawnName : " + pawnName + " pawnColor : " + pawnColor;
+    }
 }

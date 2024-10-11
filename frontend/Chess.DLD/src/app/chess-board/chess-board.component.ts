@@ -25,7 +25,7 @@ export class ChessBoardComponent {
   highlightedSquares: string[] = [];
   private selectedPawnInfo: any = null;
   private originalPosition: string | null = null;
-  // moveSendCount: number = 0;
+
 
 
 
@@ -46,7 +46,11 @@ export class ChessBoardComponent {
     );
   }
   dropSquare(square: any) {
+    console.log('DropSquare called with square:', square);
+
+
     if (this.highlightedSquares.includes(square.square)) {
+
       if (this.originalPosition) {
         const moveDetails = {
           moveFrom: this.originalPosition,
@@ -54,35 +58,37 @@ export class ChessBoardComponent {
           pawnName: this.selectedPawnInfo?.pawnName,
           pawnColor: this.selectedPawnInfo?.pawnColor
         };
+  
         console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
-
-        //JSON RUCHU
+        // JSON RUCHU
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             console.log('Move details sent successfully:', response);
-            // this.moveSendCount++;
+  
+            this.dataService.GetBoardDetails().subscribe(
+              (response: any) => {
+                console.log('BoardUpdated', response);
+  
+                const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+                  pawnName: pawn.name,
+                  pawnColor: pawn.color,
+                  pawnPlacement: pawn.square
+                }));
+  
+                this.jsonResponse = updatedChessBoardData;
+                console.log('Updated Chess Board Data:', JSON.stringify(this.jsonResponse, null, 2));
+              },
+              (error) => {
+                console.error('Error Updating Board', error);
+              }
+            );
           },
           (error) => {
             console.error('Error sending move details:', error);
           }
         );
-  
-        this.dataService.GetBoardDetails(moveDetails).subscribe(
-          (response: any) => {
-            console.log('BoardUpdated', response);
-  
-            const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
-              pawnName: pawn.name,
-              pawnColor: pawn.color,
-              pawnPlacement: pawn.square
-            }));
-  
-            this.jsonResponse = updatedChessBoardData;
-          },
-          (error) => {
-            console.error('Error Updating Board', error);
-          }
-        );
+        
+        
       }
     } else {
       if (this.originalPosition) {
@@ -96,13 +102,14 @@ export class ChessBoardComponent {
     this.selectedPawnInfo = null;
     this.highlightedSquares = [];
     this.originalPosition = null;
-
   }
   
   showSquareDetails(square: any) {
-
+    console.log('ShowSquareDetails called with square:', square);
+  
     const pawnInfo = this.getPawnOnSquare(square.square);
-
+    console.log('Pawn info for square:', pawnInfo);
+  
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
         const moveDetails = {
@@ -111,60 +118,57 @@ export class ChessBoardComponent {
           pawnName: this.selectedPawnInfo.pawnName,
           pawnColor: this.selectedPawnInfo.pawnColor
         };
-
+  
         console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
-        
-
-        //JSON RUCHU
+        // JSON RUCHU
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             console.log('Move details sent successfully:', response);
-            // this.moveSendCount++;
+  
+            this.dataService.GetBoardDetails().subscribe(
+              (response: any) => {
+                console.log('BoardUpdated', response);
+  
+                const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+                  pawnName: pawn.name,
+                  pawnColor: pawn.color,
+                  pawnPlacement: pawn.square
+                }));
+  
+                this.jsonResponse = updatedChessBoardData;
+                console.log('Updated Chess Board Data:', JSON.stringify(this.jsonResponse, null, 2));
+              },
+              (error) => {
+                console.error('Error Updating Board', error);
+              }
+            );
           },
           (error) => {
             console.error('Error sending move details:', error);
           }
         );
-        this.dataService.GetBoardDetails(moveDetails).subscribe(
-          (response: any) => {
-            console.log('BoardUpdated', response);
   
-            const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
-              pawnName: pawn.name,
-              pawnColor: pawn.color,
-              pawnPlacement: pawn.square
-            }));
-  
-            this.jsonResponse = updatedChessBoardData;
-          },
-          (error) => {
-            console.error('Error Updating Board', error);
-          }
-        );
         this.selectedPawnInfo = null;
         this.highlightedSquares = [];
-
-        // console.log(`Move details sent ${this.moveSendCount} times.`);
         return;
       }
     }
-
+  
     this.selectedPawnInfo = pawnInfo;
-
+  
     this.highlightedSquares = [];
     if (pawnInfo) {
       this.originalPosition = pawnInfo.pawnPlacement || '';
-
-
-      this.selectedPawnInfo = pawnInfo;
-
-      this.highlightedSquares = [];
+      console.log('Selected pawn info:', pawnInfo);
       this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
       this.highlightedSquares = this.availableMoves;
+      console.log('Available moves for selected pawn:', this.availableMoves);
     } else {
       this.availableMoves = [];
+      console.log('No available moves found.');
     }
   }
+  
 
 
 
@@ -237,7 +241,6 @@ export class ChessBoardComponent {
 
     return possibleMoves;
   }
-
   getKingMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
     const combinedBoard = chessBoard.map((square: any) => {
         const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
@@ -269,7 +272,6 @@ export class ChessBoardComponent {
 
         if (newRow >= 1 && newRow <= 8 && newCol >= 'a' && newCol <= 'h') {
             const targetSquare = newCol + newRow;
-            
             const square = combinedBoard.find((s: any) => s.square === targetSquare);
 
             if (square && !square.pawn) {
@@ -282,46 +284,8 @@ export class ChessBoardComponent {
         }
     }
 
-    if (pawn.pawnName === 'king') {
-        if (pawn.pawnColor === 'white') {
-            if (currentPosition === 'e1') {
-                const rook = this.getPawnOnSquare('h1');
-                if (rook && rook.pawnName === 'rook' && 
-                    !combinedBoard.find((s: any) => s.square === 'f1' && s.pawn) && 
-                    !combinedBoard.find((s: any) => s.square === 'g1' && s.pawn)) {
-                    moves.push('g1'); 
-                }
-                const rook2 = this.getPawnOnSquare('a1');
-                if (rook2 && rook2.pawnName === 'rook' && 
-                    !combinedBoard.find((s: any) => s.square === 'd1' && s.pawn) && 
-                    !combinedBoard.find((s: any) => s.square === 'c1' && s.pawn)) {
-                    moves.push('c1'); 
-                }
-            }
-        } 
-        else if (pawn.pawnColor === 'black') {
-            if (currentPosition === 'e8') {
-                const rook = this.getPawnOnSquare('h8');
-                if (rook && rook.pawnName === 'rook' && 
-                    !combinedBoard.find((s: any) => s.square === 'f8' && s.pawn) && 
-                    !combinedBoard.find((s: any) => s.square === 'g8' && s.pawn)) {
-                    moves.push('g8');
-                }
-                const rook2 = this.getPawnOnSquare('a8');
-                if (rook2 && rook2.pawnName === 'rook' && 
-                    !combinedBoard.find((s: any) => s.square === 'd8' && s.pawn) && 
-                    !combinedBoard.find((s: any) => s.square === 'c8' && s.pawn)) {
-                    moves.push('c8'); 
-                }
-            }
-        }
-    }
-
     return moves;
 }
-
-
-
 getQueenMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
   const combinedBoard = chessBoard.map((square: any) => {
       const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
