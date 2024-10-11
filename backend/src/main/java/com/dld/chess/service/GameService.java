@@ -60,14 +60,14 @@ public class GameService {
 
         //put Rocks TODO - separate method
         squares[0][0].setEmpty(false);
-        squares[0][0].setPawn(new Rock("black"));
+        squares[0][0].setPawn(new Rook("black"));
         squares[0][7].setEmpty(false);
-        squares[0][7].setPawn(new Rock("black"));
+        squares[0][7].setPawn(new Rook("black"));
 
         squares[7][0].setEmpty(false);
-        squares[7][0].setPawn(new Rock("white"));
+        squares[7][0].setPawn(new Rook("white"));
         squares[7][7].setEmpty(false);
-        squares[7][7].setPawn(new Rock("white"));
+        squares[7][7].setPawn(new Rook("white"));
         //////
 
         //put Knights TODO - separate method
