@@ -1,11 +1,11 @@
 package com.dld.chess.model.pawns;
 
-public class Rock extends PawnAbstract{
+public class Rook extends PawnAbstract{
 
-    public Rock(String color){
+    public Rook(String color){
         this.setColor(color);
         this.setAlive(true);
-        this.setName("rock");
+        this.setName("rook");
     }
 
     @Override
