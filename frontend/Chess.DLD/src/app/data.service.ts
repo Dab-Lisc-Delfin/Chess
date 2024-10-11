@@ -15,4 +15,7 @@ export class DataService {
   sendMoveDetails(moveDetails: any) {
     return this.http.post(this.apiUrlMove, moveDetails);
   }
+  GetBoardDetails(moveDetails: any) {
+    return this.http.post(this.apiUrlMove, moveDetails);
+  }
 }

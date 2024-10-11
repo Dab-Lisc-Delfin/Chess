@@ -55,13 +55,30 @@ export class ChessBoardComponent {
           pawnColor: this.selectedPawnInfo?.pawnColor
         };
         console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
-        //JSON RUCHU
+  
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             console.log('Move details sent successfully:', response);
           },
           (error) => {
             console.error('Error sending move details:', error);
+          }
+        );
+  
+        this.dataService.GetBoardDetails(moveDetails).subscribe(
+          (response: any) => {
+            console.log('BoardUpdated', response);
+  
+            const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+              pawnName: pawn.name,
+              pawnColor: pawn.color,
+              pawnPlacement: pawn.square
+            }));
+  
+            this.jsonResponse = updatedChessBoardData;
+          },
+          (error) => {
+            console.error('Error Updating Board', error);
           }
         );
       }
@@ -73,11 +90,12 @@ export class ChessBoardComponent {
         }
       }
     }
-
+  
     this.selectedPawnInfo = null;
     this.highlightedSquares = [];
     this.originalPosition = null;
   }
+  
   showSquareDetails(square: any) {
     const pawnInfo = this.getPawnOnSquare(square.square);
 
@@ -98,6 +116,22 @@ export class ChessBoardComponent {
           },
           (error) => {
             console.error('Error sending move details:', error);
+          }
+        );
+        this.dataService.GetBoardDetails(moveDetails).subscribe(
+          (response: any) => {
+            console.log('BoardUpdated', response);
+  
+            const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+              pawnName: pawn.name,
+              pawnColor: pawn.color,
+              pawnPlacement: pawn.square
+            }));
+  
+            this.jsonResponse = updatedChessBoardData;
+          },
+          (error) => {
+            console.error('Error Updating Board', error);
           }
         );
         this.selectedPawnInfo = null;
