@@ -32,42 +32,52 @@ export class ChessBoardComponent {
   constructor(private dataService: DataService) {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
-        this.jsonResponse = res;
-        const transformedData: Pawn[] = [];
-
-        res.chessBoard.forEach((row: any[]) => {
-          row.forEach((pawn: any) => {
-            transformedData.push({
-              pawnName: pawn.name,
-              pawnColor: pawn.color,
-              pawnPlacement: pawn.square
-            });
-          });
-        });
-        this.jsonResponse = transformedData;
+        const chessBoardData = res.chessBoard.map((pawn: any) => ({
+          pawnName: pawn.name,
+          pawnColor: pawn.color,
+          pawnPlacement: pawn.square
+        }));
+  
+        this.jsonResponse = chessBoardData;
       },
       (error) => {
         console.error('Error fetching JSON data:', error);
       }
     );
   }
-  getPawnOnSquare(square: string): Pawn | undefined {
-    return this.jsonResponse.find(pawn => pawn.pawnPlacement === square);
-  }
+  dropSquare(square: any) {
+    if (this.highlightedSquares.includes(square.square)) {
+      if (this.originalPosition) {
+        const moveDetails = {
+          moveFrom: this.originalPosition,
+          moveTo: square.square,
+          pawnName: this.selectedPawnInfo?.pawnName,
+          pawnColor: this.selectedPawnInfo?.pawnColor
+        };
+        console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
+        //JSON RUCHU
+        this.dataService.sendMoveDetails(moveDetails).subscribe(
+          (response) => {
+            console.log('Move details sent successfully:', response);
+          },
+          (error) => {
+            console.error('Error sending move details:', error);
+          }
+        );
+      }
+    } else {
+      if (this.originalPosition) {
+        const pawn = this.jsonResponse.find(p => p.pawnPlacement === this.originalPosition);
+        if (pawn) {
+          pawn.pawnPlacement = this.originalPosition;
+        }
+      }
+    }
 
-
-  clearHighlights() {
+    this.selectedPawnInfo = null;
     this.highlightedSquares = [];
-    this.availableMoves = [];
+    this.originalPosition = null;
   }
-  getUniqueColor(color: PawnColor): string {
-    const colorMap: Record<PawnColor, string> = {
-      white: '#cccccc',
-      black: '#666666',
-    };
-    return colorMap[color] || color;
-  }
-
   showSquareDetails(square: any) {
     const pawnInfo = this.getPawnOnSquare(square.square);
 
@@ -81,7 +91,7 @@ export class ChessBoardComponent {
         };
 
         console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
-
+        //JSON RUCHU
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             console.log('Move details sent successfully:', response);
@@ -113,41 +123,24 @@ export class ChessBoardComponent {
     }
   }
 
-  dropSquare(square: any) {
-    if (this.highlightedSquares.includes(square.square)) {
-      if (this.originalPosition) {
-        const moveDetails = {
-          moveFrom: this.originalPosition,
-          moveTo: square.square,
-          pawnName: this.selectedPawnInfo?.pawnName,
-          pawnColor: this.selectedPawnInfo?.pawnColor
-        };
-        console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
 
-        this.dataService.sendMoveDetails(moveDetails).subscribe(
-          (response) => {
-            console.log('Move details sent successfully:', response);
-          },
-          (error) => {
-            console.error('Error sending move details:', error);
-          }
-        );
-      }
-    } else {
-      if (this.originalPosition) {
-        const pawn = this.jsonResponse.find(p => p.pawnPlacement === this.originalPosition);
-        if (pawn) {
-          pawn.pawnPlacement = this.originalPosition;
-        }
-      }
-    }
 
-    this.selectedPawnInfo = null;
-    this.highlightedSquares = [];
-    this.originalPosition = null;
+  getPawnOnSquare(square: string): Pawn | undefined {
+    return this.jsonResponse.find(pawn => pawn.pawnPlacement === square);
   }
 
 
+  clearHighlights() {
+    this.highlightedSquares = [];
+    this.availableMoves = [];
+  }
+  getUniqueColor(color: PawnColor): string {
+    const colorMap: Record<PawnColor, string> = {
+      white: '#cccccc',
+      black: '#666666',
+    };
+    return colorMap[color] || color;
+  }
 
   allowDrop(event: DragEvent) {
     event.preventDefault();
@@ -163,7 +156,7 @@ export class ChessBoardComponent {
 
     if (pawnInfo) {
       this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
-      this.highlightAvailableMoves(pawnInfo, this.availableMoves); // Dodaj to
+      this.highlightAvailableMoves(pawnInfo, this.availableMoves);
     }
   }
 

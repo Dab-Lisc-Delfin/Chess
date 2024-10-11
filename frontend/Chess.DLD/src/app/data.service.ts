@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class DataService {
-  private apiUrl = 'http://localhost:8080/api/home';
+  private apiUrl = 'http://localhost:8080/api/start-game';
   private apiUrlMove = 'http://localhost:8080/api/make-move';
   constructor(private http: HttpClient) {}
 
