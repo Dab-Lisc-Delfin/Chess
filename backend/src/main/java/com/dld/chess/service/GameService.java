@@ -31,24 +31,17 @@ public class GameService {
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
 
-                //TODO shorten it
-                if (j == 0) {
-                    letter = 'a';
-                } else if (j == 1) {
-                    letter = 'b';
-                } else if (j == 2) {
-                    letter = 'c';
-                } else if (j == 3) {
-                    letter = 'd';
-                } else if (j == 4) {
-                    letter = 'e';
-                } else if (j == 5) {
-                    letter = 'f';
-                } else if (j == 6) {
-                    letter = 'g';
-                } else if (j == 7) {
-                    letter = 'h';
-                }
+                letter = switch (j) {
+                    case 0 -> 'a';
+                    case 1 -> 'b';
+                    case 2 -> 'c';
+                    case 3 -> 'd';
+                    case 4 -> 'e';
+                    case 5 -> 'f';
+                    case 6 -> 'g';
+                    case 7 -> 'h';
+                    default -> letter;
+                };
 
                 if (i == 1) { //possition 2
                     squares[i][j] = new Square(letter + "" + (squares.length - i), new Pawn("black"));
@@ -60,56 +53,38 @@ public class GameService {
             }
         }
 
-        //put Rooks TODO - separate method
-        squares[0][0].setEmpty(false);
+        //put Rooks
         squares[0][0].setPawn(new Rook("black"));
-        squares[0][7].setEmpty(false);
         squares[0][7].setPawn(new Rook("black"));
 
-        squares[7][0].setEmpty(false);
         squares[7][0].setPawn(new Rook("white"));
-        squares[7][7].setEmpty(false);
         squares[7][7].setPawn(new Rook("white"));
         //////
 
-        //put Knights TODO - separate method
-        squares[0][1].setEmpty(false);
+        //put Knights
         squares[0][1].setPawn(new Knight("black"));
-        squares[0][6].setEmpty(false);
         squares[0][6].setPawn(new Knight("black"));
 
-        squares[7][1].setEmpty(false);
         squares[7][1].setPawn(new Knight("white"));
-        squares[7][6].setEmpty(false);
         squares[7][6].setPawn(new Knight("white"));
         ///////
 
-        //put Bishops TODO - separate method
-        squares[0][2].setEmpty(false);
+        //put Bishops
         squares[0][2].setPawn(new Bishop("black"));
-        squares[0][5].setEmpty(false);
         squares[0][5].setPawn(new Bishop("black"));
 
-        squares[7][2].setEmpty(false);
         squares[7][2].setPawn(new Bishop("white"));
-        squares[7][5].setEmpty(false);
         squares[7][5].setPawn(new Bishop("white"));
         ///////
 
-        //put Queens TODO - separate method
-        squares[0][3].setEmpty(false);
+        //put Queens
         squares[0][3].setPawn(new Queen("black"));
-
-        squares[7][3].setEmpty(false);
         squares[7][3].setPawn(new Queen("white"));
         ///////
 
 
-        //put Kings TODO - separate method
-        squares[0][4].setEmpty(false);
+        //put Kings
         squares[0][4].setPawn(new King("black"));
-
-        squares[7][4].setEmpty(false);
         squares[7][4].setPawn(new King("white"));
         ///////
 
@@ -174,7 +149,6 @@ public class GameService {
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
                 if (!squares[i][j].isEmpty()) {
-//                    log.info("KTORY WYWALA NULLA: " + squares[i][j].getName());
                     SquareDTO squareDTO = new SquareDTO();
                     squareDTO.setSquare(squares[i][j].getName());
                     squareDTO.setName(squares[i][j].getPawn().getName());
