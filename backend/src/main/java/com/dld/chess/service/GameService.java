@@ -189,7 +189,7 @@ public class GameService {
     }
 
 
-    public boolean isCastling(MoveDTO moveDTO) {
+    protected boolean isCastling(MoveDTO moveDTO) {
 
         //long castling white
         if ((moveDTO.getMoveFrom().equals("a1") && moveDTO.getMoveTo().equals("e1") && moveDTO.getPawnName().equals("rook")) || (moveDTO.getMoveFrom().equals("e1") && moveDTO.getMoveTo().equals("a1") && moveDTO.getPawnName().equals("king"))) {
@@ -256,7 +256,7 @@ public class GameService {
     }
 
 
-    public void updateGameSquare(Square squareToUpdate) {
+    protected void updateGameSquare(Square squareToUpdate) {
         Square[][] squares = game.getSquares();
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
@@ -269,13 +269,12 @@ public class GameService {
     }
 
 
-    public void makeGameSquareEmpty(String square) {
+    protected void makeGameSquareEmpty(String square) {
         Square[][] squares = game.getSquares();
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
                 if (squares[i][j].getName().equals(square)) {
                     squares[i][j].setEmpty(true);
-                    squares[i][j].setPawn(null);
                     break;
                 }
             }
@@ -284,7 +283,7 @@ public class GameService {
     }
 
 
-    public boolean checkIfPawnReachedEndBoard(MoveDTO moveDTO) {
+    protected boolean checkIfPawnReachedEndBoard(MoveDTO moveDTO) {
         if (moveDTO.getMoveTo().equals("a1") || moveDTO.getMoveTo().equals("b1") || moveDTO.getMoveTo().equals("c1") || moveDTO.getMoveTo().equals("d1") || moveDTO.getMoveTo().equals("e1") || moveDTO.getMoveTo().equals("f1") || moveDTO.getMoveTo().equals("g1") || moveDTO.getMoveTo().equals("h1")) {
             if (moveDTO.getPawnName().equals("pawn") && moveDTO.getPawnColor().equals("black")) {
                 Queen blackQueen = new Queen("black");
