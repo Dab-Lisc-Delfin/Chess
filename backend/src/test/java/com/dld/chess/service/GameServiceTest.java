@@ -80,6 +80,34 @@ class GameServiceTest {
         Square checkSquare = gameService.getSquare("a8");
         assertEquals("a8", checkSquare.getName());
         assertEquals("knight", checkSquare.getPawn().getName());
-        assertEquals("white",checkSquare.getPawn().getColor());
+        assertEquals("white", checkSquare.getPawn().getColor());
+    }
+
+
+    @Test
+    void checkIfPawnReachedEndBoard_whenWhitePawnReachEnd_shouldReturnCorrect() {
+        MoveDTO mockMoveDTO = new MoveDTO();
+        mockMoveDTO.setMoveFrom("a7");
+        mockMoveDTO.setMoveTo("a8");
+        mockMoveDTO.setPawnName("pawn");
+        mockMoveDTO.setPawnColor("white");
+
+        assertTrue(gameService.checkIfPawnReachedEndBoard(mockMoveDTO));
+        assertEquals("queen", gameService.getSquare("a8").getPawn().getName());
+        assertEquals("white", gameService.getSquare("a8").getPawn().getColor());
+    }
+
+
+    @Test
+    void checkIfPawnReachedEndBoard_whenBlackPawnReachEnd_shouldReturnCorrect() {
+        MoveDTO mockMoveDTO = new MoveDTO();
+        mockMoveDTO.setMoveFrom("a2");
+        mockMoveDTO.setMoveTo("a1");
+        mockMoveDTO.setPawnName("pawn");
+        mockMoveDTO.setPawnColor("black");
+
+        assertTrue(gameService.checkIfPawnReachedEndBoard(mockMoveDTO));
+        assertEquals("queen", gameService.getSquare("a1").getPawn().getName());
+        assertEquals("black", gameService.getSquare("a1").getPawn().getColor());
     }
 }
