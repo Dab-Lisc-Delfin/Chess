@@ -12,5 +12,4 @@ public class Game {
     Square[][] squares = new Square[8][8];
     boolean isActive = false;
 
-
 }

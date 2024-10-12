@@ -31,24 +31,17 @@ public class GameService {
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
 
-                //TODO shorten it
-                if (j == 0) {
-                    letter = 'a';
-                } else if (j == 1) {
-                    letter = 'b';
-                } else if (j == 2) {
-                    letter = 'c';
-                } else if (j == 3) {
-                    letter = 'd';
-                } else if (j == 4) {
-                    letter = 'e';
-                } else if (j == 5) {
-                    letter = 'f';
-                } else if (j == 6) {
-                    letter = 'g';
-                } else if (j == 7) {
-                    letter = 'h';
-                }
+                letter = switch (j) {
+                    case 0 -> 'a';
+                    case 1 -> 'b';
+                    case 2 -> 'c';
+                    case 3 -> 'd';
+                    case 4 -> 'e';
+                    case 5 -> 'f';
+                    case 6 -> 'g';
+                    case 7 -> 'h';
+                    default -> letter;
+                };
 
                 if (i == 1) { //possition 2
                     squares[i][j] = new Square(letter + "" + (squares.length - i), new Pawn("black"));
@@ -60,56 +53,38 @@ public class GameService {
             }
         }
 
-        //put Rooks TODO - separate method
-        squares[0][0].setEmpty(false);
+        //put Rooks
         squares[0][0].setPawn(new Rook("black"));
-        squares[0][7].setEmpty(false);
         squares[0][7].setPawn(new Rook("black"));
 
-        squares[7][0].setEmpty(false);
         squares[7][0].setPawn(new Rook("white"));
-        squares[7][7].setEmpty(false);
         squares[7][7].setPawn(new Rook("white"));
         //////
 
-        //put Knights TODO - separate method
-        squares[0][1].setEmpty(false);
+        //put Knights
         squares[0][1].setPawn(new Knight("black"));
-        squares[0][6].setEmpty(false);
         squares[0][6].setPawn(new Knight("black"));
 
-        squares[7][1].setEmpty(false);
         squares[7][1].setPawn(new Knight("white"));
-        squares[7][6].setEmpty(false);
         squares[7][6].setPawn(new Knight("white"));
         ///////
 
-        //put Bishops TODO - separate method
-        squares[0][2].setEmpty(false);
+        //put Bishops
         squares[0][2].setPawn(new Bishop("black"));
-        squares[0][5].setEmpty(false);
         squares[0][5].setPawn(new Bishop("black"));
 
-        squares[7][2].setEmpty(false);
         squares[7][2].setPawn(new Bishop("white"));
-        squares[7][5].setEmpty(false);
         squares[7][5].setPawn(new Bishop("white"));
         ///////
 
-        //put Queens TODO - separate method
-        squares[0][3].setEmpty(false);
+        //put Queens
         squares[0][3].setPawn(new Queen("black"));
-
-        squares[7][3].setEmpty(false);
         squares[7][3].setPawn(new Queen("white"));
         ///////
 
 
-        //put Kings TODO - separate method
-        squares[0][4].setEmpty(false);
+        //put Kings
         squares[0][4].setPawn(new King("black"));
-
-        squares[7][4].setEmpty(false);
         squares[7][4].setPawn(new King("white"));
         ///////
 
@@ -174,7 +149,6 @@ public class GameService {
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
                 if (!squares[i][j].isEmpty()) {
-//                    log.info("KTORY WYWALA NULLA: " + squares[i][j].getName());
                     SquareDTO squareDTO = new SquareDTO();
                     squareDTO.setSquare(squares[i][j].getName());
                     squareDTO.setName(squares[i][j].getPawn().getName());
@@ -195,82 +169,94 @@ public class GameService {
         checkIfCheckMate(moveDTO);
 
         if (isCastling(moveDTO)) {
+        } else if (checkIfPawnReachedEndBoard(moveDTO)) {
         } else {
-            Square squareFrom = getSquare(moveDTO.getMoveFrom());
-            Square squareTo = getSquare(moveDTO.getMoveTo());
-
-            squareTo.setPawn(getPawnFromPosition(moveDTO.getMoveFrom()));
-            squareTo.setEmpty(false);
-            squareFrom.setPawn(null);
-            squareFrom.setEmpty(true);
-
-
-            Square[][] squares = game.getSquares();
-            for (int i = 0; i < squares.length; i++) {
-                for (int j = 0; j < squares[i].length; j++) {
-                    if (squares[i][j].getName().equals(squareFrom.getName())) {
-                        squares[i][j] = squareFrom;
-                    } else if (squares[i][j].getName().equals(squareTo.getName())) {
-                        squares[i][j] = squareTo;
-                    }
-                }
-
-                game.setSquares(squares);
-            }
+            Square squareTo = new Square(moveDTO.getMoveTo(), getSquare(moveDTO.getMoveFrom()).getPawn());
+            updateGameSquare(squareTo);
+            makeGameSquareEmpty(moveDTO.getMoveFrom());
         }
     }
 
-    public boolean checkIfCheckMate(MoveDTO moveDTO) {
+
+    private void checkIfCheckMate(MoveDTO moveDTO) {
         Square squareTo = getSquare(moveDTO.getMoveTo());
         if (!squareTo.isEmpty()) {
             if (squareTo.getPawn().getName().equals("king") && !squareTo.getPawn().getColor().equals(moveDTO.getPawnColor())) {
                 log.info("CHECKMATE");
                 game.setActive(false);
-                return true;
             }
         }
-        return false;
     }
 
 
-    public boolean isCastling(MoveDTO moveDTO) {
-        Square squareFrom = getSquare(moveDTO.getMoveFrom());
-        Square squareTo = getSquare(moveDTO.getMoveTo());
+    protected boolean isCastling(MoveDTO moveDTO) {
 
-        Square a1 = getSquare("a1");
-        Square b1 = getSquare("b1");
-        Square c1 = getSquare("c1");
-        Square d1 = getSquare("d1");
-        Square e1 = getSquare("e1");
-
-
-        //todo shorten it
-        if ((squareFrom.equals(a1) || squareFrom.equals(e1)) && (squareTo.equals(a1) || squareTo.equals(e1))) {
+        //long castling white
+        if ((moveDTO.getMoveFrom().equals("a1") && moveDTO.getMoveTo().equals("e1") && moveDTO.getPawnName().equals("rook")) || (moveDTO.getMoveFrom().equals("e1") && moveDTO.getMoveTo().equals("a1") && moveDTO.getPawnName().equals("king"))) {
+            Square e1 = getSquare("e1");
+            Square a1 = getSquare("a1");
             if (a1.getPawn().getName().equals("rook") && e1.getPawn().getName().equals("king")) {
-                c1.setPawn(e1.getPawn()); //king
-                c1.setEmpty(false);
-
-                e1.setEmpty(true);
-                e1.setPawn(null);
-
-                d1.setPawn(b1.getPawn());
-                d1.setEmpty(false);
-
-                a1.setEmpty(true);
-                a1.setPawn(null);
-
-                updateGameSquare(c1);
-                updateGameSquare(e1);
-                updateGameSquare(d1);
-                updateGameSquare(a1);
+                Square castlingSquareKing = new Square("c1", new King("white"));
+                Square castlingSquareRook = new Square("d1", new Rook("white"));
+                updateGameSquare(castlingSquareKing);
+                updateGameSquare(castlingSquareRook);
+                makeGameSquareEmpty(moveDTO.getMoveFrom());
+                makeGameSquareEmpty(moveDTO.getMoveTo());
                 return true;
             }
         }
+
+        //short castling white
+        if ((moveDTO.getMoveFrom().equals("h1") && moveDTO.getMoveTo().equals("e1") && moveDTO.getPawnName().equals("rook")) || (moveDTO.getMoveFrom().equals("e1") && moveDTO.getMoveTo().equals("h1") && moveDTO.getPawnName().equals("king"))) {
+            Square e1 = getSquare("e1");
+            Square h1 = getSquare("h1");
+            if (h1.getPawn().getName().equals("rook") && e1.getPawn().getName().equals("king")) {
+                Square castlingSquareKing = new Square("g1", new King("white"));
+                Square castlingSquareRook = new Square("f1", new Rook("white"));
+                updateGameSquare(castlingSquareKing);
+                updateGameSquare(castlingSquareRook);
+                makeGameSquareEmpty(moveDTO.getMoveFrom());
+                makeGameSquareEmpty(moveDTO.getMoveTo());
+                return true;
+            }
+        }
+
+
+        //long castling black
+        if ((moveDTO.getMoveFrom().equals("a8") && moveDTO.getMoveTo().equals("e8") && moveDTO.getPawnName().equals("rook")) || (moveDTO.getMoveFrom().equals("e8") && moveDTO.getMoveTo().equals("a8") && moveDTO.getPawnName().equals("king"))) {
+            Square e8 = getSquare("e8");
+            Square a8 = getSquare("a8");
+            if (a8.getPawn().getName().equals("rook") && e8.getPawn().getName().equals("king")) {
+                Square castlingSquareKing = new Square("c8", new King("black"));
+                Square castlingSquareRook = new Square("d8", new Rook("black"));
+                updateGameSquare(castlingSquareKing);
+                updateGameSquare(castlingSquareRook);
+                makeGameSquareEmpty(moveDTO.getMoveFrom());
+                makeGameSquareEmpty(moveDTO.getMoveTo());
+                return true;
+            }
+        }
+
+        //short castling black
+        if ((moveDTO.getMoveFrom().equals("h8") && moveDTO.getMoveTo().equals("e8") && moveDTO.getPawnName().equals("rook")) || (moveDTO.getMoveFrom().equals("e8") && moveDTO.getMoveTo().equals("h8") && moveDTO.getPawnName().equals("king"))) {
+            Square e8 = getSquare("e8");
+            Square h8 = getSquare("h8");
+            if (h8.getPawn().getName().equals("rook") && e8.getPawn().getName().equals("king")) {
+                Square castlingSquareKing = new Square("g8", new King("black"));
+                Square castlingSquareRook = new Square("f8", new Rook("black"));
+                updateGameSquare(castlingSquareKing);
+                updateGameSquare(castlingSquareRook);
+                makeGameSquareEmpty(moveDTO.getMoveFrom());
+                makeGameSquareEmpty(moveDTO.getMoveTo());
+                return true;
+            }
+        }
+
         return false;
     }
 
 
-    public void updateGameSquare(Square squareToUpdate) {
+    protected void updateGameSquare(Square squareToUpdate) {
         Square[][] squares = game.getSquares();
         for (int i = 0; i < squares.length; i++) {
             for (int j = 0; j < squares[i].length; j++) {
@@ -283,4 +269,38 @@ public class GameService {
     }
 
 
+    protected void makeGameSquareEmpty(String square) {
+        Square[][] squares = game.getSquares();
+        for (int i = 0; i < squares.length; i++) {
+            for (int j = 0; j < squares[i].length; j++) {
+                if (squares[i][j].getName().equals(square)) {
+                    squares[i][j].setEmpty(true);
+                    break;
+                }
+            }
+        }
+        game.setSquares(squares);
+    }
+
+
+    protected boolean checkIfPawnReachedEndBoard(MoveDTO moveDTO) {
+        if (moveDTO.getMoveTo().equals("a1") || moveDTO.getMoveTo().equals("b1") || moveDTO.getMoveTo().equals("c1") || moveDTO.getMoveTo().equals("d1") || moveDTO.getMoveTo().equals("e1") || moveDTO.getMoveTo().equals("f1") || moveDTO.getMoveTo().equals("g1") || moveDTO.getMoveTo().equals("h1")) {
+            if (moveDTO.getPawnName().equals("pawn") && moveDTO.getPawnColor().equals("black")) {
+                Queen blackQueen = new Queen("black");
+                Square square = new Square(moveDTO.getMoveTo(), blackQueen);
+                updateGameSquare(square);
+                makeGameSquareEmpty(moveDTO.getMoveFrom());
+                return true;
+            }
+        } else if (moveDTO.getMoveTo().equals("a8") || moveDTO.getMoveTo().equals("b8") || moveDTO.getMoveTo().equals("c8") || moveDTO.getMoveTo().equals("d8") || moveDTO.getMoveTo().equals("e8") || moveDTO.getMoveTo().equals("f8") || moveDTO.getMoveTo().equals("g8") || moveDTO.getMoveTo().equals("h8")) {
+            if (moveDTO.getPawnName().equals("pawn") && moveDTO.getPawnColor().equals("white")) {
+                Queen blackQueen = new Queen("white");
+                Square square = new Square(moveDTO.getMoveTo(), blackQueen);
+                updateGameSquare(square);
+                makeGameSquareEmpty(moveDTO.getMoveFrom());
+                return true;
+            }
+        }
+        return false;
+    }
 }
