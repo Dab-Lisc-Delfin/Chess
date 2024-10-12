@@ -161,7 +161,11 @@ export class ChessBoardComponent {
         }
         return pawn;
       });
-
+      const targetPawn = this.jsonResponse.find((pawn: any) => pawn.pawnPlacement === square.square && pawn.pawnColor !== moveDetails.pawnColor);
+      if (targetPawn) {
+        this.jsonResponse = this.jsonResponse.filter((pawn: any) => pawn.pawnPlacement !== square.square || pawn.pawnColor === moveDetails.pawnColor);
+      }
+      
       const allWhiteMoves: string[] = [];
       const allBlackMoves: string[] = [];
 
