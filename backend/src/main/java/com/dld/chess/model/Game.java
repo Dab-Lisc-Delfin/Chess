@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 public class Game {
 
     Square[][] squares = new Square[8][8];
-    boolean isOn = false;
-
+    boolean isActive = false;
 
 }

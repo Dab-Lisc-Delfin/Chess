@@ -25,4 +25,9 @@ public class Square {
         this.pawn = pawn;
         this.isEmpty = false;
     }
+
+    public void setPawn(PawnAbstract pawn) {
+        this.pawn = pawn;
+        this.isEmpty = false;
+    }
 }
