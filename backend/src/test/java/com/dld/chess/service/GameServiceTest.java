@@ -3,15 +3,12 @@ package com.dld.chess.service;
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.model.Game;
 import com.dld.chess.model.Square;
+import com.dld.chess.model.pawns.Knight;
 import com.dld.chess.model.pawns.Pawn;
 import com.dld.chess.model.pawns.PawnAbstract;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,8 +72,14 @@ class GameServiceTest {
     }
 
 
+    @Test
+    void updateGameSquare_whenGivenNewSquare_shouldReturnCorrect() {
+        Square squareNew = new Square("a8", new Knight("white"));
+        gameService.updateGameSquare(squareNew);
 
-    void checkIfCheckMate(){
+        Square checkSquare = gameService.getSquare("a8");
+        assertEquals("a8", checkSquare.getName());
+        assertEquals("knight", checkSquare.getPawn().getName());
+        assertEquals("white",checkSquare.getPawn().getColor());
     }
-
 }

@@ -283,4 +283,18 @@ public class GameService {
     }
 
 
+
+
+
+
+//    public void changePawnIntoQueen(MoveDTO moveDTO){
+//        Square squareTo = getSquare(moveDTO.getMoveTo());
+//        if(moveDTO.getPawnName().equals("pawn") && moveDTO.get){
+//
+//        }
+//    }
+
+
+
+
 }
