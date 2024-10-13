@@ -23,7 +23,6 @@ public class GameController {
     @PostMapping("/api/start-game")
     public ResponseEntity<GameStatementDTO> startGame() {
         gameService.createNewGame();
-//        gameService.printAllChessBoardSquares();
         GameStatementDTO gameStatementDTO = gameService.getGameStatement();
 
         return ResponseEntity.ok(gameStatementDTO);
@@ -33,7 +32,6 @@ public class GameController {
     @PostMapping("/api/make-move")
     public ResponseEntity<String> makeMove(@RequestBody MoveDTO moveDTO) {
         gameService.processMove(moveDTO);
-//        gameService.printAllChessBoardSquares();
 
         return ResponseEntity.ok("OK");
     }

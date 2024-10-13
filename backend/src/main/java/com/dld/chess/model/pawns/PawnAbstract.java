@@ -10,10 +10,6 @@ public abstract class PawnAbstract {
     protected String color;
     protected String name;
 
-    public void makeMove() {
-    }
-
-
     public abstract void makeMove(String moveFROM, String moveTO, String name, String color);
 
 

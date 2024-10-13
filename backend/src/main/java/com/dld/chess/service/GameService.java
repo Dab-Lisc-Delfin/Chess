@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @Slf4j
 public class GameService {
-    private Game game;
+    private final Game game;
 
     public GameService(Game game) {
         this.game = game;
@@ -178,7 +178,7 @@ public class GameService {
     }
 
 
-    private void checkIfCheckMate(MoveDTO moveDTO) {
+    protected void checkIfCheckMate(MoveDTO moveDTO) {
         Square squareTo = getSquare(moveDTO.getMoveTo());
         if (!squareTo.isEmpty()) {
             if (squareTo.getPawn().getName().equals("king") && !squareTo.getPawn().getColor().equals(moveDTO.getPawnColor())) {
@@ -262,6 +262,8 @@ public class GameService {
 
         return false;
     }
+
+
 
 
     protected void updateGameSquare(Square squareToUpdate) {

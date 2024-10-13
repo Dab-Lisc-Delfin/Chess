@@ -20,7 +20,6 @@ public class UserController {
 
     @PostMapping("/api/create-user")
     public ResponseEntity<String> createNewUser(@RequestBody UserDTO userDTO) {
-        log.info("got request from FE");
         userService.saveUser(userDTO);
         return ResponseEntity.ok("OK");
     }
