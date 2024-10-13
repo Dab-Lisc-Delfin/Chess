@@ -15,24 +15,24 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        http
-                .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/admin/*").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                );
-
-        http.formLogin(Customizer.withDefaults());
-        return http.build();
-    }
-
-
 //    @Bean
-//    public WebSecurityCustomizer webSecurityCustomizer() {
-//        return (web) -> web.ignoring()
-//                .requestMatchers(new AntPathRequestMatcher("/**"));
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+//        http
+//                .authorizeHttpRequests((authz) -> authz
+//                        .requestMatchers("/admin/*").hasRole("ADMIN")
+//                        .anyRequest().authenticated()
+//                );
+//
+//        http.formLogin(Customizer.withDefaults());
+//        return http.build();
 //    }
+
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers(new AntPathRequestMatcher("/**"));
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
