@@ -460,7 +460,7 @@ export class ChessBoardComponent {
         return moves;
       }
       if (pawn.pawnColor === 'white') {
-        const rookKRolewska = combinedBoard.find((s: any) => s.square === 'h1' && s.pawn && s.pawn.pawnName === 'rook');
+        const rookKRolewska = combinedBoard.find((s: any) => s.square === 'h1' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'white' );
 
         if (rookKRolewska) {
           const f1Occupied = this.isSquareOccupied(combinedBoard, 'f1');
@@ -472,7 +472,7 @@ export class ChessBoardComponent {
           }
         }
 
-        const rookHetmańska = combinedBoard.find((s: any) => s.square === 'a1' && s.pawn && s.pawn.pawnName === 'rook');
+        const rookHetmańska = combinedBoard.find((s: any) => s.square === 'a1' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'white');
 
         if (rookHetmańska) {
           const b1Occupied = this.isSquareOccupied(combinedBoard, 'b1');
@@ -485,7 +485,7 @@ export class ChessBoardComponent {
           }
         }
       } else if (pawn.pawnColor === 'black') {
-        const rookKRolewska = combinedBoard.find((s: any) => s.square === 'h8' && s.pawn && s.pawn.pawnName === 'rook');
+        const rookKRolewska = combinedBoard.find((s: any) => s.square === 'h8' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'black');
 
         if (rookKRolewska) {
           const f8Occupied = this.isSquareOccupied(combinedBoard, 'f8');
@@ -497,7 +497,7 @@ export class ChessBoardComponent {
           }
         }
 
-        const rookHetmańska = combinedBoard.find((s: any) => s.square === 'a8' && s.pawn && s.pawn.pawnName === 'rook');
+        const rookHetmańska = combinedBoard.find((s: any) => s.square === 'a8' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'black');
 
         if (rookHetmańska) {
           const b8Occupied = this.isSquareOccupied(combinedBoard, 'b8');
