@@ -26,13 +26,6 @@ public class TestController {
         return 0;
     }
 
-    @GetMapping("/test")
-    @ResponseBody
-    public String getTest() {
-        chessboardService.createNewGame();
-        return "test";
-    }
-
 
     @PostMapping("/api/home")
     public ResponseEntity<String> getHomeJSON() {
