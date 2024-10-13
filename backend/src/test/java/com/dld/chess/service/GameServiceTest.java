@@ -154,4 +154,22 @@ class GameServiceTest {
         assertEquals("king", g8.getPawn().getName());
         assertEquals("rook", f8.getPawn().getName());
     }
+
+
+    @Test
+    void checkIfCheckMate_ifThereIsCheckMate_thenReturnIsCorrect() {
+        Square mockKingSquare = new Square("a5",new King("black"));
+        Square mockRookSquare = new Square("h5",new Rook("white"));
+        gameService.updateGameSquare(mockKingSquare);
+        gameService.updateGameSquare(mockRookSquare);
+
+        MoveDTO mockMoveDTO = new MoveDTO();
+        mockMoveDTO.setMoveTo("a5");
+        mockMoveDTO.setMoveFrom("h5");
+        mockMoveDTO.setPawnName("rook");
+        mockMoveDTO.setPawnColor("white");
+
+        gameService.checkIfCheckMate(mockMoveDTO);
+        assertFalse(game.isActive());
+    }
 }

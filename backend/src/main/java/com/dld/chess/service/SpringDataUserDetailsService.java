@@ -15,7 +15,7 @@ import java.util.Set;
 @Slf4j
 @Service
 public class SpringDataUserDetailsService implements UserDetailsService {
-    private UserService userService;
+    private final UserService userService;
 
     public SpringDataUserDetailsService(UserService userService) {
         this.userService = userService;
