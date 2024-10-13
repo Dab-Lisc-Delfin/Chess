@@ -196,13 +196,15 @@ public class GameService {
             Square e1 = getSquare("e1");
             Square a1 = getSquare("a1");
             if (a1.getPawn().getName().equals("rook") && e1.getPawn().getName().equals("king")) {
-                Square castlingSquareKing = new Square("c1", new King("white"));
-                Square castlingSquareRook = new Square("d1", new Rook("white"));
-                updateGameSquare(castlingSquareKing);
-                updateGameSquare(castlingSquareRook);
-                makeGameSquareEmpty(moveDTO.getMoveFrom());
-                makeGameSquareEmpty(moveDTO.getMoveTo());
-                return true;
+                if (a1.getPawn().getColor().equals("white") && e1.getPawn().getColor().equals("white")) {
+                    Square castlingSquareKing = new Square("c1", new King("white"));
+                    Square castlingSquareRook = new Square("d1", new Rook("white"));
+                    updateGameSquare(castlingSquareKing);
+                    updateGameSquare(castlingSquareRook);
+                    makeGameSquareEmpty(moveDTO.getMoveFrom());
+                    makeGameSquareEmpty(moveDTO.getMoveTo());
+                    return true;
+                }
             }
         }
 
@@ -211,13 +213,15 @@ public class GameService {
             Square e1 = getSquare("e1");
             Square h1 = getSquare("h1");
             if (h1.getPawn().getName().equals("rook") && e1.getPawn().getName().equals("king")) {
-                Square castlingSquareKing = new Square("g1", new King("white"));
-                Square castlingSquareRook = new Square("f1", new Rook("white"));
-                updateGameSquare(castlingSquareKing);
-                updateGameSquare(castlingSquareRook);
-                makeGameSquareEmpty(moveDTO.getMoveFrom());
-                makeGameSquareEmpty(moveDTO.getMoveTo());
-                return true;
+                if (h1.getPawn().getColor().equals("white") && e1.getPawn().getColor().equals("white")) {
+                    Square castlingSquareKing = new Square("g1", new King("white"));
+                    Square castlingSquareRook = new Square("f1", new Rook("white"));
+                    updateGameSquare(castlingSquareKing);
+                    updateGameSquare(castlingSquareRook);
+                    makeGameSquareEmpty(moveDTO.getMoveFrom());
+                    makeGameSquareEmpty(moveDTO.getMoveTo());
+                    return true;
+                }
             }
         }
 
@@ -227,13 +231,15 @@ public class GameService {
             Square e8 = getSquare("e8");
             Square a8 = getSquare("a8");
             if (a8.getPawn().getName().equals("rook") && e8.getPawn().getName().equals("king")) {
-                Square castlingSquareKing = new Square("c8", new King("black"));
-                Square castlingSquareRook = new Square("d8", new Rook("black"));
-                updateGameSquare(castlingSquareKing);
-                updateGameSquare(castlingSquareRook);
-                makeGameSquareEmpty(moveDTO.getMoveFrom());
-                makeGameSquareEmpty(moveDTO.getMoveTo());
-                return true;
+                if (a8.getPawn().getColor().equals("black") && e8.getPawn().getColor().equals("black")) {
+                    Square castlingSquareKing = new Square("c8", new King("black"));
+                    Square castlingSquareRook = new Square("d8", new Rook("black"));
+                    updateGameSquare(castlingSquareKing);
+                    updateGameSquare(castlingSquareRook);
+                    makeGameSquareEmpty(moveDTO.getMoveFrom());
+                    makeGameSquareEmpty(moveDTO.getMoveTo());
+                    return true;
+                }
             }
         }
 
@@ -242,13 +248,15 @@ public class GameService {
             Square e8 = getSquare("e8");
             Square h8 = getSquare("h8");
             if (h8.getPawn().getName().equals("rook") && e8.getPawn().getName().equals("king")) {
-                Square castlingSquareKing = new Square("g8", new King("black"));
-                Square castlingSquareRook = new Square("f8", new Rook("black"));
-                updateGameSquare(castlingSquareKing);
-                updateGameSquare(castlingSquareRook);
-                makeGameSquareEmpty(moveDTO.getMoveFrom());
-                makeGameSquareEmpty(moveDTO.getMoveTo());
-                return true;
+                if (h8.getPawn().getColor().equals("black") && e8.getPawn().getColor().equals("black")) {
+                    Square castlingSquareKing = new Square("g8", new King("black"));
+                    Square castlingSquareRook = new Square("f8", new Rook("black"));
+                    updateGameSquare(castlingSquareKing);
+                    updateGameSquare(castlingSquareRook);
+                    makeGameSquareEmpty(moveDTO.getMoveFrom());
+                    makeGameSquareEmpty(moveDTO.getMoveTo());
+                    return true;
+                }
             }
         }
 
