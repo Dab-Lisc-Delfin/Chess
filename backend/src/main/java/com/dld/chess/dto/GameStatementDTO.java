@@ -10,5 +10,5 @@ import java.util.List;
 public class GameStatementDTO {
     private List<SquareDTO> chessBoard;
     private boolean isGameActive;
-    //game ID todo
+    private String gameId;
 }

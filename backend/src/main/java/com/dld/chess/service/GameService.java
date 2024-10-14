@@ -3,11 +3,18 @@ package com.dld.chess.service;
 import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.dto.SquareDTO;
+import com.dld.chess.entity.User;
 import com.dld.chess.model.Chessboard;
 import com.dld.chess.model.Game;
+import com.dld.chess.model.Player;
 import com.dld.chess.model.Square;
 import com.dld.chess.model.pawns.*;
+import com.dld.chess.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,8 +25,11 @@ import java.util.List;
 public class GameService {
     private final Game game;
 
-    public GameService(Game game) {
+    private final UserRepository userRepository;
+
+    public GameService(Game game, UserRepository userRepository) {
         this.game = game;
+        this.userRepository = userRepository;
     }
 
     public void createNewGame() {
@@ -264,8 +274,6 @@ public class GameService {
     }
 
 
-
-
     protected void updateGameSquare(Square squareToUpdate) {
         Square[][] squares = game.getSquares();
         for (int i = 0; i < squares.length; i++) {
@@ -313,4 +321,13 @@ public class GameService {
         }
         return false;
     }
+
+
+    //
+    //GameService TODO add Player
+//    Player whitePlayer = new Player("white");
+//    List<Player> players = game.getPlayers();
+//        players.add(whitePlayer);
+//        game.setPlayers(players);
+    //
 }

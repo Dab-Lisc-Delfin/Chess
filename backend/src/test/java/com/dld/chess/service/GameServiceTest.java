@@ -4,9 +4,11 @@ import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.model.Game;
 import com.dld.chess.model.Square;
 import com.dld.chess.model.pawns.*;
+import com.dld.chess.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,11 +17,13 @@ class GameServiceTest {
 
     private Game game;
     private GameService gameService;
+    private UserRepository userRepository;
 
     @BeforeEach
     public void setUp() {
         game = new Game();
-        gameService = new GameService(game);
+        userRepository = Mockito.mock(UserRepository.class);
+        gameService = new GameService(game, userRepository);
         gameService.createNewGame();
     }
 
@@ -158,8 +162,8 @@ class GameServiceTest {
 
     @Test
     void checkIfCheckMate_ifThereIsCheckMate_thenReturnIsCorrect() {
-        Square mockKingSquare = new Square("a5",new King("black"));
-        Square mockRookSquare = new Square("h5",new Rook("white"));
+        Square mockKingSquare = new Square("a5", new King("black"));
+        Square mockRookSquare = new Square("h5", new Rook("white"));
         gameService.updateGameSquare(mockKingSquare);
         gameService.updateGameSquare(mockRookSquare);
 

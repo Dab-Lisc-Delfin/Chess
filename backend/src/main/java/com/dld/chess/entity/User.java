@@ -3,6 +3,8 @@ package com.dld.chess.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.antlr.v4.runtime.misc.NotNull;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Set;
 
@@ -13,6 +15,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
+    @Column(unique = true)
     private String username;
     private String password;
     private String email;

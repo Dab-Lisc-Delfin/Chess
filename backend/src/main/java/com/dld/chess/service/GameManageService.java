@@ -5,6 +5,7 @@ import com.dld.chess.model.Game;
 import com.dld.chess.model.GameManage;
 import com.dld.chess.model.Player;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,26 +14,16 @@ import java.util.List;
 @Slf4j
 public class GameManageService {
     private GameManage gameManage;
-    private GameService gameService;
 
     public GameManageService(GameService gameService) {
         this.gameManage = GameManage.getInstance();
-        this.gameService = gameService;
     }
 
 
     public GameInviteDTO createNewGame() {
         List<Game> gameList = gameManage.getGames();
+
         Game game = new Game();
-
-        //
-        //GameService TODO add Player
-        Player whitePlayer = new Player("white");
-        List<Player> players = game.getPlayers();
-        players.add(whitePlayer);
-        game.setPlayers(players);
-        //
-
         gameList.add(game);
         gameManage.setGames(gameList);
 
@@ -40,11 +31,11 @@ public class GameManageService {
         gameInviteDTO.setGameId(game.getId());
         gameInviteDTO.setLinkToInviteFriend("http://localhost:8080/join-game/" + game.getId());
 
+        addLoggedPlayerToGame("white",game.getId());
+
         log.info("Games active {}", gameList.size());
         return gameInviteDTO;
     }
-
-
 
 
     public Game getGameById(String gameId){
@@ -62,14 +53,22 @@ public class GameManageService {
     }
 
 
-    public void joinGame(Player player, String gameId){
+    public void addLoggedPlayerToGame(String color, String gameId) {
         Game game = getGameById(gameId);
-        //
-        //GameService TODO add Player
+
+        String usernameLoggedUser = SecurityContextHolder.getContext().getAuthentication().getName();
+        Player player = new Player(color);
+        player.setUsername(usernameLoggedUser);
+
         List<Player> players = game.getPlayers();
-        players.add(player);
-        game.setPlayers(players);
-        //
+
+        if (players.size() > 2) {
+            players.add(player);
+            game.setPlayers(players);
+        }
+//        }else{
+//            throw new Exception("already 2 players in game."); TODO
+//        }
     }
 
 }

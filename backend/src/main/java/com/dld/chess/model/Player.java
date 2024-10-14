@@ -12,6 +12,6 @@ public class Player {
         this.color = color;
     }
 
-    int playerId;
-    String color;
+    private String username;
+    private String color;
 }
