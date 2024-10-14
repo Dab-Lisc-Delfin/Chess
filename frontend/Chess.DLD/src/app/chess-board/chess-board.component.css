@@ -15,8 +15,13 @@
     background-color: rgb(158, 110, 21);
   }
   .highlighted {
-    background-color: rgba(0, 255, 0, 0.5); 
+    border: 3px solid rgba(85, 170, 85, 0.9); /* Mocniejsza zieleń */
+    background: linear-gradient(to right, rgb(34, 139, 34), rgb(50, 205, 50)); /* Ciemniejszy i intensywniejszy gradient zieleni */
 }
+  
+  
+  
+
 
 
 

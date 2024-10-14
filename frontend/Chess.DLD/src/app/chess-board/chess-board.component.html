@@ -6,23 +6,29 @@
 <!--  -->
 
 <div class="grid justify-center flex flex-col">
+    
     <div class="grid-row content-center rounded flex mr-[90px]">
-        <div class="flex flex-col items-center justify-center">
+        
+        <div class="flex flex-col items-center justify-center ">
             <div *ngFor="let number of [8, 7, 6, 5, 4, 3, 2, 1]"
                 class="w-[90px] h-[90px] flex items-center justify-end ">
-                <p class="mr-[25px]">{{ number }}</p>
+                <p class="mr-[25px] font-bold">{{ number }}</p>
             </div>
         </div>
-        <div class="grid grid-cols-8">
-            <div *ngFor="let square of chessBoard" class="w-[90px] h-[90px] flex items-center justify-center" [ngClass]="{
+        <!-- <div class="border-[2px] border-black  rounded-lg"> -->
+            <div class="bg-[#4A7C2A] px-4 py-4 rounded-lg  border-[3px] border-[#3B2A19]">
+        
+        <div class="grid grid-cols-8 gap-[2px]">
+            <div *ngFor="let square of chessBoard" class="bg-gradient-to-r from-[#4B5B34] to-[#8B5E34] rounded-lg w-[90px] h-[90px] border-[3px] border-[#3B2A19] flex items-center justify-center " [ngClass]="{
          'hoverWhite': square.color === 'white',
          'hoverBlack': square.color === 'black',
          'white': square.color === 'white',
          'black': square.color === 'black',
          'highlighted': highlightedSquares.includes(square.square)
      }" (click)="showSquareDetails(square)" (dragover)="allowDrop($event)" (drop)="dropSquare(square)">
+     
                 <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
-                    <div class="text-center w-[72px] h-[72px]" draggable="true" (dragstart)="showSquareDetails(square)">
+                    <div class=" text-center w-[72px] h-[72px]" draggable="true" (dragstart)="showSquareDetails(square)">
                         <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
                             <img [src]="'/' + (pawn.pawnColor === 'white' ? (pawn.pawnName + 'white.png') : (pawn.pawnName + 'black.png'))"
                                 alt="{{ pawn.pawnName }}" class="w-full h-full object-contain" />
@@ -31,15 +37,18 @@
                 </ng-container>
             </div>
         </div>
-    </div>
+    <!-- </div> -->
+</div>
+</div>
     <div class="grid grid-cols-9  mr-[90px]">
-        <div class="w-[90px] h-[90px] flex ">
+        <div class=" flex ">
             <p></p>
         </div>
-        <div *ngFor="let square of chessBoard.slice(0, 8)" class="w-[90px]  h-[90px] flex  justify-center ">
-            <p class="mt-[15px]">{{ square.square.slice(0, 1) }}</p>
+        <div *ngFor="let square of chessBoard.slice(0, 8)" class="w-[90px]  h-[40px] flex justify-center ">
+            <p class="mt-[15px] font-bold">{{ square.square.slice(0, 1) }}</p>
         </div>
     </div>
+
     <div *ngIf="!isGameActive" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
         <div class="bg-white p-6 rounded-lg shadow-lg text-center space-y-4">
             <h2 class="text-2xl font-bold text-gray-800">Game Finished</h2>
