@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DataService } from '../data.service';
+import { ActivatedRoute } from '@angular/router';
 
 interface Pawn {
   pawnName: string;
@@ -30,6 +31,8 @@ export class ChessBoardComponent {
   blackDangerZone: string[] = [];
   checkmateMessage: boolean = false;
   checkmateSquare: string | null = null;
+  gameId: string | null = '';
+  
   resetGame() {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
@@ -48,9 +51,6 @@ export class ChessBoardComponent {
       }
     );
   }
-//   ngOnInit() {
-//     this.checkmateSquare = 'e1'; // lub 'e7'
-// }
   handleCheckmate(square: string) {
     this.checkmateSquare = square; 
     this.checkmateMessage = true;
@@ -58,10 +58,10 @@ export class ChessBoardComponent {
     setTimeout(() => {
       this.checkmateMessage = false; 
       this.checkmateSquare = null; 
-    }, 2000); 
+    }, 2500); 
   }
 
-  constructor(private dataService: DataService) {
+  constructor(private route: ActivatedRoute,private dataService: DataService) {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
         const chessBoardData = res.chessBoard.map((pawn: any) => ({
@@ -78,7 +78,11 @@ export class ChessBoardComponent {
       }
     );
   }
-
+  ngOnInit(): void {
+    // this.checkmateSquare = 'e1'; 
+    this.gameId = this.route.snapshot.paramMap.get('id');
+  }
+  
   dropSquare(square: any) {
     // console.log('DropSquare called with square:', square);
     if (!this.isGameActive) {
