@@ -45,7 +45,7 @@ font-size: 36px;
 }
 .king-image {
   position: absolute; 
-  transform: translate(-10% , -100%); 
+  transform: translate(-5% , -80%); 
   width: 140px; 
   height: auto; 
   z-index: 1000; 
