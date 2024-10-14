@@ -1,4 +1,7 @@
 <!--  -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap" rel="stylesheet">
 <!--  -->
 <!--  -->
 <!--  -->
@@ -9,17 +12,16 @@
     
     <div class="grid-row content-center rounded flex mr-[90px]">
         
-        <div class="flex flex-col items-center justify-center ">
+        <div class="flex flex-col items-center justify-center font">
             <div *ngFor="let number of [8, 7, 6, 5, 4, 3, 2, 1]"
                 class="w-[90px] h-[90px] flex items-center justify-end ">
                 <p class="mr-[25px] font-bold">{{ number }}</p>
             </div>
         </div>
-        <!-- <div class="border-[2px] border-black  rounded-lg"> -->
-            <div class="bg-[#4A7C2A] px-4 py-4 rounded-lg  border-[3px] border-[#3B2A19]">
+            <div class="  border-[3px] border-[#856F28] mt-[20px]">
         
-        <div class="grid grid-cols-8 gap-[2px]">
-            <div *ngFor="let square of chessBoard" class="bg-gradient-to-r from-[#4B5B34] to-[#8B5E34] rounded-lg w-[90px] h-[90px] border-[3px] border-[#3B2A19] flex items-center justify-center " [ngClass]="{
+        <div class="grid grid-cols-8">
+            <div *ngFor="let square of chessBoard" class=" w-[90px] h-[90px]  flex items-center justify-center " [ngClass]="{
          'hoverWhite': square.color === 'white',
          'hoverBlack': square.color === 'black',
          'white': square.color === 'white',
@@ -37,15 +39,14 @@
                 </ng-container>
             </div>
         </div>
-    <!-- </div> -->
 </div>
 </div>
     <div class="grid grid-cols-9  mr-[90px]">
         <div class=" flex ">
             <p></p>
         </div>
-        <div *ngFor="let square of chessBoard.slice(0, 8)" class="w-[90px]  h-[40px] flex justify-center ">
-            <p class="mt-[15px] font-bold">{{ square.square.slice(0, 1) }}</p>
+        <div *ngFor="let square of chessBoard.slice(0, 8)" class="w-[90px]  h-[90px] flex justify-center ">
+            <p class="mt-[15px] font">{{ square.square.slice(0, 1) | uppercase }}</p>
         </div>
     </div>
 
