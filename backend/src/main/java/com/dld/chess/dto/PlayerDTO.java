@@ -1,7 +1,6 @@
 package com.dld.chess.dto;
 
 public class PlayerDTO {
-    int id;
+    String nickname;
     int color;
-
 }

@@ -47,4 +47,9 @@ public class GameManageController {
     }
 
 
+    @GetMapping("/allGames")
+    public int getAllGames(){
+        return gameManageService.getAllGames().size();
+    }
+
 }

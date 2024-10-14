@@ -21,26 +21,26 @@ public class GameManageService {
 
 
     public GameInviteDTO createNewGame() {
-        List<Game> gameList = gameManage.getGames();
-
         Game game = new Game();
-        gameList.add(game);
-        gameManage.setGames(gameList);
-
         GameInviteDTO gameInviteDTO = new GameInviteDTO();
         gameInviteDTO.setGameId(game.getId());
         gameInviteDTO.setLinkToInviteFriend("http://localhost:8080/join-game/" + game.getId());
 
-        addLoggedPlayerToGame("white",game.getId());
+        log.info("GAME CREATED: ID {}", game.getId());
 
+        List<Game> gameList = gameManage.getGames();
+        gameList.add(game);
+        gameManage.setGames(gameList);
+
+        addLoggedPlayerToGame("white", game.getId());
         log.info("Games active {}", gameList.size());
         return gameInviteDTO;
     }
 
 
-    public Game getGameById(String gameId){
-        for(Game game : gameManage.getGames()){
-            if(game.getId().equals(gameId)){
+    public Game getGameById(String gameId) {
+        for (Game game : gameManage.getGames()) {
+            if (game.getId().equals(gameId)) {
                 return game;
             }
         }
@@ -48,7 +48,7 @@ public class GameManageService {
     }
 
 
-    public List<Game> getAllGames(){
+    public List<Game> getAllGames() {
         return gameManage.getGames();
     }
 
@@ -62,7 +62,7 @@ public class GameManageService {
 
         List<Player> players = game.getPlayers();
 
-        if (players.size() > 2) {
+        if (players.size() < 2) {
             players.add(player);
             game.setPlayers(players);
         }
