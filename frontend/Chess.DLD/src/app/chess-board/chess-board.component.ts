@@ -74,7 +74,6 @@ export class ChessBoardComponent {
     }
 
     if (this.highlightedSquares.includes(square.square)) {
-
       if (this.originalPosition) {
         const moveDetails = {
           moveFrom: this.originalPosition,
@@ -140,7 +139,7 @@ export class ChessBoardComponent {
 
     const pawnInfo = this.getPawnOnSquare(square.square);
     // console.log('Pawn info for square:', pawnInfo);
-
+    
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
         const moveDetails = {
@@ -153,6 +152,7 @@ export class ChessBoardComponent {
         // console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
         // JSON RUCHU
         const originalPosition = this.selectedPawnInfo.pawnPlacement;
+        const originalBoardPosition = this.jsonResponse;
         let whiteKingPosition = '';
         let blackKingPosition = '';
         let whiteKingBeforeNewPosition = '';
@@ -206,32 +206,20 @@ export class ChessBoardComponent {
 
         if ((moveDetails.pawnColor === 'white' && allBlackMoves.includes(whiteKingPosition)) || (moveDetails.pawnColor === 'black' && allWhiteMoves.includes(blackKingPosition))) {
           console.log('Ruch powoduje szachmat.');
-          this.jsonResponse = this.jsonResponse.map((pawn: any) => {
-            if (pawn.pawnPlacement === square.square && pawn.pawnName === moveDetails.pawnName) {
-              return {
-                ...pawn,
-                pawnPlacement: originalPosition,
-              };
-            }
-            return pawn;
-          });
+          this.jsonResponse = JSON.parse(JSON.stringify(originalBoardPosition));
+
+          // this.jsonResponse = this.jsonResponse.map((pawn: any) => {
+          //   if (pawn.pawnPlacement === square.square && pawn.pawnName === moveDetails.pawnName) {
+          //     return {
+          //       ...pawn,
+          //       pawnPlacement: originalPosition,
+          //     };
+          //   }
+          //   return pawn;
+          // });
 
           return;
         }
-
-
-
-        this.jsonResponse = this.jsonResponse.map((pawn: any) => {
-          if (pawn.pawnPlacement === square.square && pawn.pawnName === moveDetails.pawnName) {
-            return {
-              ...pawn,
-              pawnPlacement: originalPosition,
-            };
-          }
-          return pawn;
-        });
-
-
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
