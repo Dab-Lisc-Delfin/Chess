@@ -1,15 +1,19 @@
 package com.dld.chess.controller;
 
-import com.dld.chess.model.GameManage;
+import com.dld.chess.dto.GameInviteDTO;
+import com.dld.chess.model.Game;
+import com.dld.chess.model.Player;
 import com.dld.chess.service.GameManageService;
 import com.dld.chess.service.GameService;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
 
 @Controller
+@Slf4j
 public class TestController {
     GameService chessboardService;
     GameManageService gameManageService;
@@ -19,12 +23,25 @@ public class TestController {
         this.gameManageService = gameManageService;
     }
 
-    @GetMapping("/test/gameManage")
-    @ResponseBody
-    public int getGameManage() {
-        gameManageService.addGameToGameList();
-        return 0;
-    }
+
+//    @GetMapping("/test2")
+//    @ResponseBody
+//    public String getIdFromSession(){
+//        return chessboardService.addPlayerFromSessionToGame("white");
+//    }
+
+
+//    @GetMapping("/test1")
+//    @ResponseBody
+//    public String testController() {
+//        gameManageService.createNewGame();
+//        List<Game> games = gameManageService.getAllGames();
+//        for (Game game : games) {
+//            log.info("game ID {} ", game.getId());
+//            log.info("game PLAYERS {} ", game.getPlayers());
+//        }
+//        return "this is test1 controller";
+//    }
 
 
     @PostMapping("/api/home")

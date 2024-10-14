@@ -15,24 +15,28 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig {
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-//        http
-//                .authorizeHttpRequests((authz) -> authz
-//                        .requestMatchers("/admin/*").hasRole("ADMIN")
-//                        .anyRequest().authenticated()
-//                );
-//
-//        http.formLogin(Customizer.withDefaults());
-//        return http.build();
-//    }
-
-
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers(new AntPathRequestMatcher("/**"));
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+        http
+                .authorizeHttpRequests((authz) -> authz
+                        .requestMatchers("/admin/*").hasRole("ADMIN")
+                        .requestMatchers("/api/create-user").permitAll()
+                        .requestMatchers("/home").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/create-user"))  // Disable CSRF for specific endpoint
+        ;
+
+        http.formLogin(Customizer.withDefaults());
+        return http.build();
     }
+
+
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return (web) -> web.ignoring()
+//                .requestMatchers(new AntPathRequestMatcher("/**"));
+//    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){

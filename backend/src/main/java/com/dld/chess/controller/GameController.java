@@ -43,4 +43,5 @@ public class GameController {
         gameService.printAllChessBoardSquares();
         return ResponseEntity.ok(gameStatementDTO);
     }
+
 }
