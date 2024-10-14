@@ -1,19 +1,17 @@
+<div class="text-center grid bg-[gray] h-screen w-full shadow-2xl shadow-black">
 
-  <div class="bg-white  text-center grid">
-    <div class="row-span-1">
-      <h3 class="text-4xl font-bold text-gray-800 mb-4">Chess</h3>
-    </div>
-    <div class="mt-6 row-span-1">
-      <app-game *ngIf="showGame"></app-game>
-    </div>
-    <div *ngIf="Board">
-      <app-chess-board></app-chess-board>
-    </div>
-    <!-- <div *ngIf="jsonResponse">
-      <h2>Odpowiedź z serwera:</h2>
-      <pre>{{ jsonResponse | json }}</pre>
-    </div> -->
-    <div *ngIf="test">
-      <app-test></app-test>
-    </div>
+  <div class="row-span-1 text-center content-center">
+    <h3 class="text-4xl font-bold text-[white] relative inline-block">
+      ♟️ Chess ♟️
+      <span class="absolute -inset-1 bg-gradient-to-r from-purple-500 to-pink-500 opacity-30 blur-md rounded-lg"></span>
+    </h3>
   </div>
+  
+  <div class="row-span-1">
+    <app-game *ngIf="showGame"></app-game>
+  </div>
+  
+  <div *ngIf="Board">
+    <app-chess-board></app-chess-board>
+  </div>
+</div>
