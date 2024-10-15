@@ -12,4 +12,5 @@ public class Bishop extends PawnAbstract{
     public void makeMove(String moveFROM, String moveTO, String name, String color){
         //move diagonally
     }
+
 }

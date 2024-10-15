@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DataService } from '../data.service';
+import { ActivatedRoute } from '@angular/router';
 
 interface Pawn {
   pawnName: string;
@@ -28,7 +29,13 @@ export class ChessBoardComponent {
   isGameActive: boolean = true;
   whiteDangerZone: string[] = [];
   blackDangerZone: string[] = [];
-
+  checkmateMessage: boolean = false;
+  checkmateSquare: string | null = null;
+  gameId: string | null = '';
+  moveHistory: Array<{ moveFrom: string,moveTo: string, pawnColor: string, pawnName: string }> = [];
+  moveCounter: number = 0;
+  highlightedSquare11: string[] = [];
+  @ViewChild('historyContainer') historyContainer!: ElementRef;
   resetGame() {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
@@ -47,10 +54,45 @@ export class ChessBoardComponent {
       }
     );
   }
+  handleCheckmate(square: string) {
+    this.checkmateSquare = square; 
+    this.checkmateMessage = true;
 
+    setTimeout(() => {
+      this.checkmateMessage = false; 
+      this.checkmateSquare = null; 
+    }, 2500); 
+  }
+  getTurnNumber(index: number): number {
+    return Math.floor(index / 2) + 1;
+}
+getTurnIndexes(): number[] {
+  const indexes = [];
+  for (let i = 0; i < this.moveHistory.length; i += 2) {
+      indexes.push(i);
+  }
+  return indexes;
+}
 
+highlightSquare11(square: string): void {
+  if (!this.highlightedSquare11.includes(square)) {
+    this.highlightedSquare11.push(square);
+  }
+}
 
-  constructor(private dataService: DataService) {
+removeHighlight11(): void {
+  this.highlightedSquare11 = []; 
+}
+  scrollToBottom(): void {
+    setTimeout(() => { 
+      try {
+        this.historyContainer.nativeElement.scrollTop = this.historyContainer.nativeElement.scrollHeight;
+      } catch (err) {
+        console.error('Scroll error: ', err);
+      }
+    }, 10); 
+  }
+  constructor(private route: ActivatedRoute,private dataService: DataService) {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
         const chessBoardData = res.chessBoard.map((pawn: any) => ({
@@ -67,6 +109,11 @@ export class ChessBoardComponent {
       }
     );
   }
+  ngOnInit(): void {
+    // this.checkmateSquare = 'e1'; 
+    this.gameId = this.route.snapshot.paramMap.get('id');
+  }
+  
   dropSquare(square: any) {
     // console.log('DropSquare called with square:', square);
     if (!this.isGameActive) {
@@ -74,7 +121,6 @@ export class ChessBoardComponent {
     }
 
     if (this.highlightedSquares.includes(square.square)) {
-
       if (this.originalPosition) {
         const moveDetails = {
           moveFrom: this.originalPosition,
@@ -85,13 +131,91 @@ export class ChessBoardComponent {
 
         // console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
         // JSON RUCHU
+        const originalPosition = this.selectedPawnInfo.pawnPlacement;
+        const originalBoardPosition = this.jsonResponse;
+        let whiteKingPosition = '';
+        let blackKingPosition = '';
+        let whiteKingBeforeNewPosition = '';
+        let blackKingBeforeNewPosition = '';
+        this.jsonResponse.forEach((pawn: any) => {
+          if (pawn.pawnName === 'king') {
+            if (pawn.pawnColor === 'white') {
+              whiteKingBeforeNewPosition = pawn.pawnPlacement;
+            } else if (pawn.pawnColor === 'black') {
+              blackKingBeforeNewPosition = pawn.pawnPlacement;
+            }
+          }
+        });
+        this.jsonResponse = this.jsonResponse.map((pawn: any) => {
+          if (pawn.pawnPlacement === originalPosition) {
+            return {
+              ...pawn,
+              pawnPlacement: square.square,
+            };
+          }
+          return pawn;
+        });
+        const targetPawn = this.jsonResponse.find((pawn: any) => 
+          pawn.pawnPlacement === square.square && pawn.pawnColor !== moveDetails.pawnColor
+        );
+        let moveSound: HTMLAudioElement;
+        if (targetPawn) { 
+          moveSound = new Audio('/move-take.mp3');         
+          this.jsonResponse = this.jsonResponse.filter((pawn: any) => 
+            pawn.pawnPlacement !== square.square || pawn.pawnColor === moveDetails.pawnColor
+          );
+        } else {
+          moveSound = new Audio('/move-sound.wav');
+        }
+
+        const allWhiteMoves: string[] = [];
+        const allBlackMoves: string[] = [];
+
+
+
+        this.jsonResponse.forEach((pawn: any) => {
+          if (pawn) {
+            const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, this.jsonResponse);
+            // console.log('POSSIBLE MOVES',possibleMoves)
+            if (pawn.pawnName === 'king' && pawn.pawnColor === 'white') {
+              whiteKingPosition = pawn.pawnPlacement;
+            }
+            if (pawn.pawnName === 'king' && pawn.pawnColor === 'black') {
+              blackKingPosition = pawn.pawnPlacement;
+            }
+            if (pawn.pawnColor === 'white') {
+              allWhiteMoves.push(...possibleMoves);
+            } else if (pawn.pawnColor === 'black') {
+              allBlackMoves.push(...possibleMoves);
+            }
+          }
+        });
+
+
+        if ((moveDetails.pawnColor === 'white' && allBlackMoves.includes(whiteKingPosition)) || (moveDetails.pawnColor === 'black' && allWhiteMoves.includes(blackKingPosition))) {
+          moveSound = new Audio('/error.wav');
+          moveSound.volume = 0.05;
+          moveSound.play();
+          if (moveDetails.pawnColor === 'black') {
+            this.checkmateSquare = blackKingPosition; 
+          } else {
+            this.checkmateSquare = whiteKingPosition;
+          }
+          this.handleCheckmate(this.checkmateSquare);
+          this.jsonResponse = JSON.parse(JSON.stringify(originalBoardPosition));
+
+          return;
+        }
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
-
+            this.moveCounter++;
+            this.moveHistory.push(moveDetails);
+            this.scrollToBottom();
             this.dataService.GetBoardDetails().subscribe(
               (response: any) => {
                 // console.log('BoardUpdated', response);
+
                 const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
                   pawnName: pawn.name,
                   pawnColor: pawn.color,
@@ -99,12 +223,12 @@ export class ChessBoardComponent {
                 }));
 
                 this.jsonResponse = updatedChessBoardData;
+                moveSound.volume = 0.1;
+                moveSound.play();
                 if (!response.gameActive) {
-                  console.log('Gra została zakończona.');
                   this.isGameActive = false;
-                  return;
                 }
-                // console.log('Updated Chess Board Data:', JSON.stringify(this.jsonResponse, null, 2));
+
               },
               (error) => {
                 console.error('Error Updating Board', error);
@@ -140,7 +264,7 @@ export class ChessBoardComponent {
 
     const pawnInfo = this.getPawnOnSquare(square.square);
     // console.log('Pawn info for square:', pawnInfo);
-
+    
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
         const moveDetails = {
@@ -153,6 +277,7 @@ export class ChessBoardComponent {
         // console.log('Sending the following move details:', JSON.stringify(moveDetails, null, 2));
         // JSON RUCHU
         const originalPosition = this.selectedPawnInfo.pawnPlacement;
+        const originalBoardPosition = this.jsonResponse;
         let whiteKingPosition = '';
         let blackKingPosition = '';
         let whiteKingBeforeNewPosition = '';
@@ -175,9 +300,17 @@ export class ChessBoardComponent {
           }
           return pawn;
         });
-        const targetPawn = this.jsonResponse.find((pawn: any) => pawn.pawnPlacement === square.square && pawn.pawnColor !== moveDetails.pawnColor);
-        if (targetPawn) {
-          this.jsonResponse = this.jsonResponse.filter((pawn: any) => pawn.pawnPlacement !== square.square || pawn.pawnColor === moveDetails.pawnColor);
+        const targetPawn = this.jsonResponse.find((pawn: any) => 
+          pawn.pawnPlacement === square.square && pawn.pawnColor !== moveDetails.pawnColor
+        );
+        let moveSound: HTMLAudioElement;
+        if (targetPawn) { 
+          moveSound = new Audio('/move-take.mp3');         
+          this.jsonResponse = this.jsonResponse.filter((pawn: any) => 
+            pawn.pawnPlacement !== square.square || pawn.pawnColor === moveDetails.pawnColor
+          );
+        } else {
+          moveSound = new Audio('/move-sound.wav');
         }
 
         const allWhiteMoves: string[] = [];
@@ -203,39 +336,27 @@ export class ChessBoardComponent {
           }
         });
 
-
         if ((moveDetails.pawnColor === 'white' && allBlackMoves.includes(whiteKingPosition)) || (moveDetails.pawnColor === 'black' && allWhiteMoves.includes(blackKingPosition))) {
-          console.log('Ruch powoduje szachmat.');
-          this.jsonResponse = this.jsonResponse.map((pawn: any) => {
-            if (pawn.pawnPlacement === square.square && pawn.pawnName === moveDetails.pawnName) {
-              return {
-                ...pawn,
-                pawnPlacement: originalPosition,
-              };
-            }
-            return pawn;
-          });
-
+          moveSound = new Audio('/error.wav');
+          moveSound.volume = 0.05;
+          moveSound.play();
+          
+          if (moveDetails.pawnColor === 'black') {
+            this.checkmateSquare = blackKingBeforeNewPosition;
+          } else {
+            this.checkmateSquare = whiteKingBeforeNewPosition;
+          }
+          this.handleCheckmate(this.checkmateSquare);
+          this.jsonResponse = JSON.parse(JSON.stringify(originalBoardPosition));
           return;
         }
-
-
-
-        this.jsonResponse = this.jsonResponse.map((pawn: any) => {
-          if (pawn.pawnPlacement === square.square && pawn.pawnName === moveDetails.pawnName) {
-            return {
-              ...pawn,
-              pawnPlacement: originalPosition,
-            };
-          }
-          return pawn;
-        });
-
-
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
-
+            this.moveCounter++;
+            this.moveHistory.push(moveDetails);
+            this.scrollToBottom();
+            // console.log(moveDetails.moveTo, moveDetails.pawnColor,moveDetails.pawnName)
             this.dataService.GetBoardDetails().subscribe(
               (response: any) => {
                 // console.log('BoardUpdated', response);
@@ -247,6 +368,8 @@ export class ChessBoardComponent {
                 }));
 
                 this.jsonResponse = updatedChessBoardData;
+                moveSound.volume = 0.1;
+                moveSound.play();
 
                 if (!response.gameActive) {
                   this.isGameActive = false;

@@ -10,7 +10,7 @@ import { ChessBoardComponent } from './chess-board/chess-board.component';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, GameComponent, CommonModule,HttpClientModule, TestComponent,ChessBoardComponent],
+  imports: [RouterOutlet, GameComponent, CommonModule, HttpClientModule, TestComponent, ChessBoardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -25,16 +25,6 @@ export class AppComponent {
   toggleGameDisplay() {
     this.showGame = !this.showGame;
   }
-  // constructor(private dataService: DataService) {
-  //   this.dataService.getJsonData().subscribe(
-  //     (res: any) => {
-  //       this.jsonResponse = res; 
-  //       (JSON.stringify(res));
-  //     },
-  //     (error) => {
-  //       console.error('Error fetching JSON data:', error);
-  //     }
-  //   );
-  // }
-  
+
+
 }
