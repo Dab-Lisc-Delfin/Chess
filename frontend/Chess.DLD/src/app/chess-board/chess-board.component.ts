@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DataService } from '../data.service';
@@ -32,7 +32,10 @@ export class ChessBoardComponent {
   checkmateMessage: boolean = false;
   checkmateSquare: string | null = null;
   gameId: string | null = '';
-  
+  moveHistory: Array<{ moveFrom: string,moveTo: string, pawnColor: string, pawnName: string }> = [];
+  moveCounter: number = 0;
+  highlightedSquare11: string[] = [];
+  @ViewChild('historyContainer') historyContainer!: ElementRef;
   resetGame() {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
@@ -60,7 +63,35 @@ export class ChessBoardComponent {
       this.checkmateSquare = null; 
     }, 2500); 
   }
+  getTurnNumber(index: number): number {
+    return Math.floor(index / 2) + 1;
+}
+getTurnIndexes(): number[] {
+  const indexes = [];
+  for (let i = 0; i < this.moveHistory.length; i += 2) {
+      indexes.push(i);
+  }
+  return indexes;
+}
 
+highlightSquare11(square: string): void {
+  if (!this.highlightedSquare11.includes(square)) {
+    this.highlightedSquare11.push(square);
+  }
+}
+
+removeHighlight11(): void {
+  this.highlightedSquare11 = []; 
+}
+  scrollToBottom(): void {
+    setTimeout(() => { 
+      try {
+        this.historyContainer.nativeElement.scrollTop = this.historyContainer.nativeElement.scrollHeight;
+      } catch (err) {
+        console.error('Scroll error: ', err);
+      }
+    }, 10); 
+  }
   constructor(private route: ActivatedRoute,private dataService: DataService) {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
@@ -178,7 +209,9 @@ export class ChessBoardComponent {
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
-
+            this.moveCounter++;
+            this.moveHistory.push(moveDetails);
+            this.scrollToBottom();
             this.dataService.GetBoardDetails().subscribe(
               (response: any) => {
                 // console.log('BoardUpdated', response);
@@ -320,7 +353,10 @@ export class ChessBoardComponent {
         this.dataService.sendMoveDetails(moveDetails).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
-
+            this.moveCounter++;
+            this.moveHistory.push(moveDetails);
+            this.scrollToBottom();
+            // console.log(moveDetails.moveTo, moveDetails.pawnColor,moveDetails.pawnName)
             this.dataService.GetBoardDetails().subscribe(
               (response: any) => {
                 // console.log('BoardUpdated', response);

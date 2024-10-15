@@ -24,12 +24,12 @@
             </div>
         </div>
         <div class="flex justify-center items-center h-full max-w-[1440px] m-auto">
-            <div class="w-[15%] flex flex-col justify-center items-center mt-[42%]">
-                <img src="Rook.png" alt="Rook">
-                <img src="bishop.webp" alt="bishop">
-                <img src="knight.webp" alt="knight">
+            <div class="w-[20%] flex flex-col justify-center items-center mt-[42%]">
+                <img src="Rook.png" alt="Rook" class="max-w-[200px]">
+                <img src="bishop.webp" alt="bishop" class="max-w-[200px]">
+                <img src="knight.webp" alt="knight" class="max-w-[200px]">
             </div>
-            <div class="w-[70%] flex justify-center m-auto">
+            <div class="w-[60%] flex justify-center m-auto">
                 <div class="grid justify-center flex flex-col">
                     <div class="grid-row content-center rounded flex mr-[75px]">
 
@@ -50,6 +50,7 @@
                      'white': square.color === 'white',
                      'black': square.color === 'black',
                      'highlighted': highlightedSquares.includes(square.square),
+                     'highlighted11': highlightedSquare11.includes(square.square),
                      'checkmate': square.square === checkmateSquare
                  }" (click)="showSquareDetails(square)" (dragover)="allowDrop($event)" (drop)="dropSquare(square)">
 
@@ -92,48 +93,54 @@
                     </div>
                 </div>
             </div>
-            <div class="ranking-container w-[15%] flex flex-col items-center mt-[30%]">
-                <ol class="ranking-list">
-                    <li class="ranking-item">
-                        <div class="flex justify-between w-full font">
-                            <span class="rank-number text-shadow">Ranking</span>
-                        </div>
-                        <div class="flex justify-between w-full font">
-                            <span class="ranking-title text-shadow">1.</span>
-                            <span class="ranking-title text-shadow">YOU</span>
-                        </div>
-                    </li>
-                    <li class="ranking-item">
-                        <div class="flex justify-between w-full font">
-                            <span class="rank-number text-shadow">2.</span>
-                            <span class="user-name text-shadow">MAREK</span>
-                        </div>
-                    </li>
-                    <li class="ranking-item">
-                        <div class="flex justify-between w-full font">
-                            <span class="rank-number text-shadow">3.</span>
-                            <span class="user-name text-shadow">JAREK</span>
-                        </div>
-                    </li>
-                    <li class="ranking-item">
-                        <div class="flex justify-between w-full font">
-                            <span class="rank-number text-shadow">4.</span>
-                            <span class="user-name text-shadow">AREK</span>
-                        </div>
-                    </li>
-                    <li class="ranking-item">
-                        <div class="flex justify-between w-full font">
-                            <span class="rank-number text-shadow">5.</span>
-                            <span class="user-name text-shadow">xXxXD123</span>
-                        </div>
-                    </li>
-                    <li class="ranking-item">
-                        <div class="flex justify-between w-full font">
-                            <span class="rank-number text-shadow">...</span>
-                            <span class="user-name text-shadow"></span>
-                        </div>
-                    </li>
-                </ol>
+
+            <div class="w-[20%] flex flex-col items-center mt-[25%]">
+                <div>
+                    <span class="font text-shadow text-[24px]">History</span>
+                </div>
+                <div #historyContainer
+                    class="history-container w-[300px] h-[300px] overflow-y-auto bg-[#6B6B6B] p-2 shadow-top border-[3px] border-[#856F28]">
+                    <div class="flex flex-wrap gap-2">
+                        <ng-container *ngFor="let i of getTurnIndexes()">
+                            <div class="flex items-center space-x-1 w-full">
+                                <span class="font-bold w-[45px] text-black">{{ getTurnNumber(i) }}.</span>
+                                <ng-container *ngIf="moveHistory[i]">
+                                    <div class="flex items-center space-x-1 w-1/3"
+                                        (mouseover)="highlightSquare11(moveHistory[i].moveFrom); highlightSquare11(moveHistory[i].moveTo)"
+                                        (mouseout)="removeHighlight11()">
+                                        <div class="flex items-center space-x-1">
+                                            <img [src]="'/' + moveHistory[i].pawnName.toLowerCase() + moveHistory[i].pawnColor.toLowerCase() + '.png'"
+                                                alt="{{ moveHistory[i].pawnName }} ({{ moveHistory[i].pawnColor }})"
+                                                width="25" height="25">
+                                            <span class="font"
+                                                [ngClass]="highlightedSquare11.includes(moveHistory[i].moveFrom) || highlightedSquare11.includes(moveHistory[i].moveTo) ? 'highlight-class' : (i % 2 === 0 ? 'text-white' : 'text-black')">
+                                                {{ moveHistory[i].moveFrom.toUpperCase() }} → {{
+                                                moveHistory[i].moveTo.toUpperCase() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="moveHistory[i + 1]">
+                                    <div class="flex items-center space-x-1"
+                                    
+                                        (mouseover)="highlightSquare11(moveHistory[i + 1].moveFrom); highlightSquare11(moveHistory[i + 1].moveTo)"
+                                        (mouseout)="removeHighlight11()">
+                                        <div class="flex items-center space-x-1">
+                                            <img [src]="'/' + moveHistory[i + 1].pawnName.toLowerCase() + moveHistory[i + 1].pawnColor.toLowerCase() + '.png'"
+                                                alt="{{ moveHistory[i + 1].pawnName }} ({{ moveHistory[i + 1].pawnColor }})"
+                                                width="25" height="25">
+                                            <span class="font"
+                                                [ngClass]="highlightedSquare11.includes(moveHistory[i + 1].moveFrom) || highlightedSquare11.includes(moveHistory[i + 1].moveTo) ? 'highlight-class' : ((i + 1) % 2 === 0 ? 'text-white' : 'text-black')">
+                                                {{ moveHistory[i + 1].moveFrom.toUpperCase() }} → {{ moveHistory[i +
+                                                1].moveTo.toUpperCase() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
