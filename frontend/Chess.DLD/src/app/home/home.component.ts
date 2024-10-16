@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 export class HomeComponent {
   showModal: boolean = false;
   gameId: string = '';
+  imageUrl: string = './BG.png';
   constructor(private router: Router) {}
   createGame() {
     const gameId = Math.random().toString(36).substring(2, 10);
