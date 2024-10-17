@@ -20,9 +20,10 @@ public class Game {
 
     private Square[][] squares = new Square[8][8];
     private String id;
-    private boolean isActive = false;
+    private boolean isActive = true; //TODO isFinished
 
-    private List<Player> players = new ArrayList<>(); //TODO
+    private List<Player> players = new ArrayList<>();
     private String currentTour;
+    private boolean isStarted = false;
 
 }

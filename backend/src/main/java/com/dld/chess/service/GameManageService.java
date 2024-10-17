@@ -7,11 +7,13 @@ import com.dld.chess.model.Player;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
 @Service
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200")
 public class GameManageService {
     private static GameManage gameManage;
     private GameService gameService;

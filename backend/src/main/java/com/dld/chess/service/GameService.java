@@ -89,11 +89,13 @@ public class GameService {
         chessboard.setSquares(squares);
         game.setSquares(squares);
 
+        game.setCurrentTour("white");
+
         return game;
     }
 
 
-   protected PawnAbstract getPawnFromPosition(String position, Game game) {
+    protected PawnAbstract getPawnFromPosition(String position, Game game) {
         Square[][] gameSquare = game.getSquares();
 
         for (int i = 0; i < gameSquare.length; i++) {
@@ -107,7 +109,7 @@ public class GameService {
     }
 
 
-   protected Square getSquare(String position, Game game) {
+    protected Square getSquare(String position, Game game) {
         Square[][] gameSquare = game.getSquares();
 
         for (int i = 0; i < gameSquare.length; i++) {
@@ -118,6 +120,15 @@ public class GameService {
             }
         }
         return null;
+    }
+
+
+    public void nextTour(Game game) {
+        if (game.getCurrentTour().equals("white")) {
+            game.setCurrentTour("black");
+        } else {
+            game.setCurrentTour("white");
+        }
     }
 
 
@@ -164,8 +175,7 @@ public class GameService {
     }
 
 
-    public void processMove(MoveDTO moveDTO, String gameId) {
-        Game game = GameManageService.getGameById(gameId);
+    public void processMove(MoveDTO moveDTO, Game game) {
         checkIfCheckMate(moveDTO, game);
 
         if (isCastling(moveDTO, game)) {
@@ -185,6 +195,14 @@ public class GameService {
                 log.info("CHECKMATE");
                 game.setActive(false);
             }
+        }
+    }
+
+
+    public void startGameIf2PlayersJoined(String gameId) {
+        Game game = GameManageService.getGameById(gameId);
+        if (game.getPlayers().size() == 2) {
+            game.setStarted(true);
         }
     }
 

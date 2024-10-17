@@ -24,26 +24,6 @@ public class TestController {
     }
 
 
-//    @GetMapping("/test2")
-//    @ResponseBody
-//    public String getIdFromSession(){
-//        return chessboardService.addPlayerFromSessionToGame("white");
-//    }
-
-
-//    @GetMapping("/test1")
-//    @ResponseBody
-//    public String testController() {
-//        gameManageService.createNewGame();
-//        List<Game> games = gameManageService.getAllGames();
-//        for (Game game : games) {
-//            log.info("game ID {} ", game.getId());
-//            log.info("game PLAYERS {} ", game.getPlayers());
-//        }
-//        return "this is test1 controller";
-//    }
-
-
     @PostMapping("/api/home")
     public ResponseEntity<String> getHomeJSON() {
         System.out.println("JSON was called");

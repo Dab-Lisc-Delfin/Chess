@@ -2,15 +2,12 @@ package com.dld.chess.service;
 
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.model.Game;
-import com.dld.chess.model.GameManage;
 import com.dld.chess.model.Square;
 import com.dld.chess.model.pawns.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,8 +25,8 @@ class GameServiceTest {
 
 
     @Test
-    void createNewGame_shouldReturnFalse() {
-        assertFalse(game.isActive());
+    void createNewGame() {
+        assertTrue(game.isActive());
     }
 
 
@@ -48,31 +45,24 @@ class GameServiceTest {
 
     @Test
     void processMove() {
-        GameManage gameManage = GameManage.getInstance();
-        Game mockGame = gameService.createNewGame();
-        mockGame.setId("mockGameId-123");
-        List<Game> mockGamesList = new ArrayList<>();
-        mockGamesList.add(mockGame);
-        gameManage.setGames(mockGamesList);
-
         MoveDTO moveDTO = new MoveDTO();
         moveDTO.setMoveFrom("b7");
         moveDTO.setMoveTo("b5");
         moveDTO.setPawnName("pawn");
         moveDTO.setPawnColor("black");
 
-        Square squareFrom = gameService.getSquare("b7",mockGame);
+        Square squareFrom = gameService.getSquare("b7",game);
 
         //moveFrom
         assertEquals(squareFrom.getName(), moveDTO.getMoveFrom());
         assertEquals(squareFrom.getPawn().getName(), moveDTO.getPawnName());
         assertEquals(squareFrom.getPawn().getColor(), moveDTO.getPawnColor());
 
-        gameService.processMove(moveDTO, mockGame.getId());
-        assertTrue(gameService.getSquare("b7",mockGame).isEmpty());
+        gameService.processMove(moveDTO, game);
+        assertTrue(gameService.getSquare("b7",game).isEmpty());
 
         //moveTo
-        Square squareTo = gameService.getSquare("b5",mockGame);
+        Square squareTo = gameService.getSquare("b5",game);
 
         assertEquals(squareTo.getPawn().getName(), moveDTO.getPawnName());
         assertFalse(squareTo.isEmpty());
