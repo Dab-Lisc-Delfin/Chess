@@ -223,7 +223,6 @@ export class ChessBoardComponent {
             if (pawn) {
               const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, PawnTableBeforeMove);
 
-              // Save king positions
               if (pawn.pawnName === 'king' && pawn.pawnColor === 'white') {
                 whiteKingPosition = pawn.pawnPlacement;
               }
