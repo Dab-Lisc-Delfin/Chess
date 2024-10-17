@@ -8,4 +8,5 @@ import lombok.Setter;
 public class GameInviteDTO {
     String gameId;
     String linkToInviteFriend;
+
 }

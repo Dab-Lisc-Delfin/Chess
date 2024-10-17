@@ -20,13 +20,15 @@ public class GameController {
         this.gameService = gameService;
     }
 
-    @PostMapping("/api/start-game")
-    public ResponseEntity<GameStatementDTO> startGame() {
-        gameService.createNewGame();
-        GameStatementDTO gameStatementDTO = gameService.getGameStatement();
 
-        return ResponseEntity.ok(gameStatementDTO);
-    }
+    //TODO delete
+//    @PostMapping("/api/start-game")  //TODO create-newgame
+//    public ResponseEntity<GameStatementDTO> startGame() {
+//        gameService.createNewGame();
+//        GameStatementDTO gameStatementDTO = gameService.getGameStatement();
+//
+//        return ResponseEntity.ok(gameStatementDTO);
+//    }
 
 
     @PostMapping("/api/make-move")

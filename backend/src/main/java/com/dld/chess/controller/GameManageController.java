@@ -2,31 +2,43 @@ package com.dld.chess.controller;
 
 import com.dld.chess.dto.GameInviteDTO;
 import com.dld.chess.model.Game;
-import com.dld.chess.model.GameManage;
-import com.dld.chess.model.Player;
 import com.dld.chess.service.GameManageService;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class GameManageController {
     private final GameManageService gameManageService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public GameManageController(GameManageService gameManageService) {
+    public GameManageController(GameManageService gameManageService, SimpMessagingTemplate simpMessagingTemplate) {
         this.gameManageService = gameManageService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     //PostMapping later TODO
-    @GetMapping("/createGame")
+    @GetMapping("/api/createGame")
     @ResponseBody
-    public GameInviteDTO createNewGame() {
-        return gameManageService.createNewGame();
+    public ResponseEntity<GameInviteDTO> createNewGame() {
+        return ResponseEntity.ok(gameManageService.createNewGame());
     }
 
+
+    //ws
+    @MessageMapping("/ws/subscribe/game/{gameId}")
+    public void updateGame(@DestinationVariable String gameId) {
+        //session get user
+        //process Move
+        //update Game Statement
+        String destination = "/game/update-game/" + gameId;
+        simpMessagingTemplate.convertAndSend(destination); //+gameStatement
+    }
 
 
     @GetMapping("/join-game/{gameId}")
@@ -48,7 +60,7 @@ public class GameManageController {
 
 
     @GetMapping("/allGames")
-    public int getAllGames(){
+    public int getAllGames() {
         return gameManageService.getAllGames().size();
     }
 
