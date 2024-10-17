@@ -14,7 +14,7 @@ import java.util.UUID;
 @Component
 public class Game {
 
-    public Game(){
+    public Game() {
         this.id = UUID.randomUUID().toString();
     }
 

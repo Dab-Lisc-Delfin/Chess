@@ -33,17 +33,17 @@ public class GameController {
 
     @PostMapping("/api/make-move")
     public ResponseEntity<String> makeMove(@RequestBody MoveDTO moveDTO) {
-        gameService.processMove(moveDTO);
+//        gameService.processMove(moveDTO,);
 
         return ResponseEntity.ok("OK");
     }
 
 
-    @PostMapping("/api/game-statement")
-    public ResponseEntity<GameStatementDTO> returnGameStatement() {
-        GameStatementDTO gameStatementDTO = gameService.getGameStatement();
-        gameService.printAllChessBoardSquares();
-        return ResponseEntity.ok(gameStatementDTO);
-    }
+//    @PostMapping("/api/game-statement")
+//    public ResponseEntity<GameStatementDTO> returnGameStatement() {
+//        GameStatementDTO gameStatementDTO = gameService.getGameStatement();
+//        gameService.printAllChessBoardSquares();
+//        return ResponseEntity.ok(gameStatementDTO);
+//    }
 
 }
