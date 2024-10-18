@@ -5,18 +5,20 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class DataService {
-  private apiUrl = 'http://localhost:8080/game/create-game';
-  private apiUrlMove = 'http://localhost:8080/api/make-move';
-  private apiBoard = 'http://localhost:8080/api/game-statement';
+  private baseUrl = 'http://localhost:8080';
+  private apiUrlCreateGame = `${this.baseUrl}/game/create-game`;
+  private apiUrlMove = (gameId: string) => `${this.baseUrl}/ws/game/update-game/${gameId}`;
+  private apiBoard = `${this.baseUrl}/api/game-statement`;
   private apiCreateGame = 'http://localhost:8080/game/create-game'
-  private apiLogin = 'http://localhost:8080/game/login'
+  private apiLogin = `${this.baseUrl}/game/login`;
+  
   constructor(private http: HttpClient) {}
 
-  getJsonData(){
-    return this.http.post<any>(this.apiUrl, {});
+  getJsonData() {
+    return this.http.post<any>(this.apiUrlCreateGame, {});
   }
-  sendMoveDetails(moveDetails: any) {
-    return this.http.post(this.apiUrlMove, moveDetails, {
+  sendMoveDetails(moveDetails: any, gameId: string) {
+    return this.http.post(this.apiUrlMove(gameId), moveDetails, {
       responseType: 'text'
     });
   }
@@ -28,6 +30,6 @@ export class DataService {
   }
   GetLogin(username: string, password: string) {
     const loginData = { username, password };
-    return this.http.post<any>(this.apiLogin, {responseType:'text'});
+    return this.http.post<any>(this.apiLogin,loginData, {});
   }
 }
