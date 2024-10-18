@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 export class DataService {
   private baseUrl = 'http://localhost:8080';
   private apiUrlCreateGame = `${this.baseUrl}/game/create-game`;
-  private apiUrlMove = (gameId: string) => `${this.baseUrl}/ws/game/update-game/${gameId}`;
+  private apiUrlMove = (gameId: string) => `${this.baseUrl}/update-game/${gameId}`;
   private apiBoard = `${this.baseUrl}/api/game-statement`;
   private apiCreateGame = 'http://localhost:8080/game/create-game'
   private apiLogin = `${this.baseUrl}/game/login`;
@@ -18,10 +18,13 @@ export class DataService {
     return this.http.post<any>(this.apiUrlCreateGame, {});
   }
   sendMoveDetails(moveDetails: any, gameId: string) {
+    console.log('Move details:', moveDetails);
+    console.log(this.apiUrlMove)
     return this.http.post(this.apiUrlMove(gameId), moveDetails, {
       responseType: 'text'
     });
   }
+  
   GetBoardDetails() {
     return this.http.post<any>(this.apiBoard, {});
   }

@@ -71,8 +71,21 @@ export class ChessBoardComponent {
         debug: (str) => { console.log(str); },
         onConnect: (frame) => {
             console.log('Connected: ' + frame);
-            this.stompClient.subscribe(`/game/update-game/${this.gameId}`, (message: any) => {
+            this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
                 console.log('Received message:', message.body);
+                const response = JSON.parse(message.body);
+                console.log(this.jsonResponse)
+                if (response.chessBoard) {
+                  const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+                      pawnName: pawn.name,
+                      pawnColor: pawn.color,
+                      pawnPlacement: pawn.square
+                  }));
+              
+                  this.jsonResponse = updatedChessBoardData;;
+              } else {
+                  console.error('Nie znaleziono chessBoard w odpowiedzi:', response);
+              }
             });
         },
         onStompError: (frame) => {
@@ -83,7 +96,6 @@ export class ChessBoardComponent {
 
     this.stompClient.activate();
 }
-
 
 
   @ViewChild('historyContainer') historyContainer!: ElementRef;

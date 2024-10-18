@@ -6,18 +6,17 @@ import com.dld.chess.model.Game;
 import com.dld.chess.service.GameManageService;
 import com.dld.chess.service.GameService;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @CrossOrigin(origins = "http://localhost:4200")
+@Slf4j
 public class GameController {
     private final GameManageService gameManageService;
     private final GameService gameService;
@@ -32,7 +31,7 @@ public class GameController {
 
     @PostMapping("/game/create-game")
     public ResponseEntity<GameStatementDTO> createNewGame(HttpSession session) {
-        session.setAttribute("playerColor","white");
+        session.setAttribute("playerColor", "white");
         return ResponseEntity.ok(gameManageService.createNewGame());
     }
     //there starts white, we take gameId from DTO and connecting it with @MessageMapping("/ws/subscribe/game/{gameId}")
@@ -50,17 +49,20 @@ public class GameController {
 
 
     //ws
-    @MessageMapping("/ws/update-game/{gameId}")
-    public void updateGame(@DestinationVariable String gameId, MoveDTO moveDTO) {
+    @PostMapping("/update-game/{gameId}")
+    public void updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
+        System.out.println("gameId: " + gameId);
+        System.out.println("moveDTO: " + moveDTO);
+
         Game game = GameManageService.getGameById(gameId);
-        gameService.processMove(moveDTO,game);
+        System.out.println("NULL game?: " + game);
+
+        gameService.processMove(moveDTO, game);
         gameService.nextTour(game);
 
-        String destination = "/game/update-game/" + gameId;
+        String destination = "/game/refresh/" + gameId;
         simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
     }
-
-
 
 
 
