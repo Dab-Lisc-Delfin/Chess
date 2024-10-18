@@ -1,30 +1,31 @@
 package com.dld.chess.service;
 
-import com.dld.chess.dto.GameInviteDTO;
+import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.model.Game;
 import com.dld.chess.model.GameManage;
 import com.dld.chess.model.Player;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.List;
 
 @Service
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200")
 public class GameManageService {
-    private GameManage gameManage;
+    private static GameManage gameManage;
+    private GameService gameService;
 
     public GameManageService(GameService gameService) {
         this.gameManage = GameManage.getInstance();
+        this.gameService = gameService;
     }
 
 
-    public GameInviteDTO createNewGame() {
-        Game game = new Game();
-        GameInviteDTO gameInviteDTO = new GameInviteDTO();
-        gameInviteDTO.setGameId(game.getId());
-        gameInviteDTO.setLinkToInviteFriend("http://localhost:8080/join-game/" + game.getId());
+    public GameStatementDTO createNewGame() {
+        Game game = gameService.createNewGame();
 
         log.info("GAME CREATED: ID {}", game.getId());
 
@@ -34,11 +35,12 @@ public class GameManageService {
 
         addLoggedPlayerToGame("white", game.getId());
         log.info("Games active {}", gameList.size());
-        return gameInviteDTO;
+
+        return gameService.getGameStatement(game);
     }
 
 
-    public Game getGameById(String gameId) {
+    public static Game getGameById(String gameId) {
         for (Game game : gameManage.getGames()) {
             if (game.getId().equals(gameId)) {
                 return game;

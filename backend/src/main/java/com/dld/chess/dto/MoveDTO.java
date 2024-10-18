@@ -11,6 +11,9 @@ public class MoveDTO {
     protected String pawnName;
     protected String pawnColor;
 
+    //new
+    protected String playerColor;
+
     @Override
     public String toString() {
         return "moveFrom : " + moveFrom + " moveTo : " + moveTo + " pawnName : " + pawnName + " pawnColor : " + pawnColor;
