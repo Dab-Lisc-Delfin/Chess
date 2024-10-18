@@ -33,7 +33,7 @@ public class GameManageService {
         gameList.add(game);
         gameManage.setGames(gameList);
 
-        addLoggedPlayerToGame("white", game.getId());
+//        addLoggedPlayerToGame("white", game.getId());
         log.info("Games active {}", gameList.size());
 
         return gameService.getGameStatement(game);

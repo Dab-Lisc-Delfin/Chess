@@ -171,6 +171,7 @@ public class GameService {
         gameStatementDTO.setChessBoard(squareDTOS);
         gameStatementDTO.setGameActive(game.isActive());
         gameStatementDTO.setPlayerTour(game.getCurrentTour());
+        gameStatementDTO.setGameId(game.getId());
         return gameStatementDTO;
     }
 

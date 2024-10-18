@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class DataService {
-  private apiUrl = 'http://localhost:8080/api/start-game';
+  private apiUrl = 'http://localhost:8080/game/create-game';
   private apiUrlMove = 'http://localhost:8080/api/make-move';
   private apiBoard = 'http://localhost:8080/api/game-statement';
   private apiCreateGame = 'http://localhost:8080/game/create-game'
@@ -28,6 +28,6 @@ export class DataService {
   }
   GetLogin(username: string, password: string) {
     const loginData = { username, password };
-    return this.http.post<any>(this.apiLogin, {});
+    return this.http.post<any>(this.apiLogin, {responseType:'text'});
   }
 }
