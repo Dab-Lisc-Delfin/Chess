@@ -8,39 +8,38 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 class GameServiceTest {
 
     private Game game;
-    private GameService gameService;
+    private final GameService gameService = new GameService();
+    private GameManageService gameManageService = new GameManageService(gameService);
 
     @BeforeEach
     public void setUp() {
-        game = new Game();
-        gameService = new GameService(game);
-        gameService.createNewGame();
+        game = gameService.createNewGame();
     }
 
 
     @Test
-    void createNewGame_whenGameStarted() {
-        gameService.printAllChessBoardSquares();
+    void createNewGame() {
         assertTrue(game.isActive());
     }
 
 
     @Test
     void getSquare_whenGivenCorrectAttribute_thenReturnTrue() {
-        assertEquals("b2", gameService.getSquare("b2").getName());
+        assertEquals("b2", gameService.getSquare("b2", game).getName());
     }
 
 
     @Test
     void getPawnFromPosition_whenGivenCorrectPosition_thenReturnTrue() {
         PawnAbstract pawn1 = new Pawn("white");
-        assertEquals(pawn1.getName(), gameService.getPawnFromPosition("b2").getName());
+        assertEquals(pawn1.getName(), gameService.getPawnFromPosition("b2",game).getName());
     }
 
 
@@ -52,18 +51,18 @@ class GameServiceTest {
         moveDTO.setPawnName("pawn");
         moveDTO.setPawnColor("black");
 
-        Square squareFrom = gameService.getSquare("b7");
+        Square squareFrom = gameService.getSquare("b7",game);
 
         //moveFrom
         assertEquals(squareFrom.getName(), moveDTO.getMoveFrom());
         assertEquals(squareFrom.getPawn().getName(), moveDTO.getPawnName());
         assertEquals(squareFrom.getPawn().getColor(), moveDTO.getPawnColor());
 
-        gameService.processMove(moveDTO);
-        assertTrue(gameService.getSquare("b7").isEmpty());
+        gameService.processMove(moveDTO, game);
+        assertTrue(gameService.getSquare("b7",game).isEmpty());
 
         //moveTo
-        Square squareTo = gameService.getSquare("b5");
+        Square squareTo = gameService.getSquare("b5",game);
 
         assertEquals(squareTo.getPawn().getName(), moveDTO.getPawnName());
         assertFalse(squareTo.isEmpty());
@@ -73,9 +72,9 @@ class GameServiceTest {
     @Test
     void updateGameSquare_whenGivenNewSquare_shouldReturnCorrect() {
         Square squareNew = new Square("a8", new Knight("white"));
-        gameService.updateGameSquare(squareNew);
+        gameService.updateGameSquare(squareNew,game);
 
-        Square checkSquare = gameService.getSquare("a8");
+        Square checkSquare = gameService.getSquare("a8",game);
         assertEquals("a8", checkSquare.getName());
         assertEquals("knight", checkSquare.getPawn().getName());
         assertEquals("white", checkSquare.getPawn().getColor());
@@ -90,9 +89,9 @@ class GameServiceTest {
         mockMoveDTO.setPawnName("pawn");
         mockMoveDTO.setPawnColor("white");
 
-        assertTrue(gameService.checkIfPawnReachedEndBoard(mockMoveDTO));
-        assertEquals("queen", gameService.getSquare("a8").getPawn().getName());
-        assertEquals("white", gameService.getSquare("a8").getPawn().getColor());
+        assertTrue(gameService.checkIfPawnReachedEndBoard(mockMoveDTO,game));
+        assertEquals("queen", gameService.getSquare("a8",game).getPawn().getName());
+        assertEquals("white", gameService.getSquare("a8",game).getPawn().getColor());
     }
 
 
@@ -104,9 +103,9 @@ class GameServiceTest {
         mockMoveDTO.setPawnName("pawn");
         mockMoveDTO.setPawnColor("black");
 
-        assertTrue(gameService.checkIfPawnReachedEndBoard(mockMoveDTO));
-        assertEquals("queen", gameService.getSquare("a1").getPawn().getName());
-        assertEquals("black", gameService.getSquare("a1").getPawn().getColor());
+        assertTrue(gameService.checkIfPawnReachedEndBoard(mockMoveDTO,game));
+        assertEquals("queen", gameService.getSquare("a1",game).getPawn().getName());
+        assertEquals("black", gameService.getSquare("a1",game).getPawn().getColor());
     }
 
 
@@ -120,13 +119,13 @@ class GameServiceTest {
 
         Square a1 = new Square("a1", new Rook("white"));
         Square e1 = new Square("e1", new King("white"));
-        gameService.updateGameSquare(a1);
-        gameService.updateGameSquare(e1);
+        gameService.updateGameSquare(a1,game);
+        gameService.updateGameSquare(e1,game);
 
-        assertTrue(gameService.isCastling(mockMoveDTO));
+        assertTrue(gameService.isCastling(mockMoveDTO,game));
 
-        Square c1 = gameService.getSquare("c1");
-        Square d1 = gameService.getSquare("d1");
+        Square c1 = gameService.getSquare("c1",game);
+        Square d1 = gameService.getSquare("d1",game);
 
         assertEquals("king", c1.getPawn().getName());
         assertEquals("rook", d1.getPawn().getName());
@@ -143,13 +142,13 @@ class GameServiceTest {
 
         Square h8 = new Square("h8", new Rook("black"));
         Square e8 = new Square("e8", new King("black"));
-        gameService.updateGameSquare(h8);
-        gameService.updateGameSquare(e8);
+        gameService.updateGameSquare(h8,game);
+        gameService.updateGameSquare(e8,game);
 
-        assertTrue(gameService.isCastling(mockMoveDTO));
+        assertTrue(gameService.isCastling(mockMoveDTO,game));
 
-        Square g8 = gameService.getSquare("g8");
-        Square f8 = gameService.getSquare("f8");
+        Square g8 = gameService.getSquare("g8",game);
+        Square f8 = gameService.getSquare("f8",game);
 
         assertEquals("king", g8.getPawn().getName());
         assertEquals("rook", f8.getPawn().getName());
@@ -158,10 +157,10 @@ class GameServiceTest {
 
     @Test
     void checkIfCheckMate_ifThereIsCheckMate_thenReturnIsCorrect() {
-        Square mockKingSquare = new Square("a5",new King("black"));
-        Square mockRookSquare = new Square("h5",new Rook("white"));
-        gameService.updateGameSquare(mockKingSquare);
-        gameService.updateGameSquare(mockRookSquare);
+        Square mockKingSquare = new Square("a5", new King("black"));
+        Square mockRookSquare = new Square("h5", new Rook("white"));
+        gameService.updateGameSquare(mockKingSquare,game);
+        gameService.updateGameSquare(mockRookSquare,game);
 
         MoveDTO mockMoveDTO = new MoveDTO();
         mockMoveDTO.setMoveTo("a5");
@@ -169,7 +168,7 @@ class GameServiceTest {
         mockMoveDTO.setPawnName("rook");
         mockMoveDTO.setPawnColor("white");
 
-        gameService.checkIfCheckMate(mockMoveDTO);
+        gameService.checkIfCheckMate(mockMoveDTO,game);
         assertFalse(game.isActive());
     }
 }
