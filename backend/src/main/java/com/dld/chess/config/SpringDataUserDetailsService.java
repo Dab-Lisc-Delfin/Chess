@@ -1,6 +1,7 @@
-package com.dld.chess.service;
+package com.dld.chess.config;
 
 import com.dld.chess.entity.User;
+import com.dld.chess.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
