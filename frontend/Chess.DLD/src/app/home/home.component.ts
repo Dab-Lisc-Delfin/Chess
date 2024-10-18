@@ -19,15 +19,13 @@ export class HomeComponent {
   constructor(private router: Router, private dataService: DataService) {}
 
   createGame() {
-    
-    this.dataService.GetGameId().subscribe((response: any) => {
-      console.log('Full Response:', response);
-    
+    this.dataService.getJsonData().subscribe((response: any) => {
+      console.log('Game created:', response);
+      this.gameId = response.gameId;
+      this.router.navigate([`/game/${this.gameId}`]);
+    }, error => {
+      console.error('Error creating game:', error);
     });
-
-    const gameId = Math.random().toString(36).substring(2, 10);
-
-    this.router.navigate([`/game/${gameId}`]);
   }
   joinGame() {
     this.showModal = true;

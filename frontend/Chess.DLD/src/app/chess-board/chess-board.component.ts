@@ -1,8 +1,10 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DataService } from '../data.service';
 import { ActivatedRoute } from '@angular/router';
+import { Client } from '@stomp/stompjs';
+import  SockJS from 'sockjs-client';
 
 interface Pawn {
   pawnName: string;
@@ -31,10 +33,59 @@ export class ChessBoardComponent {
   blackDangerZone: string[] = [];
   checkmateMessage: boolean = false;
   checkmateSquare: string | null = null;
-  gameId: string | null = '';
+  gameId: string = '';
   moveHistory: Array<{ moveFrom: string, moveTo: string, pawnColor: string, pawnName: string }> = [];
   moveCounter: number = 0;
   highlightedSquare11: string[] = [];
+  private stompClient: any;
+
+  constructor(private route: ActivatedRoute, private dataService: DataService) {
+    this.dataService.getJsonData().subscribe(
+      (res: any) => {
+        const chessBoardData = res.chessBoard.map((pawn: any) => ({
+          pawnName: pawn.name,
+          pawnColor: pawn.color,
+          pawnPlacement: pawn.square
+        }));
+
+        this.jsonResponse = chessBoardData;
+
+      },
+      (error) => {
+        console.error('Error fetching JSON data:', error);
+      }
+    );
+  }
+  ngOnInit() {
+    this.route.params.subscribe(params => {
+      this.gameId = params['gameId'];
+      console.log('Received gameId:', this.gameId);
+      this.initializeWebSocketConnection();
+    });
+  }
+
+  initializeWebSocketConnection() {
+    const socket = new SockJS('http://localhost:8080/ws');
+    this.stompClient = new Client({
+        webSocketFactory: () => socket,
+        debug: (str) => { console.log(str); },
+        onConnect: (frame) => {
+            console.log('Connected: ' + frame);
+            this.stompClient.subscribe(`/game/update-game/${this.gameId}`, (message: any) => {
+                console.log('Received message:', message.body);
+            });
+        },
+        onStompError: (frame) => {
+            console.error('Broker reported error: ' + frame.headers['message']);
+            console.error('Additional details: ' + frame.body);
+        },
+    });
+
+    this.stompClient.activate();
+}
+
+
+
   @ViewChild('historyContainer') historyContainer!: ElementRef;
   resetGame() {
     this.dataService.getJsonData().subscribe(
@@ -92,27 +143,6 @@ export class ChessBoardComponent {
         console.error('Scroll error: ', err);
       }
     }, 10);
-  }
-  constructor(private route: ActivatedRoute, private dataService: DataService) {
-    this.dataService.getJsonData().subscribe(
-      (res: any) => {
-        const chessBoardData = res.chessBoard.map((pawn: any) => ({
-          pawnName: pawn.name,
-          pawnColor: pawn.color,
-          pawnPlacement: pawn.square
-        }));
-
-        this.jsonResponse = chessBoardData;
-
-      },
-      (error) => {
-        console.error('Error fetching JSON data:', error);
-      }
-    );
-  }
-  ngOnInit(): void {
-    // this.checkmateSquare = 'e1'; 
-    this.gameId = this.route.snapshot.paramMap.get('id');
   }
 
 
@@ -385,7 +415,7 @@ export class ChessBoardComponent {
           this.jsonResponse = JSON.parse(JSON.stringify(originalBoardPosition));
           return;
         }
-        this.dataService.sendMoveDetails(moveDetails).subscribe(
+        this.dataService.sendMoveDetails(moveDetails,this.gameId).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
             this.moveCounter++;
@@ -709,7 +739,7 @@ export class ChessBoardComponent {
           this.jsonResponse = JSON.parse(JSON.stringify(originalBoardPosition));
           return;
         }
-        this.dataService.sendMoveDetails(moveDetails).subscribe(
+        this.dataService.sendMoveDetails(moveDetails,this.gameId).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
             this.moveCounter++;
