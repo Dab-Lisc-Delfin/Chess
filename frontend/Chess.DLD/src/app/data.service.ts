@@ -8,24 +8,26 @@ export class DataService {
   private apiUrl = 'http://localhost:8080/api/start-game';
   private apiUrlMove = 'http://localhost:8080/api/make-move';
   private apiBoard = 'http://localhost:8080/api/game-statement';
-
+  private apiCreateGame = 'http://localhost:8080/game/create-game'
+  private apiLogin = 'http://localhost:8080/game/login'
   constructor(private http: HttpClient) {}
-  // BoardCount: number = 0;
-  // SendCount: number = 0;
 
   getJsonData(){
     return this.http.post<any>(this.apiUrl, {});
   }
   sendMoveDetails(moveDetails: any) {
-    // this.SendCount++;
-    // console.log(`Move details sent ${this.SendCount} times.`);
     return this.http.post(this.apiUrlMove, moveDetails, {
-      responseType: 'text' // Ustawienie oczekiwanego typu odpowiedzi jako tekst
+      responseType: 'text'
     });
   }
   GetBoardDetails() {
-    // this.BoardCount++;
-    // console.log(`Board details sent ${this.BoardCount} times.`);
     return this.http.post<any>(this.apiBoard, {});
+  }
+  GetGameId() {
+    return this.http.post<any>(this.apiCreateGame, {});
+  }
+  GetLogin(username: string, password: string) {
+    const loginData = { username, password };
+    return this.http.post<any>(this.apiLogin, {});
   }
 }
