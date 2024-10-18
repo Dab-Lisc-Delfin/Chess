@@ -1,14 +1,18 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ChessBoardComponent } from './chess-board/chess-board.component';
-import { TestComponent } from './test/test.component';
+import { HomeComponent } from './home/home.component';
+import { LoginComponent } from './login/login.component';
+import { RegisterComponent } from './register/register.component';
 
 export const routes: Routes = [
-    { path: 'game/:id', component: ChessBoardComponent }, 
-    { path: 'test', component: TestComponent },         
-    { path: '', redirectTo: '/test', pathMatch: 'full' }, 
-    { path: '**', redirectTo: '/test' }             
-  ];
+    { path: 'home', component: HomeComponent }, 
+    { path: 'login', component: LoginComponent },
+    { path: 'register', component: RegisterComponent },
+    { path: 'game/:gameId', component: ChessBoardComponent },    
+    { path: '', redirectTo: '/home', pathMatch: 'full' },
+    { path: '**', redirectTo: '/home' }
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

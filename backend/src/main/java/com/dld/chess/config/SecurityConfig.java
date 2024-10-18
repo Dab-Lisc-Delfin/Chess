@@ -10,9 +10,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @Configuration
 @EnableWebSecurity
+@CrossOrigin(origins = "http://localhost:4200")
 public class SecurityConfig {
 
 //    @Bean
@@ -20,8 +22,13 @@ public class SecurityConfig {
 //        http
 //                .authorizeHttpRequests((authz) -> authz
 //                        .requestMatchers("/admin/*").hasRole("ADMIN")
+//                        .requestMatchers("/api/create-user").permitAll()
+//                        .requestMatchers("/home").permitAll()
 //                        .anyRequest().authenticated()
-//                );
+//
+//                )
+//                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/create-user"))  // Disable CSRF for specific endpoint
+//        ;
 //
 //        http.formLogin(Customizer.withDefaults());
 //        return http.build();

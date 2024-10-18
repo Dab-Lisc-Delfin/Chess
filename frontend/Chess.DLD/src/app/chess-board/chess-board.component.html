@@ -17,10 +17,10 @@
                 <img src="/DLD.jpg" class="w-[50px] h-[50px] rounded-[50%] border-[1px] border-[#856F28]">
             </div>
             <div class="w-1/3 text-center">
-                <span class="font text-5xl">CHESS</span>
+                <span class="font text-5xl"><a href="./home">CHESS</a></span>
             </div>
             <div class="w-1/3 text-right">
-                <span class="font text-lg"><a href="./">logout</a></span>
+                <span class="font text-lg"><a href="./home">Home</a></span>
             </div>
         </div>
         <div class="flex justify-center items-center h-full max-w-[1440px] m-auto">
@@ -98,46 +98,48 @@
                 <div>
                     <span class="font text-shadow text-[24px]">History</span>
                 </div>
+                <!-- bg-[#6B6B6B] border-[3px] border-[#856F28] shadow-top-->
                 <div #historyContainer
-    class="history-container w-[300px] h-[300px] overflow-y-auto bg-[#6B6B6B] p-2 shadow-top border-[3px] border-[#856F28]">
-    <div class="flex flex-wrap gap-2">
-        <ng-container *ngFor="let i of getTurnIndexes()">
-            <div class="flex items-center space-x-1 w-full">
-                <span class="font-bold w-[45px] text-black">{{ getTurnNumber(i) }}.</span>
-                <ng-container *ngIf="moveHistory[i]">
-                    <div class="flex items-center space-x-1 w-1/3"
-                        (mouseover)="highlightSquare11(moveHistory[i].moveFrom); highlightSquare11(moveHistory[i].moveTo)"
-                        (mouseout)="removeHighlight11()">
-                        <div class="flex items-center space-x-1">
-                            <img [src]="'/' + moveHistory[i].pawnName.toLowerCase() + moveHistory[i].pawnColor.toLowerCase() + '.png'"
-                                alt="{{ moveHistory[i].pawnName }} ({{ moveHistory[i].pawnColor }})"
-                                width="25" height="25">
-                            <span class="font"
-                                [ngClass]="(i % 2 === 0 ? 'text-white' : 'text-black')">
-                                {{ moveHistory[i].moveFrom.toUpperCase() }} → {{ moveHistory[i].moveTo.toUpperCase() }}
-                            </span>
-                        </div>
+                    class="history-container w-[300px] h-[300px] overflow-y-auto  p-4  bg-[#A58CFF] rounded-lg shadow-top inner-shadow">
+                    <div class="flex flex-wrap gap-2">
+                        <ng-container *ngFor="let i of getTurnIndexes()">
+                            <div class="flex items-center  w-full">
+                                <span class="font-bold  text-black w-1/5 font">{{ getTurnNumber(i) }}.</span>
+                                <ng-container *ngIf="moveHistory[i]">
+                                    <div class="flex items-center  w-2/5 hover:bg-[#5B3F9B] rounded-lg hover:bg-opacity-50 justify-center"
+                                        (mouseover)="highlightSquare11(moveHistory[i].moveFrom); highlightSquare11(moveHistory[i].moveTo)"
+                                        (mouseout)="removeHighlight11()">
+                                        <div class="flex items-center ">
+                                            <img [src]="'/' + moveHistory[i].pawnName.toLowerCase() + moveHistory[i].pawnColor.toLowerCase() + '.png'"
+                                                alt="{{ moveHistory[i].pawnName }} ({{ moveHistory[i].pawnColor }})"
+                                                width="25" height="25">
+                                            <span class="font" [ngClass]="(i % 2 === 0 ? 'text-white' : 'text-black')">
+                                                {{ moveHistory[i].moveFrom.toUpperCase() }} → {{
+                                                moveHistory[i].moveTo.toUpperCase() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="moveHistory[i + 1]">
+                                    <div class="flex items-center  w-2/5 hover:bg-[#5B3F9B] rounded-lg hover:bg-opacity-50 justify-center"
+                                        (mouseover)="highlightSquare11(moveHistory[i + 1].moveFrom); highlightSquare11(moveHistory[i + 1].moveTo)"
+                                        (mouseout)="removeHighlight11()">
+                                        <div class="flex items-center">
+                                            <img [src]="'/' + moveHistory[i + 1].pawnName.toLowerCase() + moveHistory[i + 1].pawnColor.toLowerCase() + '.png'"
+                                                alt="{{ moveHistory[i + 1].pawnName }} ({{ moveHistory[i + 1].pawnColor }})"
+                                                width="25" height="25">
+                                            <span class="font"
+                                                [ngClass]="((i + 1) % 2 === 0 ? 'text-white' : 'text-black')">
+                                                {{ moveHistory[i + 1].moveFrom.toUpperCase() }} → {{ moveHistory[i +
+                                                1].moveTo.toUpperCase() }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </ng-container>
                     </div>
-                </ng-container>
-                <ng-container *ngIf="moveHistory[i + 1]">
-                    <div class="flex items-center space-x-1"
-                        (mouseover)="highlightSquare11(moveHistory[i + 1].moveFrom); highlightSquare11(moveHistory[i + 1].moveTo)"
-                        (mouseout)="removeHighlight11()">
-                        <div class="flex items-center space-x-1">
-                            <img [src]="'/' + moveHistory[i + 1].pawnName.toLowerCase() + moveHistory[i + 1].pawnColor.toLowerCase() + '.png'"
-                                alt="{{ moveHistory[i + 1].pawnName }} ({{ moveHistory[i + 1].pawnColor }})"
-                                width="25" height="25">
-                            <span class="font"
-                                [ngClass]="((i + 1) % 2 === 0 ? 'text-white' : 'text-black')">
-                                {{ moveHistory[i + 1].moveFrom.toUpperCase() }} → {{ moveHistory[i + 1].moveTo.toUpperCase() }}
-                            </span>
-                        </div>
-                    </div>
-                </ng-container>
-            </div>
-        </ng-container>
-    </div>
-</div>
+                </div>
 
             </div>
         </div>

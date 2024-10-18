@@ -1,8 +1,10 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DataService } from '../data.service';
 import { ActivatedRoute } from '@angular/router';
+import { Client } from '@stomp/stompjs';
+import  SockJS from 'sockjs-client';
 
 interface Pawn {
   pawnName: string;
@@ -31,68 +33,13 @@ export class ChessBoardComponent {
   blackDangerZone: string[] = [];
   checkmateMessage: boolean = false;
   checkmateSquare: string | null = null;
-  gameId: string | null = '';
-  moveHistory: Array<{ moveFrom: string,moveTo: string, pawnColor: string, pawnName: string }> = [];
+  gameId: string = '';
+  moveHistory: Array<{ moveFrom: string, moveTo: string, pawnColor: string, pawnName: string }> = [];
   moveCounter: number = 0;
   highlightedSquare11: string[] = [];
-  @ViewChild('historyContainer') historyContainer!: ElementRef;
-  resetGame() {
-    this.dataService.getJsonData().subscribe(
-      (res: any) => {
-        const chessBoardData = res.chessBoard.map((pawn: any) => ({
-          pawnName: pawn.name,
-          pawnColor: pawn.color,
-          pawnPlacement: pawn.square
-        }));
+  private stompClient: any;
 
-        this.jsonResponse = chessBoardData;
-        this.isGameActive = true;
-
-      },
-      (error) => {
-        console.error('Error fetching JSON data during reset:', error);
-      }
-    );
-  }
-  handleCheckmate(square: string) {
-    this.checkmateSquare = square; 
-    this.checkmateMessage = true;
-
-    setTimeout(() => {
-      this.checkmateMessage = false; 
-      this.checkmateSquare = null; 
-    }, 2500); 
-  }
-  getTurnNumber(index: number): number {
-    return Math.floor(index / 2) + 1;
-}
-getTurnIndexes(): number[] {
-  const indexes = [];
-  for (let i = 0; i < this.moveHistory.length; i += 2) {
-      indexes.push(i);
-  }
-  return indexes;
-}
-
-highlightSquare11(square: string): void {
-  if (!this.highlightedSquare11.includes(square)) {
-    this.highlightedSquare11.push(square);
-  }
-}
-
-removeHighlight11(): void {
-  this.highlightedSquare11 = []; 
-}
-  scrollToBottom(): void {
-    setTimeout(() => { 
-      try {
-        this.historyContainer.nativeElement.scrollTop = this.historyContainer.nativeElement.scrollHeight;
-      } catch (err) {
-        console.error('Scroll error: ', err);
-      }
-    }, 10); 
-  }
-  constructor(private route: ActivatedRoute,private dataService: DataService) {
+  constructor(private route: ActivatedRoute, private dataService: DataService) {
     this.dataService.getJsonData().subscribe(
       (res: any) => {
         const chessBoardData = res.chessBoard.map((pawn: any) => ({
@@ -109,11 +56,108 @@ removeHighlight11(): void {
       }
     );
   }
-  ngOnInit(): void {
-    // this.checkmateSquare = 'e1'; 
-    this.gameId = this.route.snapshot.paramMap.get('id');
+  ngOnInit() {
+    this.route.params.subscribe(params => {
+      this.gameId = params['gameId'];
+      console.log('Received gameId:', this.gameId);
+      this.initializeWebSocketConnection();
+    });
   }
-  
+
+  initializeWebSocketConnection() {
+    const socket = new SockJS('http://localhost:8080/ws');
+    this.stompClient = new Client({
+        webSocketFactory: () => socket,
+        debug: (str) => { console.log(str); },
+        onConnect: (frame) => {
+            console.log('Connected: ' + frame);
+            this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
+                console.log('Received message:', message.body);
+                const response = JSON.parse(message.body);
+                console.log(this.jsonResponse)
+                if (response.chessBoard) {
+                  const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+                      pawnName: pawn.name,
+                      pawnColor: pawn.color,
+                      pawnPlacement: pawn.square
+                  }));
+              
+                  this.jsonResponse = updatedChessBoardData;;
+              } else {
+                  console.error('Nie znaleziono chessBoard w odpowiedzi:', response);
+              }
+            });
+        },
+        onStompError: (frame) => {
+            console.error('Broker reported error: ' + frame.headers['message']);
+            console.error('Additional details: ' + frame.body);
+        },
+    });
+
+    this.stompClient.activate();
+}
+
+
+  @ViewChild('historyContainer') historyContainer!: ElementRef;
+  resetGame() {
+    this.dataService.getJsonData().subscribe(
+      (res: any) => {
+        const chessBoardData = res.chessBoard.map((pawn: any) => ({
+          pawnName: pawn.name,
+          pawnColor: pawn.color,
+          pawnPlacement: pawn.square
+        }));
+        this.selectedPawnInfo = null;
+        this.highlightedSquares = [];
+        this.jsonResponse = chessBoardData;
+        this.isGameActive = true;
+
+      },
+      (error) => {
+        console.error('Error fetching JSON data during reset:', error);
+      }
+    );
+  }
+  handleCheckmate(square: string) {
+    this.checkmateSquare = square;
+    this.checkmateMessage = true;
+
+    setTimeout(() => {
+      this.checkmateMessage = false;
+      this.checkmateSquare = null;
+    }, 2500);
+  }
+  getTurnNumber(index: number): number {
+    return Math.floor(index / 2) + 1;
+  }
+  getTurnIndexes(): number[] {
+    const indexes = [];
+    for (let i = 0; i < this.moveHistory.length; i += 2) {
+      indexes.push(i);
+    }
+    return indexes;
+  }
+
+  highlightSquare11(square: string): void {
+    if (!this.highlightedSquare11.includes(square)) {
+      this.highlightedSquare11.push(square);
+    }
+  }
+
+  removeHighlight11(): void {
+    this.highlightedSquare11 = [];
+  }
+  scrollToBottom(): void {
+    setTimeout(() => {
+      try {
+        this.historyContainer.nativeElement.scrollTop = this.historyContainer.nativeElement.scrollHeight;
+      } catch (err) {
+        console.error('Scroll error: ', err);
+      }
+    }, 10);
+  }
+
+
   dropSquare(square: any) {
     // console.log('DropSquare called with square:', square);
     if (!this.isGameActive) {
@@ -137,6 +181,8 @@ removeHighlight11(): void {
         let blackKingPosition = '';
         let whiteKingBeforeNewPosition = '';
         let blackKingBeforeNewPosition = '';
+        let kingCanBeSaved = false;
+        const PawnTableBeforeMove = this.jsonResponse;
         this.jsonResponse.forEach((pawn: any) => {
           if (pawn.pawnName === 'king') {
             if (pawn.pawnColor === 'white') {
@@ -155,13 +201,13 @@ removeHighlight11(): void {
           }
           return pawn;
         });
-        const targetPawn = this.jsonResponse.find((pawn: any) => 
+        const targetPawn = this.jsonResponse.find((pawn: any) =>
           pawn.pawnPlacement === square.square && pawn.pawnColor !== moveDetails.pawnColor
         );
         let moveSound: HTMLAudioElement;
-        if (targetPawn) { 
-          moveSound = new Audio('/move-take.mp3');         
-          this.jsonResponse = this.jsonResponse.filter((pawn: any) => 
+        if (targetPawn) {
+          moveSound = new Audio('/move-take.mp3');
+          this.jsonResponse = this.jsonResponse.filter((pawn: any) =>
             pawn.pawnPlacement !== square.square || pawn.pawnColor === moveDetails.pawnColor
           );
         } else {
@@ -196,22 +242,198 @@ removeHighlight11(): void {
           moveSound = new Audio('/error.wav');
           moveSound.volume = 0.05;
           moveSound.play();
+          // console.log(PawnTableBeforeMove)
+          // console.log(whiteKingBeforeNewPosition, ' white')
+          // console.log(blackKingBeforeNewPosition, 'black')
+          const testBlack = blackKingBeforeNewPosition;
+          const testWhite = whiteKingBeforeNewPosition;
+          this.jsonResponse.forEach((pawn: any) => {
+            if (pawn.pawnName === 'king') {
+              if (pawn.pawnColor === 'white') {
+                // console.log(`Updating white king from ${pawn.pawnPlacement} to ${testWhite}`);
+                pawn.pawnPlacement = testWhite;
+              } else if (pawn.pawnColor === 'black') {
+                // console.log(`Updating black king from ${pawn.pawnPlacement} to ${testBlack}`);
+                pawn.pawnPlacement = testBlack; 
+              }
+            }
+          });
+          const whiteMovesMap: { [key: string]: string[] } = {};
+          const blackMovesMap: { [key: string]: string[] } = {};
+
+          this.jsonResponse.forEach((pawn: any) => {
+            if (pawn) {
+              const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, PawnTableBeforeMove);
+
+              if (pawn.pawnName === 'king' && pawn.pawnColor === 'white') {
+                whiteKingPosition = pawn.pawnPlacement;
+              }
+              if (pawn.pawnName === 'king' && pawn.pawnColor === 'black') {
+                blackKingPosition = pawn.pawnPlacement;
+              }
+
+              const pawnKey = `${pawn.pawnColor}_${pawn.pawnName}_${pawn.pawnPlacement}`;
+
+              if (pawn.pawnColor === 'white') {
+                whiteMovesMap[pawnKey] = possibleMoves;
+              } else if (pawn.pawnColor === 'black') {
+                blackMovesMap[pawnKey] = possibleMoves;
+              }
+            }
+          });
+
+          // console.log("White Pawns and their possible moves:", whiteMovesMap);
+          // console.log("Black Pawns and their possible moves:", blackMovesMap);
+          const isKingUnderThreatAfterOpponentMoves = (
+            kingColor: string,
+            whiteMovesMap: { [key: string]: string[] },
+            blackMovesMap: { [key: string]: string[] },
+            whiteKingBeforeNewPosition: string,
+            blackKingBeforeNewPosition: string
+          ): boolean => {
+
+            const opponentMovesMap = kingColor === 'white' ? blackMovesMap : whiteMovesMap;
+            const kingPosition = kingColor === 'white' ? whiteKingBeforeNewPosition : blackKingBeforeNewPosition;
+
+            // console.log(`Checking if ${kingColor === 'white' ? 'white' : 'black'} king is under threat at ${kingPosition}`);
+
+            let attackingPawnKey = ''; 
+
+            for (const [pawnKey, possibleMoves] of Object.entries(opponentMovesMap)) {
+              // console.log(`${pawnKey} can move to:`, possibleMoves);
+
+              if (possibleMoves.includes(kingPosition)) {
+                // console.log(`King is under threat from ${pawnKey} moving to ${kingPosition}`);
+                attackingPawnKey = pawnKey; 
+                break;
+              }
+            }
+
+            if (!attackingPawnKey) {
+              // console.log('No immediate threats to the king.');
+              return false;
+            }
+
+            const yourMovesMap = kingColor === 'white' ? whiteMovesMap : blackMovesMap;
+
+            for (const [yourPawnKey, possibleMoves] of Object.entries(yourMovesMap)) {
+              const yourPawnDetails = this.parsePawnKey(yourPawnKey);
+              for (const move of possibleMoves) {
+                // console.log(testWhite, ' white111')
+                // console.log(testBlack, 'black111')
+                this.jsonResponse.forEach((pawn: any) => {
+                  if (pawn.pawnName === 'king') {
+                    if (pawn.pawnColor === 'white') {
+                      // console.log(`Updating white king from ${pawn.pawnPlacement} to ${testWhite}`);
+                      pawn.pawnPlacement = testWhite; 
+                    } else if (pawn.pawnColor === 'black') {
+                      // console.log(`Updating black king from ${pawn.pawnPlacement} to ${testBlack}`);
+                      pawn.pawnPlacement = testBlack; 
+                    }
+                  }
+                });
+                // console.log(this.jsonResponse)
+                // console.log(`${yourPawnDetails.pawnName} (${yourPawnDetails.pawnColor}) is trying to MOVE to ${move}`);
+                let simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
+                const originalPosition = yourPawnDetails.pawnPlacement;
+
+                const pieceIndex = simulatedJsonResponse.findIndex((pawn: any) => pawn.pawnPlacement === originalPosition);
+                if (pieceIndex !== -1) {
+                  simulatedJsonResponse.splice(pieceIndex, 1);
+                }
+            
+                const newPositionIndex = simulatedJsonResponse.findIndex((pawn: any) => pawn.pawnPlacement === move);
+                if (newPositionIndex !== -1) {
+                  simulatedJsonResponse.splice(newPositionIndex, 1); 
+                }
+            
+                simulatedJsonResponse.push({
+                  pawnName: yourPawnDetails.pawnName,
+                  pawnColor: yourPawnDetails.pawnColor,
+                  pawnPlacement: move
+                });
+
+                // console.log("Simulated jsonResponse after the move:", simulatedJsonResponse);
+
+                const allWhiteMovesCheck: string[] = [];
+                const allBlackMovesCheck: string[] = [];
+
+
+                let whiteKingPositionCheck: string | null = null;
+                let blackKingPositionCheck: string | null = null;
+                simulatedJsonResponse.forEach((pawn: any) => {
+                  if (pawn) {
+                    const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, simulatedJsonResponse);
+                
+                    if (pawn.pawnName === 'king') {
+                      if (pawn.pawnColor === 'white') {
+                        whiteKingPositionCheck = pawn.pawnPlacement; 
+                        allWhiteMovesCheck.push(...possibleMoves);
+                      } else if (pawn.pawnColor === 'black') {
+                        blackKingPositionCheck = pawn.pawnPlacement; 
+                        allBlackMovesCheck.push(...possibleMoves);
+                      }
+                    } else {
+                      if (pawn.pawnColor === 'white') {
+                        allWhiteMovesCheck.push(...possibleMoves);
+                      } else if (pawn.pawnColor === 'black') {
+                        allBlackMovesCheck.push(...possibleMoves);
+                      }
+                    }
+                  }
+                });
+                
+                // console.log(allBlackMovesCheck, 'BLACK CHECK')
+                // console.log(allWhiteMovesCheck, 'WHITE CHECK')
+                console.log(blackKingPositionCheck);
+                if ((whiteKingPositionCheck && allBlackMovesCheck.includes(whiteKingPositionCheck)) || (blackKingPositionCheck && allWhiteMovesCheck.includes(blackKingPositionCheck))) {
+                  // console.log('This move cant save you')
+                  simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
+                  continue;
+                } else {
+                  // console.log('this move can save you')
+                  simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
+                  kingCanBeSaved = true;
+                  break;
+                }
+              }
+            }
+            if (kingCanBeSaved) {
+              // console.log('The game can go on. A move has been found to save the king.');
+            } else {
+              // console.log('Checkmate! No move can save the king.');
+              this.resetGame();
+              return false;
+            }
+            return false;
+          };
+
+
+          const isWhiteKingInCheck = isKingUnderThreatAfterOpponentMoves('white', whiteMovesMap, blackMovesMap, whiteKingPosition, blackKingPosition);
+          const isBlackKingInCheck = isKingUnderThreatAfterOpponentMoves('black', whiteMovesMap, blackMovesMap, whiteKingPosition, blackKingPosition);
+
+          // Log results
+          // console.log(`Is the White King in check? ${isWhiteKingInCheck ? 'Yes' : 'No'}`);
+          // console.log(`Is the Black King in check? ${isBlackKingInCheck ? 'Yes' : 'No'}`);
+
+
+
           if (moveDetails.pawnColor === 'black') {
-            this.checkmateSquare = blackKingPosition; 
+            this.checkmateSquare = blackKingBeforeNewPosition;
           } else {
-            this.checkmateSquare = whiteKingPosition;
+            this.checkmateSquare = whiteKingBeforeNewPosition;
           }
           this.handleCheckmate(this.checkmateSquare);
           this.jsonResponse = JSON.parse(JSON.stringify(originalBoardPosition));
-
           return;
         }
-        this.dataService.sendMoveDetails(moveDetails).subscribe(
+        this.dataService.sendMoveDetails(moveDetails,this.gameId).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
             this.moveCounter++;
             this.moveHistory.push(moveDetails);
             this.scrollToBottom();
+            // console.log(moveDetails.moveTo, moveDetails.pawnColor,moveDetails.pawnName)
             this.dataService.GetBoardDetails().subscribe(
               (response: any) => {
                 // console.log('BoardUpdated', response);
@@ -225,6 +447,7 @@ removeHighlight11(): void {
                 this.jsonResponse = updatedChessBoardData;
                 moveSound.volume = 0.1;
                 moveSound.play();
+
                 if (!response.gameActive) {
                   this.isGameActive = false;
                 }
@@ -264,7 +487,7 @@ removeHighlight11(): void {
 
     const pawnInfo = this.getPawnOnSquare(square.square);
     // console.log('Pawn info for square:', pawnInfo);
-    
+
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
         const moveDetails = {
@@ -282,6 +505,8 @@ removeHighlight11(): void {
         let blackKingPosition = '';
         let whiteKingBeforeNewPosition = '';
         let blackKingBeforeNewPosition = '';
+        let kingCanBeSaved = false;
+        const PawnTableBeforeMove = this.jsonResponse;
         this.jsonResponse.forEach((pawn: any) => {
           if (pawn.pawnName === 'king') {
             if (pawn.pawnColor === 'white') {
@@ -300,13 +525,13 @@ removeHighlight11(): void {
           }
           return pawn;
         });
-        const targetPawn = this.jsonResponse.find((pawn: any) => 
+        const targetPawn = this.jsonResponse.find((pawn: any) =>
           pawn.pawnPlacement === square.square && pawn.pawnColor !== moveDetails.pawnColor
         );
         let moveSound: HTMLAudioElement;
-        if (targetPawn) { 
-          moveSound = new Audio('/move-take.mp3');         
-          this.jsonResponse = this.jsonResponse.filter((pawn: any) => 
+        if (targetPawn) {
+          moveSound = new Audio('/move-take.mp3');
+          this.jsonResponse = this.jsonResponse.filter((pawn: any) =>
             pawn.pawnPlacement !== square.square || pawn.pawnColor === moveDetails.pawnColor
           );
         } else {
@@ -340,7 +565,183 @@ removeHighlight11(): void {
           moveSound = new Audio('/error.wav');
           moveSound.volume = 0.05;
           moveSound.play();
-          
+          console.log(PawnTableBeforeMove)
+          console.log(whiteKingBeforeNewPosition, ' white')
+          console.log(blackKingBeforeNewPosition, 'black')
+          const testBlack = blackKingBeforeNewPosition;
+          const testWhite = whiteKingBeforeNewPosition;
+          this.jsonResponse.forEach((pawn: any) => {
+            if (pawn.pawnName === 'king') {
+              if (pawn.pawnColor === 'white') {
+                // console.log(`Updating white king from ${pawn.pawnPlacement} to ${testWhite}`);
+                pawn.pawnPlacement = testWhite;
+              } else if (pawn.pawnColor === 'black') {
+                // console.log(`Updating black king from ${pawn.pawnPlacement} to ${testBlack}`);
+                pawn.pawnPlacement = testBlack; 
+              }
+            }
+          });
+          const whiteMovesMap: { [key: string]: string[] } = {};
+          const blackMovesMap: { [key: string]: string[] } = {};
+
+          this.jsonResponse.forEach((pawn: any) => {
+            if (pawn) {
+              const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, PawnTableBeforeMove);
+
+              // Save king positions
+              if (pawn.pawnName === 'king' && pawn.pawnColor === 'white') {
+                whiteKingPosition = pawn.pawnPlacement;
+              }
+              if (pawn.pawnName === 'king' && pawn.pawnColor === 'black') {
+                blackKingPosition = pawn.pawnPlacement;
+              }
+
+              const pawnKey = `${pawn.pawnColor}_${pawn.pawnName}_${pawn.pawnPlacement}`;
+
+              if (pawn.pawnColor === 'white') {
+                whiteMovesMap[pawnKey] = possibleMoves;
+              } else if (pawn.pawnColor === 'black') {
+                blackMovesMap[pawnKey] = possibleMoves;
+              }
+            }
+          });
+
+          // console.log("White Pawns and their possible moves:", whiteMovesMap);
+          // console.log("Black Pawns and their possible moves:", blackMovesMap);
+          const isKingUnderThreatAfterOpponentMoves = (
+            kingColor: string,
+            whiteMovesMap: { [key: string]: string[] },
+            blackMovesMap: { [key: string]: string[] },
+            whiteKingBeforeNewPosition: string,
+            blackKingBeforeNewPosition: string
+          ): boolean => {
+
+            const opponentMovesMap = kingColor === 'white' ? blackMovesMap : whiteMovesMap;
+            const kingPosition = kingColor === 'white' ? whiteKingBeforeNewPosition : blackKingBeforeNewPosition;
+
+            // console.log(`Checking if ${kingColor === 'white' ? 'white' : 'black'} king is under threat at ${kingPosition}`);
+
+            let attackingPawnKey = ''; 
+
+            for (const [pawnKey, possibleMoves] of Object.entries(opponentMovesMap)) {
+              // console.log(`${pawnKey} can move to:`, possibleMoves);
+
+              if (possibleMoves.includes(kingPosition)) {
+                // console.log(`King is under threat from ${pawnKey} moving to ${kingPosition}`);
+                attackingPawnKey = pawnKey; 
+                break;
+              }
+            }
+
+            if (!attackingPawnKey) {
+              // console.log('No immediate threats to the king.');
+              return false;
+            }
+
+            const yourMovesMap = kingColor === 'white' ? whiteMovesMap : blackMovesMap;
+
+            for (const [yourPawnKey, possibleMoves] of Object.entries(yourMovesMap)) {
+              const yourPawnDetails = this.parsePawnKey(yourPawnKey);
+              for (const move of possibleMoves) {
+                // console.log(testWhite, ' white111')
+                // console.log(testBlack, 'black111')
+                this.jsonResponse.forEach((pawn: any) => {
+                  if (pawn.pawnName === 'king') {
+                    if (pawn.pawnColor === 'white') {
+                      // console.log(`Updating white king from ${pawn.pawnPlacement} to ${testWhite}`);
+                      pawn.pawnPlacement = testWhite; 
+                    } else if (pawn.pawnColor === 'black') {
+                      // console.log(`Updating black king from ${pawn.pawnPlacement} to ${testBlack}`);
+                      pawn.pawnPlacement = testBlack; 
+                    }
+                  }
+                });
+                // console.log(this.jsonResponse)
+                // console.log(`${yourPawnDetails.pawnName} (${yourPawnDetails.pawnColor}) is trying to MOVE to ${move}`);
+                let simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
+                const originalPosition = yourPawnDetails.pawnPlacement;
+
+                const pieceIndex = simulatedJsonResponse.findIndex((pawn: any) => pawn.pawnPlacement === originalPosition);
+                if (pieceIndex !== -1) {
+                  simulatedJsonResponse.splice(pieceIndex, 1);
+                }
+            
+                const newPositionIndex = simulatedJsonResponse.findIndex((pawn: any) => pawn.pawnPlacement === move);
+                if (newPositionIndex !== -1) {
+                  simulatedJsonResponse.splice(newPositionIndex, 1); 
+                }
+            
+                simulatedJsonResponse.push({
+                  pawnName: yourPawnDetails.pawnName,
+                  pawnColor: yourPawnDetails.pawnColor,
+                  pawnPlacement: move
+                });
+
+                // console.log("Simulated jsonResponse after the move:", simulatedJsonResponse);
+
+                const allWhiteMovesCheck: string[] = [];
+                const allBlackMovesCheck: string[] = [];
+
+
+                let whiteKingPositionCheck: string | null = null;
+                let blackKingPositionCheck: string | null = null;
+                simulatedJsonResponse.forEach((pawn: any) => {
+                  if (pawn) {
+                    const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, simulatedJsonResponse);
+                
+                    if (pawn.pawnName === 'king') {
+                      if (pawn.pawnColor === 'white') {
+                        whiteKingPositionCheck = pawn.pawnPlacement; 
+                        allWhiteMovesCheck.push(...possibleMoves);
+                      } else if (pawn.pawnColor === 'black') {
+                        blackKingPositionCheck = pawn.pawnPlacement; 
+                        allBlackMovesCheck.push(...possibleMoves);
+                      }
+                    } else {
+                      if (pawn.pawnColor === 'white') {
+                        allWhiteMovesCheck.push(...possibleMoves);
+                      } else if (pawn.pawnColor === 'black') {
+                        allBlackMovesCheck.push(...possibleMoves);
+                      }
+                    }
+                  }
+                });
+                
+                // console.log(allBlackMovesCheck, 'BLACK CHECK')
+                // console.log(allWhiteMovesCheck, 'WHITE CHECK')
+                console.log(blackKingPositionCheck);
+                if ((whiteKingPositionCheck && allBlackMovesCheck.includes(whiteKingPositionCheck)) || (blackKingPositionCheck && allWhiteMovesCheck.includes(blackKingPositionCheck))) {
+                  // console.log('This move cant save you')
+                  simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
+                  continue;
+                } else {
+                  // console.log('this move can save you')
+                  simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
+                  kingCanBeSaved = true;
+                  break;
+                }
+              }
+            }
+            if (kingCanBeSaved) {
+              // console.log('The game can go on. A move has been found to save the king.');
+            } else {
+              // console.log('Checkmate! No move can save the king.');
+              this.resetGame();
+              return false;
+            }
+            return false;
+          };
+
+
+          const isWhiteKingInCheck = isKingUnderThreatAfterOpponentMoves('white', whiteMovesMap, blackMovesMap, whiteKingPosition, blackKingPosition);
+          const isBlackKingInCheck = isKingUnderThreatAfterOpponentMoves('black', whiteMovesMap, blackMovesMap, whiteKingPosition, blackKingPosition);
+
+          // Log results
+          // console.log(`Is the White King in check? ${isWhiteKingInCheck ? 'Yes' : 'No'}`);
+          // console.log(`Is the Black King in check? ${isBlackKingInCheck ? 'Yes' : 'No'}`);
+
+
+
           if (moveDetails.pawnColor === 'black') {
             this.checkmateSquare = blackKingBeforeNewPosition;
           } else {
@@ -350,7 +751,7 @@ removeHighlight11(): void {
           this.jsonResponse = JSON.parse(JSON.stringify(originalBoardPosition));
           return;
         }
-        this.dataService.sendMoveDetails(moveDetails).subscribe(
+        this.dataService.sendMoveDetails(moveDetails,this.gameId).subscribe(
           (response) => {
             // console.log('Move details sent successfully:', response);
             this.moveCounter++;
@@ -406,8 +807,14 @@ removeHighlight11(): void {
       // console.log('No available moves found.');
     }
   }
-
-
+  parsePawnKey = (pawnKey: string) => {
+    const [pawnColor, pawnName, pawnPlacement] = pawnKey.split('_');
+    return {
+      pawnName,
+      pawnColor,
+      pawnPlacement
+    };
+  };
   getPawnOnSquare(square: string): Pawn | undefined {
     return this.jsonResponse.find(pawn => pawn.pawnPlacement === square);
   }
@@ -583,7 +990,7 @@ removeHighlight11(): void {
         return moves;
       }
       if (pawn.pawnColor === 'white') {
-        const rookKRolewska = combinedBoard.find((s: any) => s.square === 'h1' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'white' );
+        const rookKRolewska = combinedBoard.find((s: any) => s.square === 'h1' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'white');
 
         if (rookKRolewska) {
           const f1Occupied = this.isSquareOccupied(combinedBoard, 'f1');

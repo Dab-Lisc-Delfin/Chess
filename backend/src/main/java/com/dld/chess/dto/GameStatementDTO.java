@@ -10,4 +10,8 @@ import java.util.List;
 public class GameStatementDTO {
     private List<SquareDTO> chessBoard;
     private boolean isGameActive;
+    private String gameId;
+
+    //new
+    private String playerTour = "white";
 }
