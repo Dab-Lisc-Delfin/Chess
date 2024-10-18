@@ -6,18 +6,17 @@ import com.dld.chess.model.Game;
 import com.dld.chess.service.GameManageService;
 import com.dld.chess.service.GameService;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @CrossOrigin(origins = "http://localhost:4200")
+@Slf4j
 public class GameController {
     private final GameManageService gameManageService;
     private final GameService gameService;
@@ -50,13 +49,15 @@ public class GameController {
 
 
     //ws
-    @MessageMapping("/ws/update-game/{gameId}")
-    public void updateGame(@DestinationVariable String gameId, MoveDTO moveDTO) {
+    @PostMapping("/ws/update-game/{gameId}")
+    public void updateGame(@PathVariable String gameId,@RequestBody MoveDTO moveDTO) {
+        System.out.println("tam"+gameId);
+        System.out.println("i siam"+moveDTO);
         Game game = GameManageService.getGameById(gameId);
         gameService.processMove(moveDTO,game);
         gameService.nextTour(game);
 
-        String destination = "/game/update-game/" + gameId;
+        String destination = "ws/game/update-game/" + gameId;
         simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
     }
 
