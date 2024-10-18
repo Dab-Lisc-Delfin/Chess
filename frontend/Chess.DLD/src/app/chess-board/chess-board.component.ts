@@ -71,7 +71,7 @@ export class ChessBoardComponent {
         debug: (str) => { console.log(str); },
         onConnect: (frame) => {
             console.log('Connected: ' + frame);
-            this.stompClient.subscribe(`/game/update-game/${this.gameId}`, (message: any) => {
+            this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
                 console.log('Received message:', message.body);
             });
         },

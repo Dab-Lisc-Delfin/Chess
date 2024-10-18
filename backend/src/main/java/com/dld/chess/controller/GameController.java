@@ -49,7 +49,7 @@ public class GameController {
 
 
     //ws
-    @PostMapping("/ws/update-game/{gameId}")
+    @PostMapping("/update-game/{gameId}")
     public void updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
         System.out.println("gameId: " + gameId);
         System.out.println("moveDTO: " + moveDTO);
@@ -60,7 +60,7 @@ public class GameController {
         gameService.processMove(moveDTO, game);
         gameService.nextTour(game);
 
-        String destination = "ws/game/update-game/" + gameId;
+        String destination = "/game/refresh/" + gameId;
         simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
     }
 
