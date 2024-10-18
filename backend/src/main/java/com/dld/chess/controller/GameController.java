@@ -31,7 +31,7 @@ public class GameController {
 
     @PostMapping("/game/create-game")
     public ResponseEntity<GameStatementDTO> createNewGame(HttpSession session) {
-        session.setAttribute("playerColor","white");
+        session.setAttribute("playerColor", "white");
         return ResponseEntity.ok(gameManageService.createNewGame());
     }
     //there starts white, we take gameId from DTO and connecting it with @MessageMapping("/ws/subscribe/game/{gameId}")
@@ -50,18 +50,19 @@ public class GameController {
 
     //ws
     @PostMapping("/ws/update-game/{gameId}")
-    public void updateGame(@PathVariable String gameId,@RequestBody MoveDTO moveDTO) {
-        System.out.println("tam"+gameId);
-        System.out.println("i siam"+moveDTO);
+    public void updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
+        System.out.println("gameId: " + gameId);
+        System.out.println("moveDTO: " + moveDTO);
+
         Game game = GameManageService.getGameById(gameId);
-        gameService.processMove(moveDTO,game);
+        System.out.println("NULL game?: " + game);
+
+        gameService.processMove(moveDTO, game);
         gameService.nextTour(game);
 
         String destination = "ws/game/update-game/" + gameId;
         simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
     }
-
-
 
 
 
