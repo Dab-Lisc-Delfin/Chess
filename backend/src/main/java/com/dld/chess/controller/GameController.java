@@ -50,18 +50,21 @@ public class GameController {
 
     //ws
     @PostMapping("/update-game/{gameId}")
-    public void updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
+    public ResponseEntity<Void> updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
         System.out.println("gameId: " + gameId);
         System.out.println("moveDTO: " + moveDTO);
 
         Game game = GameManageService.getGameById(gameId);
         System.out.println("NULL game?: " + game);
 
-        gameService.processMove(moveDTO, game);
-        gameService.nextTour(game);
+        if (game != null) {
+            gameService.processMove(moveDTO, game);
+            gameService.nextTour(game);
+            String destination = "/game/refresh/" + gameId;
+            simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+        }
 
-        String destination = "/game/refresh/" + gameId;
-        simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+        return ResponseEntity.ok().build();
     }
 
 
