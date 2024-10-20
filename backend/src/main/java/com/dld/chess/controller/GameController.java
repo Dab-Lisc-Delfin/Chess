@@ -8,8 +8,6 @@ import com.dld.chess.service.GameService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -68,10 +66,11 @@ public class GameController {
     }
 
 
-
-
-
-
+    @PostMapping("/game-statement/{gameId}")
+    public ResponseEntity<GameStatementDTO> getGameStatement(@PathVariable String gameId) {
+        Game game = GameManageService.getGameById(gameId);
+        return ResponseEntity.ok(gameService.getGameStatement(game));
+    }
 
 
     //TODO delete below methods
