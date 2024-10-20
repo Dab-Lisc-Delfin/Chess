@@ -25,5 +25,7 @@ public class Game {
     private List<Player> players = new ArrayList<>();
     private String currentTour;
     private boolean isStarted = false;
+    private List<Move> gameHistory = new ArrayList<>();
+
 
 }

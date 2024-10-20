@@ -8,8 +8,6 @@ import com.dld.chess.service.GameService;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +32,6 @@ public class GameController {
         session.setAttribute("playerColor", "white");
         return ResponseEntity.ok(gameManageService.createNewGame());
     }
-    //there starts white, we take gameId from DTO and connecting it with @MessageMapping("/ws/subscribe/game/{gameId}")
 
 
     @PostMapping("/join-game/{gameId}")
@@ -45,44 +42,32 @@ public class GameController {
 
         return ResponseEntity.ok("User has joined to the game");
     }
-    //sub  @MessageMapping("/ws/update-game/{gameId}")
 
 
     //ws
     @PostMapping("/update-game/{gameId}")
-    public void updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
+    public ResponseEntity<Void> updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
         System.out.println("gameId: " + gameId);
         System.out.println("moveDTO: " + moveDTO);
 
         Game game = GameManageService.getGameById(gameId);
         System.out.println("NULL game?: " + game);
 
-        gameService.processMove(moveDTO, game);
-        gameService.nextTour(game);
+        if (game != null) {
+            gameService.processMove(moveDTO, game);
+            gameService.addMoveToGameHistory(moveDTO, game);
+            gameService.nextTour(game);
+            String destination = "/game/refresh/" + gameId;
+            simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+        }
 
-        String destination = "/game/refresh/" + gameId;
-        simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+        return ResponseEntity.ok().build();
     }
 
 
-
-
-
-
-
-
-    //TODO delete below methods
-//    @GetMapping("/gameInfo/{gameId}")
-//    @ResponseBody
-//    public String printInfoAboutGame(@PathVariable String gameId) {
-//        Game game = gameManageService.getGameById(gameId);
-//        return "ID- " + game.getId() + "  playersSize- " + game.getPlayers().size() + " gameCurrentPlayerTour- " + game.getCurrentTour();
-//    }
-
-
-    @GetMapping("/allGames")
-    public int getAllGames() {
-        return gameManageService.getAllGames().size();
+    @PostMapping("/game-statement/{gameId}")
+    public ResponseEntity<GameStatementDTO> getGameStatement(@PathVariable String gameId) {
+        Game game = GameManageService.getGameById(gameId);
+        return ResponseEntity.ok(gameService.getGameStatement(game));
     }
-
 }

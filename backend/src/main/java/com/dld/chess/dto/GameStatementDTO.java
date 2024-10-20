@@ -1,5 +1,6 @@
 package com.dld.chess.dto;
 
+import com.dld.chess.model.Move;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,4 +15,5 @@ public class GameStatementDTO {
 
     //new
     private String playerTour = "white";
+    private List<Move> gameHistory;
 }
