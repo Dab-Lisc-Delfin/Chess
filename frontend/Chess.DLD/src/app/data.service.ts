@@ -10,7 +10,6 @@ export class DataService {
   private apiUrlMove = (gameId: string) => `${this.baseUrl}/update-game/${gameId}`;
   private apiBoard  = (gameId: string) => `${this.baseUrl}/game/refresh/${gameId}`;
   private apiCreateGame = 'http://localhost:8080/game/create-game'
-  private apiTEST  = (gameId: string) => `http://localhost:8080/api/game-statement/${gameId}`
   private apiLogin = `${this.baseUrl}/game/login`;
   
   constructor(private http: HttpClient) {}
@@ -33,9 +32,6 @@ export class DataService {
   GetLogin(username: string, password: string) {
     const loginData = { username, password };
     return this.http.post<any>(this.apiLogin,loginData, {});
-  }
-  GetTest(gameId: string){
-    return this.http.post<any>(this.apiTEST(gameId), {});
   }
 }
 

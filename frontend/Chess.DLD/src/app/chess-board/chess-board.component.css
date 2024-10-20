@@ -80,8 +80,64 @@ font-style: normal;
 .highlight-class {
   color: inherit;
 }
+.testHistory{
+  flex-wrap: wrap-reverse;
+  margin-right: 10px;
+}
+.widthauto{
+  width: 600px;
+}
+.Minh{
+  min-width: 75px;
+    min-height: 75px;
+    max-width: 75px;
+    max-height: 75px;
+}
+.MR{
+  margin-right: 75px;
+}
+.MRS{
+  margin-right: 20px;
+}
+.MRT{
+  margin-top: 20px;
+}
+@media (max-width: 1100px) {
+  .testHistory {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .chessboard-container {
+    width: 300px !important;
+  }
 
-
+  .chessboard-container .grid-cols-8 > div {
+    min-width: 37.5px;
+    min-height: 37.5px;
+    max-width: 37.5px;
+    max-height: 37.5px;
+  }
+  .chessboard-container .grid-cols-8 img {
+    max-width: 37.5px;
+    max-height: 37.5px;
+  }
+  .widthauto{
+    width: 300px;
+  }
+  .Minh{
+    min-width: 37.5px;
+      min-height: 37.5px;
+      max-width: 37.5px;
+      max-height: 37.5px;
+  }
+  .MR{
+    margin-right: 37.5px;
+  }
+  .MRS{
+    margin-right: 0px;
+  }
+}
 
 
 

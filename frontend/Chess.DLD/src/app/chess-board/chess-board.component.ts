@@ -60,6 +60,7 @@ export class ChessBoardComponent {
     this.route.params.subscribe(params => {
       this.gameId = params['gameId'];
       console.log('Received gameId:', this.gameId);
+      //TUpobiore aktuyalny stan gry
       
       this.initializeWebSocketConnection();
     });
