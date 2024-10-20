@@ -5,6 +5,7 @@ import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.dto.SquareDTO;
 import com.dld.chess.model.Chessboard;
 import com.dld.chess.model.Game;
+import com.dld.chess.model.Move;
 import com.dld.chess.model.Square;
 import com.dld.chess.model.pawns.*;
 import lombok.extern.slf4j.Slf4j;
@@ -172,6 +173,7 @@ public class GameService {
         gameStatementDTO.setGameActive(game.isActive());
         gameStatementDTO.setPlayerTour(game.getCurrentTour());
         gameStatementDTO.setGameId(game.getId());
+        gameStatementDTO.setGameHistory(game.getGameHistory());
         return gameStatementDTO;
     }
 
@@ -332,4 +334,19 @@ public class GameService {
         }
         return false;
     }
+
+
+    public void addMoveToGameHistory(MoveDTO moveDTO, Game game) {
+        List<Move> gameHistory = game.getGameHistory();
+
+        Move move = new Move();
+        move.setMoveFrom(moveDTO.getMoveFrom());
+        move.setMoveTo(moveDTO.getMoveTo());
+        move.setPawnColor(moveDTO.getPawnColor());
+        move.setPawnName(moveDTO.getPawnName());
+
+        gameHistory.add(move);
+        game.setGameHistory(gameHistory);
+    }
+
 }
