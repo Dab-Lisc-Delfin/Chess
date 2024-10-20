@@ -24,27 +24,27 @@
             </div>
         </div>
         <div class="flex justify-center items-center h-full max-w-[1440px] m-auto">
-            <div class="w-[20%] flex flex-col justify-center items-center mt-[42%]">
+            <div class="w-[20%] flex flex-col justify-center items-center mt-[42%] hidden 2xl:flex">
                 <img src="Rook.png" alt="Rook" class="max-w-[200px]">
                 <img src="bishop.webp" alt="bishop" class="max-w-[200px]">
                 <img src="knight.webp" alt="knight" class="max-w-[200px]">
             </div>
-            <div class="w-[60%] flex justify-center m-auto">
-                <div class="grid justify-center flex flex-col">
-                    <div class="grid-row content-center rounded flex mr-[75px]">
+            <div class="w-[60%] 2xl:w-[80%] flex justify-center m-auto">
+                <div class="grid justify-center flex flex-col w-full ">
+                    <div class="grid-row content-center rounded flex MR">
 
-                        <div class="flex flex-col items-center justify-center font1">
+                        <div class="flex flex-col items-center justify-center font1 MRT">
                             <div *ngFor="let number of [8, 7, 6, 5, 4, 3, 2, 1]"
-                                class="min-w-[75px] min-h-[75px] max-w-[75px]  max-h-[75px] flex items-center justify-end ">
-                                <p class="mr-[20px] font-bold">{{ number }}</p>
+                                class="Minh flex-grow flex items-center justify-center">
+                                <p class="MRS font-bold">{{ number }}</p>
                             </div>
                         </div>
                         <div class="  border-[3px] border-[#856F28] mt-[20px]">
-
-                            <div class="grid grid-cols-8">
-                                <div *ngFor="let square of chessBoard"
-                                    class=" min-w-[75px] min-h-[75px] max-w-[75px]  max-h-[75px]  flex items-center justify-center "
-                                    [ngClass]="{
+                            <div class="chessboard-container">
+                                <div class="grid grid-cols-8 widthauto">
+                                    <div *ngFor="let square of chessBoard"
+                                        class="Minh  flex items-center justify-center "
+                                        [ngClass]="{
                      'hoverWhite': square.color === 'white',
                      'hoverBlack': square.color === 'black',
                      'white': square.color === 'white',
@@ -54,29 +54,31 @@
                      'checkmate': square.square === checkmateSquare
                  }" (click)="showSquareDetails(square)" (dragover)="allowDrop($event)" (drop)="dropSquare(square)">
 
-                                    <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
-                                        <div class=" text-center min-w-[72px] min-h-[72px]" draggable="true"
-                                            (dragstart)="showSquareDetails(square)">
-                                            <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
-                                                <img [src]="'/' + (pawn.pawnColor === 'white' ? (pawn.pawnName + 'white.png') : (pawn.pawnName + 'black.png'))"
-                                                    alt="{{ pawn.pawnName }}" class="w-full h-full object-contain" />
-                                            </ng-container>
+                                        <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
+                                            <div class=" text-center Minh" draggable="true"
+                                                (dragstart)="showSquareDetails(square)">
+                                                <ng-container *ngIf="getPawnOnSquare(square.square) as pawn">
+                                                    <img [src]="'/' + (pawn.pawnColor === 'white' ? (pawn.pawnName + 'white.png') : (pawn.pawnName + 'black.png'))"
+                                                        alt="{{ pawn.pawnName }}"
+                                                        class="w-full h-full object-contain" />
+                                                </ng-container>
 
+                                            </div>
+                                        </ng-container>
+                                        <div *ngIf="checkmateSquare === square.square" class="checkmate-overlay">
+                                            <img src="/King.png" class="king-image">
                                         </div>
-                                    </ng-container>
-                                    <div *ngIf="checkmateSquare === square.square" class="checkmate-overlay">
-                                        <img src="/King.png" class="king-image">
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-9  mr-[75px]">
+                    <div class="grid grid-cols-9  MR">
                         <div class=" flex ">
                             <p></p>
                         </div>
                         <div *ngFor="let square of chessBoard.slice(0, 8)"
-                            class="min-w-[75px]  min-h-[75px] max-w-[75px]  max-h-[75px] flex justify-center ">
+                            class="Minh flex justify-center ">
                             <p class="mt-[1px] font1">{{ square.square.slice(0, 1) | uppercase }}</p>
                         </div>
                     </div>
@@ -94,13 +96,13 @@
                 </div>
             </div>
 
-            <div class="w-[20%] flex flex-col items-center mt-[25%]">
+            <div class="w-[20%] 2xl:w-[20%] flex flex-col items-center mt-[25%] testHistory">
                 <div>
                     <span class="font text-shadow text-[24px]">History</span>
                 </div>
                 <!-- bg-[#6B6B6B] border-[3px] border-[#856F28] shadow-top-->
                 <div #historyContainer
-                    class="history-container w-[300px] h-[300px] overflow-y-auto  p-4  bg-[#A58CFF] rounded-lg shadow-top inner-shadow">
+                    class="history-container w-[300px] h-[300px] overflow-y-auto p-4  bg-[#A58CFF] rounded-lg shadow-top inner-shadow">
                     <div class="flex flex-wrap gap-2">
                         <ng-container *ngFor="let i of getTurnIndexes()">
                             <div class="flex items-center  w-full">
@@ -121,7 +123,7 @@
                                     </div>
                                 </ng-container>
                                 <ng-container *ngIf="moveHistory[i + 1]">
-                                    <div class="flex items-center  w-2/5 hover:bg-[#5B3F9B] rounded-lg hover:bg-opacity-50 justify-center"
+                                    <div class="flex items-center w-2/5 hover:bg-[#5B3F9B] rounded-lg hover:bg-opacity-50 justify-center"
                                         (mouseover)="highlightSquare11(moveHistory[i + 1].moveFrom); highlightSquare11(moveHistory[i + 1].moveTo)"
                                         (mouseout)="removeHighlight11()">
                                         <div class="flex items-center">
@@ -140,7 +142,6 @@
                         </ng-container>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
