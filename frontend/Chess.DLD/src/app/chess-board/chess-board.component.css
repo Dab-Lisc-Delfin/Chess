@@ -21,7 +21,16 @@
     background-color: #4B4B4B;
     position: relative; 
   }
-  
+  .flipped {
+    transform: rotate(180deg);
+  }
+  .flipped img {
+    transform: rotate(180deg);
+  }
+  .flipped .MRS,
+.flipped .font1 {
+  transform: rotate(180deg);
+}
   .highlighted.white::after,
   .highlighted.black::after {
     content: '';
@@ -82,7 +91,7 @@ font-style: normal;
 }
 .testHistory{
   flex-wrap: wrap-reverse;
-  margin-right: 10px;
+  margin-right: 30px;
 }
 .widthauto{
   width: 600px;
@@ -102,16 +111,86 @@ font-style: normal;
 .MRT{
   margin-top: 20px;
 }
+.toggle-history {
+  display: none;
+}
+ .flipped-image {
+  transform: translate(-110%, -10%) rotate(180deg) !important;
+}
+.HistoryTurnInfo{
+  width: 600px;
+  display: inline-flex;
+}
 @media (max-width: 1100px) {
-  .testHistory {
+  .history-container,
+  .hidden-title {
     display: none;
   }
+  .MR{
+    margin-right: 50px;
+  }
+  .toggle-history {
+    display: block;
+  }
+  .history-container {
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    margin-top: 15%;
+  }
+  .hiddenn{
+    display: block !important;
+  }
 }
-@media (max-width: 700px) {
+.hiddenn {
+  display: block;
+}
+
+@media (max-width: 800px) {
+  .chessboard-container {
+    width: 400px !important;
+  }
+.HistoryTurnInfo{
+  width: 400px;
+}
+  .chessboard-container .grid-cols-8 > div {
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+  }
+  .chessboard-container .grid-cols-8 img {
+    max-width: 50px;
+    max-height: 50px;
+  }
+  .widthauto{
+    width: 400px;
+  }
+  .Minh{
+    min-width: 50px;
+      min-height: 50px;
+      max-width: 50px;
+      max-height: 50px;
+  }
+  .MR{
+    margin-right: 25px;
+  }
+  .MRS{
+    margin-right: 0px;
+  }
+  .history-container {
+    margin-top: 20%;
+  }
+}
+
+@media (max-width: 540px) {
   .chessboard-container {
     width: 300px !important;
   }
-
+  .HistoryTurnInfo{
+    width: 300px;
+  }
   .chessboard-container .grid-cols-8 > div {
     min-width: 37.5px;
     min-height: 37.5px;
@@ -132,14 +211,15 @@ font-style: normal;
       max-height: 37.5px;
   }
   .MR{
-    margin-right: 37.5px;
+    margin-right: 17px;
   }
   .MRS{
     margin-right: 0px;
   }
+  .history-container {
+    margin-top: 25%;
+  }
 }
-
-
 
 
 
