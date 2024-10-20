@@ -38,32 +38,44 @@ export class ChessBoardComponent {
   moveCounter: number = 0;
   highlightedSquare11: string[] = [];
   private stompClient: any;
-
   constructor(private route: ActivatedRoute, private dataService: DataService) {
-    this.dataService.getJsonData().subscribe(
-      (res: any) => {
-        const chessBoardData = res.chessBoard.map((pawn: any) => ({
-          pawnName: pawn.name,
-          pawnColor: pawn.color,
-          pawnPlacement: pawn.square
-        }));
-
-        this.jsonResponse = chessBoardData;
-
-      },
-      (error) => {
-        console.error('Error fetching JSON data:', error);
-      }
-    );
   }
+  
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.gameId = params['gameId'];
-      console.log('Received gameId:', this.gameId);
-      //TU pobiore aktuyalny stan gry
-      
+      this.route.params.subscribe(params => {
+        this.gameId = params['gameId'];
+    
+        if (this.gameId) {
+          this.dataService.GetTest(this.gameId).subscribe(
+            (res: any) => {
+              this.jsonResponse = res.chessBoard.map((pawn: any) => ({
+                pawnName: pawn.name,
+                pawnColor: pawn.color,
+                pawnPlacement: pawn.square
+                
+              }));
+              console.log('Fetched game data:', this.jsonResponse);
+              if (res.gameHistory) {
+                this.moveHistory = res.gameHistory.map((move: any) => ({
+                  moveFrom: move.moveFrom,
+                  moveTo: move.moveTo,
+                  pawnName: move.pawnName,
+                  pawnColor: move.pawnColor,
+                }));
+                console.log('Fetched game history:', this.moveHistory);
+              } else {
+                console.warn('No game history found.');
+              }
+            },
+            (error) => {
+              console.error('Error fetching game data:', error);
+            }
+          );
+        } else {
+          console.log('taka gra nie istnieje')
+        }
+      });
       this.initializeWebSocketConnection();
-    });
   }
   ngOnDestroy() {
     if (this.stompClient) {
@@ -81,6 +93,14 @@ export class ChessBoardComponent {
             this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
                 console.log('Received message:', message.body);
                 const response = JSON.parse(message.body);
+                if (response.gameHistory) {
+                  this.moveHistory = response.gameHistory.map((move: any) => ({
+                    moveFrom: move.moveFrom,
+                    moveTo: move.moveTo,
+                    pawnName: move.pawnName,
+                    pawnColor: move.pawnColor,
+                  }));
+                }
                 if (response.playerTour) {
                   console.log(`Tura gracza: ${response.playerTour}`);
               } else {
@@ -1043,7 +1063,6 @@ export class ChessBoardComponent {
       (response) => {
         // console.log('Move details sent successfully:', response);
         this.moveCounter++;
-        this.moveHistory.push(moveDetails);
         this.scrollToBottom();
         moveSound.volume = 0.1;
         moveSound.play();

@@ -10,7 +10,7 @@ export class DataService {
   private apiUrlMove = (gameId: string) => `${this.baseUrl}/update-game/${gameId}`;
   private apiBoard  = (gameId: string) => `${this.baseUrl}/game/refresh/${gameId}`;
   private apiCreateGame = 'http://localhost:8080/game/create-game'
-  private apiTEST  = (gameId: string) => `http://localhost:8080/api/game-statement/${gameId}`
+  private apiTEST  = (gameId: string) => `http://localhost:8080/game-statement/${gameId}`
   private apiLogin = `${this.baseUrl}/game/login`;
   
   constructor(private http: HttpClient) {}
