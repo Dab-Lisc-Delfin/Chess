@@ -20,7 +20,6 @@ export class HomeComponent {
 
   createGame() {
     this.dataService.getJsonData().subscribe((response: any) => {
-      console.log('Game created:', response);
       this.gameId = response.gameId;
       this.router.navigate([`/game/${this.gameId}`]);
     }, error => {
