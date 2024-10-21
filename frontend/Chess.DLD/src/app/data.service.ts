@@ -11,7 +11,7 @@ export class DataService {
   private apiBoard  = (gameId: string) => `${this.baseUrl}/game/refresh/${gameId}`;
   private apiCreateGame = 'http://localhost:8080/game/create-game'
   private apiTEST  = (gameId: string) => `http://localhost:8080/game-statement/${gameId}`
-  private apiLogin = `${this.baseUrl}/game/login`;
+  private apiLogin = `${this.baseUrl}/login`;
   
   constructor(private http: HttpClient) {}
 

@@ -1,16 +1,7 @@
-<!--  -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&display=swap" rel="stylesheet">
-<!--  -->
-<!--  -->
-<!--  -->
-<!--  -->
-<!--  -->
-<div class="grid h-screen w-full bg-[#B29CFF]">    
-    <div class="game-info bg-white text-gray-800 text-center fixed bottom-0 left-0 w-full shadow-md">
-        <h2 class="text-2xl font-bold">Room ID: {{ gameId }}</h2>
-    </div>
+<div class="grid h-screen w-full bg-[#B29CFF]">
     <div class="row-span-1 text-center w-full h-[60px] bg-[#A58CFF] content-center drop-shadow shadow-top inner-shadow">
         <div class="flex justify-between max-w-[1440px] h-full items-center px-4 m-auto">
             <div class="w-1/3 text-left">
@@ -23,15 +14,17 @@
                 <span class="font text-lg"><a href="./home">Home</a></span>
             </div>
         </div>
-        <div class="flex justify-between items-center HistoryTurnInfo px-4 mt-[15px]">
-            <p class="font">
+        <div class="flex justify-between items-center HistoryTurnInfo px-4 mt-[15px] testtt">
+            <p class="font textTurn">
                 {{ isMyTurn ? 'YOUR TURN' : 'OPPONENT\'S TURN' }}
             </p>
-            <button class="toggle-history font  bg-[#A58CFF] rounded-lg shadow-top inner-shadow p-2" (click)="toggleHistory()">Show History</button>
+            <button (click)="surrender()" class="font upperButton">Surrender</button> 
+            <button class="toggle-history font upperButton"
+                (click)="toggleHistory()">{{ isHistoryHidden ? 'HIDE HISTORY' : 'SHOW HISTORY' }}</button>
         </div>
-        
+
         <div class="flex justify-center items-center h-full max-w-[1440px] m-auto">
-            <div class="w-[20%] flex flex-col justify-center items-center mt-[42%] hidden 2xl:flex">
+            <div class="w-[20%] flex flex-col justify-center items-center mt-[42%] ImgHide">
                 <img src="Rook.png" alt="Rook" class="max-w-[200px]">
                 <img src="bishop.webp" alt="bishop" class="max-w-[200px]">
                 <img src="knight.webp" alt="knight" class="max-w-[200px]">
@@ -40,18 +33,18 @@
                 <div class="grid justify-center flex flex-col w-full ">
                     <div class="grid-row content-center rounded flex MR">
 
-                        <div class="flex flex-col items-center justify-center font1 MRT"[ngClass]="{ 'flipped': playerColor === 'black' }">
+                        <div class="flex flex-col items-center justify-center font1 MRT"
+                            [ngClass]="{ 'flipped': playerColor === 'black' }">
                             <div *ngFor="let number of [8, 7, 6, 5, 4, 3, 2, 1]"
                                 class="Minh flex-grow flex items-center justify-center">
                                 <p class="MRS font-bold">{{ number }}</p>
                             </div>
                         </div>
                         <div class="  border-[3px] border-[#856F28] mt-[20px]">
-                            <div class="chessboard-container"[ngClass]="{ 'flipped': playerColor === 'black' }">
+                            <div class="chessboard-container" [ngClass]="{ 'flipped': playerColor === 'black' }">
                                 <div class="grid grid-cols-8 widthauto">
                                     <div *ngFor="let square of chessBoard"
-                                        class="Minh  flex items-center justify-center "
-                                        [ngClass]="{
+                                        class="Minh  flex items-center justify-center " [ngClass]="{
                      'hoverWhite': square.color === 'white',
                      'hoverBlack': square.color === 'black',
                      'white': square.color === 'white',
@@ -73,19 +66,19 @@
                                             </div>
                                         </ng-container>
                                         <div *ngIf="checkmateSquare === square.square" class="checkmate-overlay">
-                                            <img src="/King.png" class="king-image" [ngClass]="{ 'flipped-image': playerColor === 'black' }">
+                                            <img src="/King.png" class="king-image"
+                                                [ngClass]="{ 'flipped-image': playerColor === 'black' }">
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-9  MR"[ngClass]="{ 'flipped': playerColor === 'black' }">
+                    <div class="grid grid-cols-9  MR" [ngClass]="{ 'flipped': playerColor === 'black' }">
                         <div *ngIf="playerColor !== 'black'" class="flex">
                             <p></p>
                         </div>
-                        <div *ngFor="let square of chessBoard.slice(0, 8)"
-                            class="Minh flex justify-center ">
+                        <div *ngFor="let square of chessBoard.slice(0, 8)" class="Minh flex justify-center ">
                             <p class="mt-[1px] font1">{{ square.square.slice(0, 1) | uppercase }}</p>
                         </div>
                     </div>
@@ -93,7 +86,7 @@
                         class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                         <div class="bg-white p-6 rounded-lg shadow-lg text-center space-y-4">
                             <h2 class="text-2xl font-bold text-gray-800">Game Finished</h2>
-                            <button (click)="resetGame()"
+                            <button (click)="EndGame()"
                                 class="bg-green-500 text-white font-bold py-2 px-4 rounded hover:bg-green-700">
                                 Play again
                             </button>
@@ -107,7 +100,8 @@
                     <span class="font text-shadow text-[24px]">History</span>
                 </div>
                 <div #historyContainer
-                    class="history-container w-[300px] h-[300px] overflow-y-auto p-4  bg-[#A58CFF] rounded-lg shadow-top inner-shadow"[ngClass]="{'hiddenn': isHistoryHidden}">
+                    class="history-container w-[300px] h-[300px] overflow-y-auto p-4  bg-[#A58CFF] rounded-lg shadow-top inner-shadow"
+                    [ngClass]="{'hiddenn': isHistoryHidden}">
                     <div class="flex flex-wrap gap-2">
                         <ng-container *ngFor="let i of getTurnIndexes()">
                             <div class="flex items-center  w-full">
@@ -150,4 +144,14 @@
             </div>
         </div>
     </div>
+    <div *ngIf="isGameEnded" class="overlay flex  justify-center h-full font text-[80px]">
+        <div class="text-white flex flex-col items-center mt-[150px]">
+            <p>Checkmate</p>
+            <p>Black WINS!</p>
+            <button routerLink="/home" class="home-button mt-4 px-4 py-2 rounded">
+                Go to Home
+            </button>
+        </div>
+    </div>
+    
 </div>
