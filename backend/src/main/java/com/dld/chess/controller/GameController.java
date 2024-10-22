@@ -28,8 +28,8 @@ public class GameController {
 
 
     @PostMapping("/game/create-game")
-    public ResponseEntity<GameStatementDTO> createNewGame(HttpSession session) {
-        return ResponseEntity.ok(gameManageService.createNewGame(session));
+    public ResponseEntity<GameStatementDTO> createNewGame() {
+        return ResponseEntity.ok(gameManageService.createNewGame());
     }
 
 

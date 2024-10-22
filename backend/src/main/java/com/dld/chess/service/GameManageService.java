@@ -25,7 +25,7 @@ public class GameManageService {
     }
 
 
-    public GameStatementDTO createNewGame(HttpSession session) {
+    public GameStatementDTO createNewGame() {
         Game game = gameService.createNewGame();
 
         log.info("GAME CREATED: ID {}", game.getId());
@@ -33,7 +33,6 @@ public class GameManageService {
         List<Game> gameList = gameManage.getGames();
         gameList.add(game);
         gameManage.setGames(gameList);
-        addLoggedPlayerToGame(game.getId(), session);
         log.info("Games active {}", gameList.size());
 
         return gameService.getGameStatement(game);
