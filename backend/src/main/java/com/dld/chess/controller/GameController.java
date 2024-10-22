@@ -36,9 +36,6 @@ public class GameController {
 
     @PostMapping("/api/join-game/{gameId}")
     public ResponseEntity<Player> joinGame(@PathVariable String gameId, HttpSession session) {
-
-        gameManageService.addLoggedPlayerToGame(gameId, session);
-
         log.info("USER HAS JOINED:)!");
         gameService.startGameIf2PlayersJoined(gameId);
         return ResponseEntity.ok(gameManageService.addLoggedPlayerToGame(gameId, session));
