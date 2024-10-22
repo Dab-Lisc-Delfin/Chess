@@ -18,6 +18,7 @@ export class HomeComponent {
   imageUrl: string = './BG.png';
   constructor(private router: Router, private dataService: DataService) { }
   ngOnInit() {
+    console.log(sessionStorage.getItem('playerColor')," wow to ten kolor com mial byc")
     // console.log('on init test')
     this.dataService.getVerification().subscribe(
       (response: any) => {

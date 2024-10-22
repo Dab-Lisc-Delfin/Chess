@@ -56,6 +56,7 @@ export class ChessBoardComponent {
     
     // this.checkmateSquare = 'b3';
     // localStorage.setItem('Color', 'white');
+    
     this.playerColor = localStorage.getItem('Color');
 
 
@@ -74,7 +75,6 @@ export class ChessBoardComponent {
             console.error(error);
           }
         );
-
         this.dataService.GetTest(this.gameId).subscribe(
           (res: any) => {
             if (!res) {

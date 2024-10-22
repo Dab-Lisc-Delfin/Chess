@@ -54,24 +54,29 @@ public class GameManageService {
     }
 
 
-    public void addLoggedPlayerToGame(String gameId, HttpSession session) {
+    public Player addLoggedPlayerToGame(String gameId, HttpSession session) {
         String usernameLoggedUser = SecurityContextHolder.getContext().getAuthentication().getName();
         Game game = getGameById(gameId);
         List<Player> playerList = game.getPlayers();
+        Player player;
 
         if (playerList.isEmpty()) {
-            playerList.add(new Player("white", usernameLoggedUser));
+            player = new Player("white", usernameLoggedUser);
+            playerList.add(player);
             session.setAttribute("playerColor", "white");
             log.info("ADDED 1ST PLAYER");
         } else if (playerList.size() == 1) {
-            playerList.add(new Player("black", usernameLoggedUser));
+            player = new Player("black", usernameLoggedUser);
+            playerList.add(player);
             session.setAttribute("playerColor", "black");
             log.info("ADDED 2ND PLAYER");
+        } else {
+            return null;
         }
-//        else {
-//            throw new Exception("already 2 players in game.");
-//        }
+
         game.setPlayers(playerList);
+
+        return player;
     }
 
 }
