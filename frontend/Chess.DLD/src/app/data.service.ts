@@ -12,6 +12,7 @@ export class DataService {
   private apiCreateGame = 'http://localhost:8080/game/create-game'
   private apiTEST  = (gameId: string) => `http://localhost:8080/game-statement/${gameId}`
   private apiLogin = `${this.baseUrl}/login`;
+  private apiRegister = `${this.baseUrl}/api/create-user`;
   
   constructor(private http: HttpClient) {}
 
@@ -19,8 +20,6 @@ export class DataService {
     return this.http.post<any>(this.apiUrlCreateGame, {});
   }
   sendMoveDetails(moveDetails: any, gameId: string) {
-    console.log('Move details:', moveDetails);
-    console.log(this.apiUrlMove)
     return this.http.post(this.apiUrlMove(gameId), moveDetails);
   }
   
@@ -34,6 +33,10 @@ export class DataService {
     const loginData = { username, password };
     return this.http.post<any>(this.apiLogin,loginData, {});
   }
+  GetRegister(username: string, password: string, email: string) {
+    const RegisterData = { username, email, password };
+    return this.http.post(this.apiRegister, RegisterData, { responseType: 'text' });
+}
   GetTest(gameId: string){
     return this.http.post<any>(this.apiTEST(gameId), {});
   }
