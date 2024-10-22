@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/admin/*").hasRole("ADMIN")
                         .requestMatchers("/api/create-user").permitAll()
+                        .requestMatchers("/game/create-game").authenticated()
                         .requestMatchers("/api/verify-user").authenticated()
                         .requestMatchers("/api/join-game/**").authenticated()
                         .requestMatchers("/game/**").authenticated()
