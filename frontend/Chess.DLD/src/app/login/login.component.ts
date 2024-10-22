@@ -14,14 +14,20 @@ export class LoginComponent {
   username: string = '';
   password: string = '';
   imageUrl: string = './BGlogin.png';
+  wrongLogin: boolean = false;
+  sessionID: string | null = null;
   constructor(private router: Router, private dataService: DataService) {}
+
+  ngOnInit() {
+    
+  }
 
   onSubmit() {
 
     this.dataService.GetLogin(this.username, this.password).subscribe(
       (response: any) => {
         if (response === "{message : failure}") {
-          // console.log("jaki straszny blad")
+          this.wrongLogin = true;
         } else {
           this.router.navigate(['/home']);
         }
