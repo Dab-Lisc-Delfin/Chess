@@ -35,14 +35,15 @@ public class GameController {
 
 
     @PostMapping("/api/join-game/{gameId}")
-    public ResponseEntity<Void> joinGame(@PathVariable String gameId, HttpSession session) {
+    public ResponseEntity<Player> joinGame(@PathVariable String gameId, HttpSession session) {
         Player player = gameManageService.addLoggedPlayerToGame(gameId, session);
         gameService.startGameIf2PlayersJoined(gameId);
+        Game game = GameManageService.getGameById(gameId);
 
         String destination = "/game/refresh/" + gameId;
-        simpMessagingTemplate.convertAndSend(destination, player);
+        simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(player);
     }
 
 
