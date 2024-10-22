@@ -126,7 +126,8 @@ export class ChessBoardComponent {
       onConnect: (frame) => {
         // console.log('Connected: ' + frame);
         this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
-          // console.log('Received message:', message.body);
+          console.log('Received message:', message.body);
+          console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
           const response = JSON.parse(message.body);
           // console.log('Received message:', response);
           if (response.gameHistory) {

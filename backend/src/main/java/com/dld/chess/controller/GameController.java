@@ -30,7 +30,14 @@ public class GameController {
 
     @PostMapping("/game/create-game")
     public ResponseEntity<GameStatementDTO> createNewGame() {
-        return ResponseEntity.ok(gameManageService.createNewGame());
+        GameStatementDTO gameStatementDTO = gameManageService.createNewGame();
+
+        String destination = "/game/refresh/" + gameStatementDTO.getGameId();
+        simpMessagingTemplate.convertAndSend(destination, gameStatementDTO);
+        log.info("game isWaiting? {} ", gameStatementDTO.isWaiting());
+        log.info("CALLED: {} ", "createNewGame");
+        return ResponseEntity.ok(gameStatementDTO);
+
     }
 
 
@@ -40,8 +47,13 @@ public class GameController {
         gameService.startGameIf2PlayersJoined(gameId);
         Game game = GameManageService.getGameById(gameId);
 
-        String destination = "/game/refresh/" + gameId;
-        simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+
+        if (game != null) {
+            String destination = "/game/refresh/" + gameId;
+            simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+            log.info("game isWaiting? {}555 ", game.isWaiting());
+        }
+        log.info("CALLED: {} ", "joinGame");
 
         return ResponseEntity.ok(player);
     }
@@ -64,6 +76,8 @@ public class GameController {
             simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
         }
 
+        log.info("CALLED: {} ", "updateGame");
+
         return ResponseEntity.ok().build();
     }
 
@@ -71,6 +85,8 @@ public class GameController {
     @PostMapping("/game-statement/{gameId}")
     public ResponseEntity<GameStatementDTO> getGameStatement(@PathVariable String gameId) {
         Game game = GameManageService.getGameById(gameId);
+        log.info("CALLED: {} ", "gameStatement");
+
         return ResponseEntity.ok(gameService.getGameStatement(game));
     }
 }
