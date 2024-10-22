@@ -30,7 +30,6 @@ export class DataService {
   sendMoveDetails(moveDetails: any, gameId: string) {
     return this.http.post(this.apiUrlMove(gameId), moveDetails);
   }
-
   GetBoardDetails(gameId: string) {
     return this.http.post<any>(this.apiBoard(gameId), {});
   }
