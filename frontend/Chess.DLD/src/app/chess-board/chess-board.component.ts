@@ -56,6 +56,7 @@ export class ChessBoardComponent {
     // localStorage.setItem('Color', 'white');
     this.playerColor = localStorage.getItem('Color');
 
+
     if (this.playerColor === 'black') {
       this.flipBoard();
     }
@@ -63,13 +64,22 @@ export class ChessBoardComponent {
       this.gameId = params['gameId'];
 
       if (this.gameId) {
+        this.dataService.GetJoinData(this.gameId).subscribe(
+          (response: any) => {
+            console.log(response);
+          },
+          (error) => {
+            console.error(error);
+          }
+        );
+
         this.dataService.GetTest(this.gameId).subscribe(
           (res: any) => {
             if (!res) {
               this.router.navigate(['/home']);
               return;
             }
-
+            console.log(res)
             this.jsonResponse = res.chessBoard.map((pawn: any) => ({
               pawnName: pawn.name,
               pawnColor: pawn.color,
