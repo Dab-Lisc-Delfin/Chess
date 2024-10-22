@@ -17,29 +17,33 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 @CrossOrigin(origins = "http://localhost:4200")
 public class SecurityConfig {
 
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-//        http
-//                .authorizeHttpRequests((authz) -> authz
-//                        .requestMatchers("/admin/*").hasRole("ADMIN")
-//                        .requestMatchers("/api/create-user").permitAll()
-//                        .requestMatchers("/home").permitAll()
-//                        .anyRequest().authenticated()
-//
-//                )
-//                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/create-user"))  // Disable CSRF for specific endpoint
-//        ;
-//
-//        http.formLogin(Customizer.withDefaults());
-//        return http.build();
-//    }
-
-
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers(new AntPathRequestMatcher("/**"));
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+        http
+                .authorizeHttpRequests((authz) -> authz
+                        .requestMatchers("/admin/*").hasRole("ADMIN")
+                        .requestMatchers("/api/create-user").permitAll()
+                        .requestMatchers("/login", "/perform_login","/login/**").permitAll()
+                        .requestMatchers("/home").permitAll()
+                        .anyRequest().authenticated())
+
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/create-user"))  // Disable CSRF for specific endpoint
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/login","/perform_login"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/current-user"));
+
+        http.formLogin(Customizer.withDefaults());
+
+
+
+        return http.build();
     }
+
+
+//    @Bean
+//    public WebSecurityCustomizer webSecurityCustomizer() {
+//        return (web) -> web.ignoring()
+//                .requestMatchers(new AntPathRequestMatcher("/**"));
+//    }
 
     @Bean
     public PasswordEncoder passwordEncoder(){
