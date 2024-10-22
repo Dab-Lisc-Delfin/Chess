@@ -8,21 +8,25 @@ export class DataService {
   private baseUrl = 'http://localhost:8080';
   private apiUrlCreateGame = `${this.baseUrl}/game/create-game`;
   private apiUrlMove = (gameId: string) => `${this.baseUrl}/update-game/${gameId}`;
-  private apiBoard  = (gameId: string) => `${this.baseUrl}/game/refresh/${gameId}`;
+  private apiBoard = (gameId: string) => `${this.baseUrl}/game/refresh/${gameId}`;
   private apiCreateGame = 'http://localhost:8080/game/create-game'
-  private apiTEST  = (gameId: string) => `http://localhost:8080/game-statement/${gameId}`
+  private apiTEST = (gameId: string) => `http://localhost:8080/game-statement/${gameId}`
   private apiLogin = `${this.baseUrl}/login`;
   private apiRegister = `${this.baseUrl}/api/create-user`;
-  
-  constructor(private http: HttpClient) {}
+  private apiVerify = `${this.baseUrl}/api/verify-user`;
+
+  constructor(private http: HttpClient) { }
 
   getJsonData() {
     return this.http.post<any>(this.apiUrlCreateGame, {});
   }
+  getVerification() {
+    return this.http.post<any>(this.apiVerify, {});
+  }
   sendMoveDetails(moveDetails: any, gameId: string) {
     return this.http.post(this.apiUrlMove(gameId), moveDetails);
   }
-  
+
   GetBoardDetails(gameId: string) {
     return this.http.post<any>(this.apiBoard(gameId), {});
   }
@@ -32,20 +36,21 @@ export class DataService {
   GetLogin(username: string, password: string) {
 
     const loginData = new HttpParams()
-        .set('username', username)
-        .set('password', password);
+      .set('username', username)
+      .set('password', password);
 
-    return this.http.post(this.apiLogin, loginData, {responseType : 'text',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    return this.http.post(this.apiLogin, loginData, {
+      responseType: 'text',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
-}
-GetRegister(username: string, password: string, email: string) {
-  const RegisterData = { username, email, password };
-  return this.http.post(this.apiRegister, RegisterData, { responseType: 'text' });
-}
+  }
+  GetRegister(username: string, password: string, email: string) {
+    const RegisterData = { username, email, password };
+    return this.http.post(this.apiRegister, RegisterData, { responseType: 'text' });
+  }
 
-  
-  GetTest(gameId: string){
+
+  GetTest(gameId: string) {
     return this.http.post<any>(this.apiTEST(gameId), {});
   }
 }

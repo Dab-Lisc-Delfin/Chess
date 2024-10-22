@@ -16,15 +16,26 @@ export class HomeComponent {
   showModal: boolean = false;
   gameId: string = '';
   imageUrl: string = './BG.png';
-  constructor(private router: Router, private dataService: DataService) {}
-
+  constructor(private router: Router, private dataService: DataService) { }
+  ngOnInit() {
+    console.log('on init test')
+    this.dataService.getVerification().subscribe(
+      (response: any) => {
+        console.log(response)
+      },
+      (error: any) => {
+        console.error(error);
+        this.router.navigate(['/login']);
+    });
+  }
   createGame() {
     this.dataService.getJsonData().subscribe((response: any) => {
       this.gameId = response.gameId;
       this.router.navigate([`/game/${this.gameId}`]);
     }, error => {
       console.log(error)
-      this.router.navigate([`/login`]);   });
+      this.router.navigate([`/login`]);
+    });
   }
   joinGame() {
     this.showModal = true;
