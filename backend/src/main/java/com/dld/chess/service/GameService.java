@@ -172,6 +172,7 @@ public class GameService {
         gameStatementDTO.setPlayerTour(game.getCurrentTour());
         gameStatementDTO.setGameId(game.getId());
         gameStatementDTO.setGameHistory(game.getGameHistory());
+        gameStatementDTO.setWaiting(game.isWaiting());
         return gameStatementDTO;
     }
 
@@ -203,7 +204,8 @@ public class GameService {
     public void startGameIf2PlayersJoined(String gameId) {
         Game game = GameManageService.getGameById(gameId);
         if (game.getPlayers().size() == 2) {
-            game.setStarted(true);
+            game.setWaiting(false);
+            log.info("SET WAITING FALSE");
         }
     }
 
