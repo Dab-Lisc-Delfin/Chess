@@ -21,12 +21,13 @@ export class LoginComponent {
     this.dataService.GetLogin(this.username, this.password).subscribe(
       (response: any) => {
         if (response === "{message : failure}") {
+          // console.log("jaki straszny blad")
         } else {
           this.router.navigate(['/home']);
         }
       },
       (error: any) => {
-        console.error('Login failed:', error);
+        // console.error('Login failed:', error);
       }
     );
   }
