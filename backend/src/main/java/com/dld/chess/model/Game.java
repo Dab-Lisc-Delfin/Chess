@@ -1,6 +1,5 @@
 package com.dld.chess.model;
 
-import com.dld.chess.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -24,7 +23,7 @@ public class Game {
 
     private List<Player> players = new ArrayList<>();
     private String currentTour;
-    private boolean isStarted = false;
+    private boolean isWaiting = true;
     private List<Move> gameHistory = new ArrayList<>();
 
 
