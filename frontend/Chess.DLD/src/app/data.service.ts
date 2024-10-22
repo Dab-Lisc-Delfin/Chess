@@ -14,7 +14,7 @@ export class DataService {
   private apiLogin = `${this.baseUrl}/login`;
   private apiRegister = `${this.baseUrl}/api/create-user`;
   private apiVerify = `${this.baseUrl}/api/verify-user`;
-  private apiJoinGame = (gameId: string) => `${this.baseUrl}/join-game/${gameId}`;
+  private apiJoinGame = (gameId: string) => `${this.baseUrl}/api/join-game/${gameId}`;
 
   constructor(private http: HttpClient) { }
 
