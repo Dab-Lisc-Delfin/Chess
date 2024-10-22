@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/*").hasRole("ADMIN")
                         .requestMatchers("/api/create-user").permitAll()
                         .requestMatchers("/api/verify-user").authenticated()
+                        .requestMatchers("/api/join-game/**").authenticated()
                         .requestMatchers("/game/**").authenticated()
                         .anyRequest().authenticated())
 

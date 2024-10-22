@@ -34,7 +34,7 @@ public class GameController {
 
 
 
-    @GetMapping("/join-game/{gameId}")
+    @GetMapping("/api/join-game/{gameId}")
     public ResponseEntity<String> joinGame(@PathVariable String gameId, HttpSession session) {
 
         try {
@@ -43,6 +43,7 @@ public class GameController {
             return ResponseEntity.ok("room is full");
         }
 
+        log.info("USER HAS JOINED:)!");
         gameService.startGameIf2PlayersJoined(gameId);
         return ResponseEntity.ok("User has joined to the game");
     }
