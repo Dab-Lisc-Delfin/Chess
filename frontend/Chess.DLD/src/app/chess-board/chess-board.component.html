@@ -153,5 +153,16 @@
             </button>
         </div>
     </div>
-    
+    <ng-container *ngIf="waiting">
+        <div class="waiting_room font text-[36px]">
+          <div class="waiting-content">
+            <div>
+              <p>Waiting for another</p>
+              <p>player to join...</p>
+            </div>
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </ng-container>
+      
 </div>
