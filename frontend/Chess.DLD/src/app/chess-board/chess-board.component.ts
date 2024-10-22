@@ -44,7 +44,7 @@ export class ChessBoardComponent {
   playerColor: string | null = '';
   playerTour: string | null = null;
   isMyTurn: boolean = false;
-  waiting: boolean = true;
+  waiting: boolean = false;
   @ViewChild('historyContainer') historyContainer!: ElementRef;
   constructor(private router: Router, private route: ActivatedRoute, private dataService: DataService) {
   }
@@ -56,27 +56,35 @@ export class ChessBoardComponent {
     
     // this.checkmateSquare = 'b3';
     // localStorage.setItem('Color', 'white');
-    
-    this.playerColor = localStorage.getItem('Color');
 
-
-    if (this.playerColor === 'black') {
-      this.flipBoard();
-    }
     this.route.params.subscribe(params => {
       this.gameId = params['gameId'];
 
       if (this.gameId) {
         this.dataService.GetJoinData(this.gameId).subscribe(
           (response: any) => {
-            console.log(response);
+            // console.log(response)
+            if (response && response.color) {
+              localStorage.setItem('Color', response.color);
+            }
+        
+            if (response && response.username) {
+              localStorage.setItem('Username', response.username);
+            }
+
+            this.playerColor = localStorage.getItem('Color');
+
+            if (this.playerColor === 'black') {
+              this.flipBoard();
+            }
           },
-          (error) => {
-            console.error(error);
-          }
         );
         this.dataService.GetTest(this.gameId).subscribe(
           (res: any) => {
+            if(res.waiting === true){
+              console.log(res.waiting)
+              this.waiting = true
+            }
             if (!res) {
               this.router.navigate(['/home']);
               return;
@@ -132,6 +140,10 @@ export class ChessBoardComponent {
           console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
           const response = JSON.parse(message.body);
           // console.log('Received message:', response);
+          if(response.waiting === true){
+            console.log(response.waiting)
+            this.waiting = true
+          }
           if (response.gameHistory) {
             this.moveHistory = response.gameHistory.map((move: any) => ({
               moveFrom: move.moveFrom,
@@ -146,7 +158,7 @@ export class ChessBoardComponent {
             this.isMyTurn = (this.playerColor === this.playerTour);
           }
           if (response.gameActive === false) {
-              this.EndGame();
+            this.EndGame();
           }
           if (response.chessBoard) {
             const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
@@ -180,7 +192,7 @@ export class ChessBoardComponent {
   surrender() {
     //Do backendu wysłac info o kolorze ktory sie poddał
     this.isGameEnded = true;
-}
+  }
   EndGameInfoToBackend(kingColor: string) {
     //Do backendu wysłac info o królu który nie ma ucieczki
     console.log(`${kingColor}`, 'king cannot be saved');
@@ -775,7 +787,7 @@ export class ChessBoardComponent {
     const currentPlayerTour = this.playerTour;
     if (this.playerColor !== currentPlayerTour) {
       // console.warn('Nie jest twoja tura! ', moveDetails, square);
-        return; 
+      return;
     }
     const JSONbefore = this.jsonResponse
     this.jsonResponse.forEach((pawn: any) => {
