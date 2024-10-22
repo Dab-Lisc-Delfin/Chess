@@ -18,7 +18,6 @@ public class CustomAuthenticationHandler implements AuthenticationSuccessHandler
                                         Authentication authentication)
             throws IOException, ServletException {
 
-        // Zwróć odpowiedź JSON po pomyślnym logowaniu
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.getWriter().write("{message : success}");
@@ -29,6 +28,6 @@ public class CustomAuthenticationHandler implements AuthenticationSuccessHandler
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
-        response.getWriter().write("{message : nie tym razem}");
+        response.getWriter().write("{message : failure}");
     }
 }
