@@ -23,8 +23,8 @@ public class UserController {
     }
 
     @PostMapping("/api/verify-user")
-    public ResponseEntity<String> verifyUser() {
-        return ResponseEntity.ok("OK");
+    public ResponseEntity<Void> verifyUser() {
+        return ResponseEntity.ok().build();
     }
 
 
