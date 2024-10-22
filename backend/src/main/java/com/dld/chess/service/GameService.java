@@ -3,11 +3,9 @@ package com.dld.chess.service;
 import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.dto.SquareDTO;
-import com.dld.chess.model.Chessboard;
-import com.dld.chess.model.Game;
-import com.dld.chess.model.Move;
-import com.dld.chess.model.Square;
+import com.dld.chess.model.*;
 import com.dld.chess.model.pawns.*;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -348,5 +346,20 @@ public class GameService {
         gameHistory.add(move);
         game.setGameHistory(gameHistory);
     }
+
+
+//    public void addPlayerToGame(String gameId, String username, HttpSession session) {
+//        Game game = GameManageService.getGameById(gameId);
+//
+//        List<Player> players = game.getPlayers();
+//
+//        if (game.getPlayers().size() == 0) {
+//            players.add(new Player("white", username));
+//            session.setAttribute("playerColor", "white");
+//        } else if (game.getPlayers().size() == 1) {
+//            players.add(new Player("black", username));
+//            session.setAttribute("playerColor", "black");
+//        }
+//    }
 
 }

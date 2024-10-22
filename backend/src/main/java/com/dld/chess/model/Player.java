@@ -8,8 +8,9 @@ import lombok.Setter;
 @Setter
 public class Player {
 
-    public Player(String color){
+    public Player(String color, String username) {
         this.color = color;
+        this.username = username;
     }
 
     private String username;

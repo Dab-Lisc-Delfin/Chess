@@ -43,6 +43,13 @@ public class TestController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
+    @GetMapping("/sessionCheck")
+    @ResponseBody
+    public String getUsernameFromSession(HttpSession httpSession) {
+        String color = (String) httpSession.getAttribute("playerColor");
+        log.info("USERNAME FROM SESSION: {} ", color);
+        return color;
+    }
 
     @PostMapping("/api/home")
     public ResponseEntity<String> getHomeJSON() {
