@@ -1,10 +1,11 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { DataService } from '../data.service';
 import { ActivatedRoute } from '@angular/router';
 import { Client } from '@stomp/stompjs';
-import  SockJS from 'sockjs-client';
+import SockJS from 'sockjs-client';
+import { Router, RouterModule } from '@angular/router';
 
 interface Pawn {
   pawnName: string;
@@ -18,7 +19,7 @@ type PawnColor = 'white' | 'black';
 @Component({
   selector: 'app-chess-board',
   standalone: true,
-  imports: [CommonModule, HttpClientModule,],
+  imports: [RouterModule, CommonModule, HttpClientModule,],
   templateUrl: './chess-board.component.html',
   styleUrl: './chess-board.component.css'
 })
@@ -38,100 +39,139 @@ export class ChessBoardComponent {
   moveCounter: number = 0;
   highlightedSquare11: string[] = [];
   private stompClient: any;
+  isHistoryHidden: boolean = false;
+  isGameEnded: boolean = false;
+  playerColor: string | null = '';
+  playerTour: string | null = null;
+  isMyTurn: boolean = false;
+  @ViewChild('historyContainer') historyContainer!: ElementRef;
+  constructor(private router: Router, private route: ActivatedRoute, private dataService: DataService) {
+  }
 
-  constructor(private route: ActivatedRoute, private dataService: DataService) {
-    this.dataService.getJsonData().subscribe(
-      (res: any) => {
-        const chessBoardData = res.chessBoard.map((pawn: any) => ({
-          pawnName: pawn.name,
-          pawnColor: pawn.color,
-          pawnPlacement: pawn.square
-        }));
-
-        this.jsonResponse = chessBoardData;
-
-      },
-      (error) => {
-        console.error('Error fetching JSON data:', error);
-      }
-    );
+  toggleHistory() {
+    this.isHistoryHidden = !this.isHistoryHidden;
   }
   ngOnInit() {
+    // this.checkmateSquare = 'b3';
+    // localStorage.setItem('Color', 'white');
+    this.playerColor = localStorage.getItem('Color');
+
+    if (this.playerColor === 'black') {
+      this.flipBoard();
+    }
     this.route.params.subscribe(params => {
       this.gameId = params['gameId'];
-      console.log('Received gameId:', this.gameId);
-      
-      this.initializeWebSocketConnection();
+
+      if (this.gameId) {
+        this.dataService.GetTest(this.gameId).subscribe(
+          (res: any) => {
+            if (!res) {
+              this.router.navigate(['/home']);
+              return;
+            }
+
+            this.jsonResponse = res.chessBoard.map((pawn: any) => ({
+              pawnName: pawn.name,
+              pawnColor: pawn.color,
+              pawnPlacement: pawn.square
+
+            }));
+            if (res.gameHistory) {
+              this.moveHistory = res.gameHistory.map((move: any) => ({
+                moveFrom: move.moveFrom,
+                moveTo: move.moveTo,
+                pawnName: move.pawnName,
+                pawnColor: move.pawnColor,
+              }));
+              if (res.playerTour) {
+                // console.log(`Tura gracza: ${res.playerTour}`);
+                this.playerTour = res.playerTour;
+                this.isMyTurn = (this.playerColor === this.playerTour);
+              }
+              if (res.gameActive === false) {
+                this.EndGame();
+              }
+            }
+          },
+          (error) => {
+            this.router.navigate(['/home']);
+          }
+        );
+      } else {
+      }
     });
+    this.initializeWebSocketConnection();
   }
   ngOnDestroy() {
     if (this.stompClient) {
       this.stompClient.deactivate();
     }
   }
-  
+
   initializeWebSocketConnection() {
     const socket = new SockJS('http://localhost:8080/ws');
     this.stompClient = new Client({
-        webSocketFactory: () => socket,
-        debug: (str) => { console.log(str); },
-        onConnect: (frame) => {
-            console.log('Connected: ' + frame);
-            this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
-                console.log('Received message:', message.body);
-                const response = JSON.parse(message.body);
-                if (response.playerTour) {
-                  console.log(`Tura gracza: ${response.playerTour}`);
-              } else {
-                  console.warn('Nie znaleziono informacji o turze w odpowiedzi.');
-              }
-              if (response.gameActive) {
-                console.log(`Czy Gra aktywna? : ${response.gameActive}`);
-            } else {
-                console.warn('Nie znaleziono informacji o turze w odpowiedzi.');
-            }
-                if (response.chessBoard) {
-                  const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
-                      pawnName: pawn.name,
-                      pawnColor: pawn.color,
-                      pawnPlacement: pawn.square
-                  }));
-              
-                  this.jsonResponse = updatedChessBoardData;;
-              } else {
-                  console.error('Nie znaleziono chessBoard w odpowiedzi:', response);
-              }
-            });
-        },
-        onStompError: (frame) => {
-            console.error('Broker reported error: ' + frame.headers['message']);
-            console.error('Additional details: ' + frame.body);
-        },
+      webSocketFactory: () => socket,
+      debug: (str) => { },
+      onConnect: (frame) => {
+        // console.log('Connected: ' + frame);
+        this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
+          // console.log('Received message:', message.body);
+          const response = JSON.parse(message.body);
+          // console.log('Received message:', response);
+          if (response.gameHistory) {
+            this.moveHistory = response.gameHistory.map((move: any) => ({
+              moveFrom: move.moveFrom,
+              moveTo: move.moveTo,
+              pawnName: move.pawnName,
+              pawnColor: move.pawnColor,
+            }));
+          }
+          if (response.playerTour) {
+            // console.log(`Tura gracza: ${response.playerTour}`);
+            this.playerTour = response.playerTour;
+            this.isMyTurn = (this.playerColor === this.playerTour);
+          }
+          if (response.gameActive === false) {
+              this.EndGame();
+          }
+          if (response.chessBoard) {
+            const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
+              pawnName: pawn.name,
+              pawnColor: pawn.color,
+              pawnPlacement: pawn.square
+            }));
+
+            this.jsonResponse = updatedChessBoardData;;
+          } else {
+          }
+        });
+      },
+      onStompError: (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
+      },
     });
 
     this.stompClient.activate();
+  }
+  flipBoard() {
+    const chessboard = document.querySelector('.chessboard-container');
+    if (chessboard) {
+      chessboard.classList.add('flipped');
+    }
+  }
+  EndGame() {
+    this.isGameEnded = true;
+  }
+  surrender() {
+    //Do backendu wysłac info o kolorze ktory sie poddał
+    this.isGameEnded = true;
 }
-
-
-  @ViewChild('historyContainer') historyContainer!: ElementRef;
-  resetGame() {
-    this.dataService.getJsonData().subscribe(
-      (res: any) => {
-        const chessBoardData = res.chessBoard.map((pawn: any) => ({
-          pawnName: pawn.name,
-          pawnColor: pawn.color,
-          pawnPlacement: pawn.square
-        }));
-        this.selectedPawnInfo = null;
-        this.highlightedSquares = [];
-        this.jsonResponse = chessBoardData;
-        this.isGameActive = true;
-
-      },
-      (error) => {
-        console.error('Error fetching JSON data during reset:', error);
-      }
-    );
+  EndGameInfoToBackend(kingColor: string) {
+    //Do backendu wysłac info o królu który nie ma ucieczki
+    console.log(`${kingColor}`, 'king cannot be saved');
+    this.isGameEnded = true;
   }
   handleCheckmate(square: string) {
     this.checkmateSquare = square;
@@ -177,64 +217,103 @@ export class ChessBoardComponent {
     if (!this.isGameActive) {
       return;
     }
-
+    const pawnInfo = this.getPawnOnSquare(square.square);
+    const playerColor = localStorage.getItem('Color');
     if (this.highlightedSquares.includes(square.square)) {
-      if (this.originalPosition) {
-        const moveDetails = {
-          moveFrom: this.originalPosition,
-          moveTo: square.square,
-          pawnName: this.selectedPawnInfo?.pawnName,
-          pawnColor: this.selectedPawnInfo?.pawnColor
-        };
-        this.ProceedMove(moveDetails,square);
-
-
-      }
-    } else {
-      if (this.originalPosition) {
-        const pawn = this.jsonResponse.find(p => p.pawnPlacement === this.originalPosition);
-        if (pawn) {
-          pawn.pawnPlacement = this.originalPosition;
+      if (this.selectedPawnInfo) {
+        if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
+          const moveDetails = {
+            moveFrom: this.selectedPawnInfo.pawnPlacement,
+            moveTo: square.square,
+            pawnName: this.selectedPawnInfo.pawnName,
+            pawnColor: this.selectedPawnInfo.pawnColor
+          };
+          this.ProceedMove(moveDetails, square);
+          this.selectedPawnInfo = null;
+          this.highlightedSquares = [];
+          return;
+        } else if (!pawnInfo) {
+          const moveDetails = {
+            moveFrom: this.selectedPawnInfo.pawnPlacement,
+            moveTo: square.square,
+            pawnName: this.selectedPawnInfo.pawnName,
+            pawnColor: this.selectedPawnInfo.pawnColor
+          };
+          this.ProceedMove(moveDetails, square);
+          this.selectedPawnInfo = null;
+          this.highlightedSquares = [];
+          return;
+        } else {
+          return;
         }
       }
     }
-
+    if (pawnInfo) {
+      if (pawnInfo.pawnColor !== playerColor) {
+        return;
+      } else {
+        this.selectedPawnInfo = pawnInfo;
+        this.originalPosition = pawnInfo.pawnPlacement || '';
+        this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
+        this.highlightedSquares = this.availableMoves;
+        return;
+      }
+    }
     this.selectedPawnInfo = null;
     this.highlightedSquares = [];
-    this.originalPosition = null;
+    this.availableMoves = [];
   }
-
   showSquareDetails(square: any) {
     if (!this.isGameActive) {
       return;
     }
     const pawnInfo = this.getPawnOnSquare(square.square);
+    const playerColor = localStorage.getItem('Color');
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
-        const moveDetails = {
-          moveFrom: this.selectedPawnInfo.pawnPlacement,
-          moveTo: square.square,
-          pawnName: this.selectedPawnInfo.pawnName,
-          pawnColor: this.selectedPawnInfo.pawnColor
-        };
-
-        this.ProceedMove(moveDetails,square);
-
-        this.selectedPawnInfo = null;
-        this.highlightedSquares = [];
+        if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
+          const moveDetails = {
+            moveFrom: this.selectedPawnInfo.pawnPlacement,
+            moveTo: square.square,
+            pawnName: this.selectedPawnInfo.pawnName,
+            pawnColor: this.selectedPawnInfo.pawnColor
+          };
+          this.ProceedMove(moveDetails, square);
+          this.selectedPawnInfo = null;
+          this.highlightedSquares = [];
+          return;
+        } else if (!pawnInfo) {
+          const moveDetails = {
+            moveFrom: this.selectedPawnInfo.pawnPlacement,
+            moveTo: square.square,
+            pawnName: this.selectedPawnInfo.pawnName,
+            pawnColor: this.selectedPawnInfo.pawnColor
+          };
+          this.ProceedMove(moveDetails, square);
+          this.selectedPawnInfo = null;
+          this.highlightedSquares = [];
+          return;
+        } else {
+          return;
+        }
+      }
+    }
+    if (pawnInfo) {
+      if (pawnInfo.pawnColor !== playerColor) {
+        return;
+      } else {
+        this.selectedPawnInfo = pawnInfo;
+        this.originalPosition = pawnInfo.pawnPlacement || '';
+        this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
+        this.highlightedSquares = this.availableMoves;
         return;
       }
     }
-    this.selectedPawnInfo = pawnInfo;
+    this.selectedPawnInfo = null;
     this.highlightedSquares = [];
-    if (pawnInfo) {
-      this.originalPosition = pawnInfo.pawnPlacement || '';
-      this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
-      this.highlightedSquares = this.availableMoves;
-    } else {
-      this.availableMoves = [];
-    }
+    this.availableMoves = [];
   }
+
   parsePawnKey = (pawnKey: string) => {
     const [pawnColor, pawnName, pawnPlacement] = pawnKey.split('_');
     return {
@@ -312,48 +391,35 @@ export class ChessBoardComponent {
 
     return possibleMoves;
   }
-  ///////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////
   getAllPossibleMoves(pawn: Pawn, chessBoard: any[], jsonResponse: any): string[] {
-    // console.log('Dostępne pionki w jsonResponse:', jsonResponse);
-
     let possibleMoves: string[] = [];
 
     switch (pawn.pawnName) {
       case 'pawn':
-        possibleMoves = this.getPawnMoves(pawn, chessBoard, jsonResponse); // MostLikelyWorksProperly
+        possibleMoves = this.getPawnMoves(pawn, chessBoard, jsonResponse);
         break;
       case 'rook':
-        possibleMoves = this.getRookMoves(pawn, chessBoard, jsonResponse); // MostLikelyWorksProperly
+        possibleMoves = this.getRookMoves(pawn, chessBoard, jsonResponse);
         break;
       case 'knight':
-        possibleMoves = this.getKnightMoves(pawn, chessBoard, jsonResponse); // MostLikelyWorksProperly
+        possibleMoves = this.getKnightMoves(pawn, chessBoard, jsonResponse);
         break;
       case 'bishop':
         possibleMoves = this.getBishopMoves(pawn, chessBoard, jsonResponse);
         break;
       case 'queen':
-        possibleMoves = this.getQueenMoves(pawn, chessBoard, jsonResponse); // MostLikelyWorksProperly
+        possibleMoves = this.getQueenMoves(pawn, chessBoard, jsonResponse);
         break;
       case 'king':
         possibleMoves = this.getKingMoves(pawn, chessBoard, jsonResponse);
         break;
       default:
-        // console.warn(`Nieznana figura: ${pawn.pawnName}`);
         possibleMoves = [];
     }
 
     return possibleMoves;
   }
-
-  ///////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////
-  ///////////////////////////////////////////////////////////////////////////
   getKingMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
-
-
-    // console.log('Rozpoczynamy obliczanie ruchów króla:', pawn);
     const combinedBoard = chessBoard.map((square: any) => {
       const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
       return {
@@ -361,14 +427,10 @@ export class ChessBoardComponent {
         pawn: correspondingPawn ? correspondingPawn : null
       };
     });
-
-
     const moves: string[] = [];
     const currentPosition = pawn.pawnPlacement;
     const currentRow = parseInt(currentPosition[1]);
     const currentCol = currentPosition[0].charCodeAt(0);
-
-
     const kingMoves = [
       { rowOffset: 1, colOffset: 0 },
       { rowOffset: -1, colOffset: 0 },
@@ -379,7 +441,6 @@ export class ChessBoardComponent {
       { rowOffset: -1, colOffset: 1 },
       { rowOffset: -1, colOffset: -1 }
     ];
-
     for (const { rowOffset, colOffset } of kingMoves) {
       const newRow = currentRow + rowOffset;
       const newCol = String.fromCharCode(currentCol + colOffset);
@@ -387,99 +448,67 @@ export class ChessBoardComponent {
       if (newRow >= 1 && newRow <= 8 && newCol >= 'a' && newCol <= 'h') {
         const targetSquare = newCol + newRow;
         const square = combinedBoard.find((s: any) => s.square === targetSquare);
-        // console.log(`Sprawdzanie pola docelowego: ${targetSquare}, Ruch: (${rowOffset}, ${colOffset})`);
-
         if (!square) {
-          // console.log(`Pole ${targetSquare} nie zostało odnalezione. Dodajemy do ruchów.`);
           moves.push(targetSquare);
-          // console.log(`Aktualna lista ruchów:`, moves);
         } else {
-          // console.log(`Czy pole zajęte:`, square);
-
           if (!square.pawn) {
             moves.push(targetSquare);
           } else if (square.pawn.pawnColor !== pawn.pawnColor) {
             moves.push(targetSquare);
-            // console.log(`Dodano pole zajęte przez przeciwnika ${targetSquare}. Aktualna lista ruchów:`, moves);
-
           }
         }
       }
     }
-
-
     if (pawn.pawnName === 'king') {
       const startingPosition = pawn.pawnColor === 'white' ? 'e1' : 'e8';
-
       const kingPosition = combinedBoard.find((s: any) => s.pawn && s.pawn.pawnName === 'king' && s.pawn.pawnColor === pawn.pawnColor);
-      // console.log('Pozycja króla:', kingPosition);
-
       if (kingPosition && kingPosition.square !== startingPosition) {
         return moves;
       }
       if (pawn.pawnColor === 'white') {
         const rookKRolewska = combinedBoard.find((s: any) => s.square === 'h1' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'white');
-
         if (rookKRolewska) {
           const f1Occupied = this.isSquareOccupied(combinedBoard, 'f1');
           const g1Occupied = this.isSquareOccupied(combinedBoard, 'g1');
-
-
           if (!f1Occupied && !g1Occupied) {
             moves.push('h1');
           }
         }
-
         const rookHetmańska = combinedBoard.find((s: any) => s.square === 'a1' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'white');
-
         if (rookHetmańska) {
           const b1Occupied = this.isSquareOccupied(combinedBoard, 'b1');
           const c1Occupied = this.isSquareOccupied(combinedBoard, 'c1');
           const d1Occupied = this.isSquareOccupied(combinedBoard, 'd1');
-
-
           if (!b1Occupied && !c1Occupied && !d1Occupied) {
             moves.push('a1');
           }
         }
       } else if (pawn.pawnColor === 'black') {
         const rookKRolewska = combinedBoard.find((s: any) => s.square === 'h8' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'black');
-
         if (rookKRolewska) {
           const f8Occupied = this.isSquareOccupied(combinedBoard, 'f8');
           const g8Occupied = this.isSquareOccupied(combinedBoard, 'g8');
-
-
           if (!f8Occupied && !g8Occupied) {
             moves.push('h8');
           }
         }
-
         const rookHetmańska = combinedBoard.find((s: any) => s.square === 'a8' && s.pawn && s.pawn.pawnName === 'rook' && s.pawn.pawnColor === 'black');
-
         if (rookHetmańska) {
           const b8Occupied = this.isSquareOccupied(combinedBoard, 'b8');
           const c8Occupied = this.isSquareOccupied(combinedBoard, 'c8');
           const d8Occupied = this.isSquareOccupied(combinedBoard, 'd8');
-
-
           if (!b8Occupied && !c8Occupied && !d8Occupied) {
             moves.push('a8');
           }
         }
       }
     }
-    // console.log('Możliwe ruchy króla:', moves);
     return moves;
   }
-
-
   isSquareOccupied(board: any, square: string): boolean {
     const targetSquare = board.find((s: any) => s.square === square);
     return targetSquare && targetSquare.pawn !== null;
   }
-
-
   getQueenMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
     const combinedBoard = chessBoard.map((square: any) => {
       const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
@@ -492,7 +521,6 @@ export class ChessBoardComponent {
     const currentPosition = pawn.pawnPlacement;
     const currentRow = parseInt(currentPosition[1]);
     const currentCol = currentPosition[0].charCodeAt(0);
-
     const directions = [
       { rowOffset: 1, colOffset: 1 },
       { rowOffset: 1, colOffset: -1 },
@@ -503,22 +531,17 @@ export class ChessBoardComponent {
       { rowOffset: 0, colOffset: 1 },
       { rowOffset: 0, colOffset: -1 }
     ];
-
     for (const { rowOffset, colOffset } of directions) {
       let newRow = currentRow;
       let newCol = currentCol;
-
       while (true) {
         newRow += rowOffset;
         newCol += colOffset;
-
         if (newRow < 1 || newRow > 8 || newCol < 'a'.charCodeAt(0) || newCol > 'h'.charCodeAt(0)) {
           break;
         }
-
         const targetSquare = String.fromCharCode(newCol) + newRow;
         const square = combinedBoard.find((s: any) => s.square === targetSquare);
-
         if (square) {
           if (!square.pawn) {
             moves.push(targetSquare);
@@ -533,11 +556,8 @@ export class ChessBoardComponent {
         }
       }
     }
-
-    // console.log('Możliwe ruchy królowej:', moves);
     return moves;
   }
-
   getBishopMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
     const combinedBoard = chessBoard.map((square: any) => {
       const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
@@ -546,34 +566,27 @@ export class ChessBoardComponent {
         pawn: correspondingPawn ? correspondingPawn : null
       };
     });
-
     const moves: string[] = [];
     const currentPosition = pawn.pawnPlacement;
     const currentRow = parseInt(currentPosition[1]);
     const currentCol = currentPosition[0].charCodeAt(0);
-
     const directions = [
       { rowOffset: 1, colOffset: 1 },
       { rowOffset: 1, colOffset: -1 },
       { rowOffset: -1, colOffset: 1 },
       { rowOffset: -1, colOffset: -1 }
     ];
-
     for (const { rowOffset, colOffset } of directions) {
       let newRow = currentRow;
       let newCol = currentCol;
-
       while (true) {
         newRow += rowOffset;
         newCol += colOffset;
-
         if (newRow < 1 || newRow > 8 || newCol < 'a'.charCodeAt(0) || newCol > 'h'.charCodeAt(0)) {
           break;
         }
-
         const targetSquare = String.fromCharCode(newCol) + newRow;
         const square = combinedBoard.find((s: any) => s.square === targetSquare);
-
         if (square) {
           if (!square.pawn) {
             moves.push(targetSquare);
@@ -588,8 +601,6 @@ export class ChessBoardComponent {
         }
       }
     }
-
-    // console.log('Możliwe ruchy bishopa:', moves);
     return moves;
   }
   getRookMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
@@ -600,23 +611,19 @@ export class ChessBoardComponent {
         pawn: correspondingPawn ? correspondingPawn : null
       };
     });
-
     const moves: string[] = [];
     const currentPosition = pawn.pawnPlacement;
     const currentRow = parseInt(currentPosition[1]);
     const currentCol = currentPosition[0].charCodeAt(0);
-
     const directions = [
       { rowOffset: 1, colOffset: 0 },
       { rowOffset: -1, colOffset: 0 },
       { rowOffset: 0, colOffset: 1 },
       { rowOffset: 0, colOffset: -1 }
     ];
-
     for (const { rowOffset, colOffset } of directions) {
       let newRow = currentRow;
       let newCol = currentCol;
-
       while (true) {
         newRow += rowOffset;
         newCol += colOffset;
@@ -624,34 +631,24 @@ export class ChessBoardComponent {
         if (newRow < 1 || newRow > 8 || newCol < 'a'.charCodeAt(0) || newCol > 'h'.charCodeAt(0)) {
           break;
         }
-
         const targetSquare = String.fromCharCode(newCol) + newRow;
         const square = combinedBoard.find((s: any) => s.square === targetSquare);
-
         if (square) {
-          // console.log(`Znalezione pole: ${targetSquare}, zawartość:`, square);
           if (!square.pawn) {
             moves.push(targetSquare);
-            // console.log(`Dodano ruch do: ${targetSquare} (pole puste)`);
           } else if (square.pawn) {
             if (square.pawn.pawnColor !== pawn.pawnColor) {
               moves.push(targetSquare);
-              // console.log(`Dodano ruch do: ${targetSquare} (można bić pionka)`);
             }
             break;
           }
         } else {
           moves.push(targetSquare);
-          // console.log(`Pole ${targetSquare} nie zostało znalezione w combinedBoard.`);
         }
       }
     }
-
     return moves;
   }
-
-
-
   getKnightMoves(pawn: any, chessBoard: any, jsonResponse: any): string[] {
     const combinedBoard = chessBoard.map((square: any) => {
       const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
@@ -660,47 +657,31 @@ export class ChessBoardComponent {
         pawn: correspondingPawn ? correspondingPawn : null
       };
     });
-
     const moves: string[] = [];
     const currentPosition = pawn.pawnPlacement;
     const currentRow = parseInt(currentPosition[1]);
     const currentCol = currentPosition[0].charCodeAt(0);
-
     const knightMoves = [
       [2, 1], [2, -1], [-2, 1], [-2, -1],
       [1, 2], [1, -2], [-1, 2], [-1, -2]
     ];
-
     for (const [rowOffset, colOffset] of knightMoves) {
       const newRow = currentRow + rowOffset;
       const newCol = String.fromCharCode(currentCol + colOffset);
-
       if (newRow >= 1 && newRow <= 8 && newCol >= 'a' && newCol <= 'h') {
         const targetSquare = newCol + newRow;
         const square = combinedBoard.find((s: any) => s.square === targetSquare);
-
-        // console.log(`Sprawdzam pole: ${targetSquare}, Zawartość combinedBoard:`, combinedBoard);
-
         if (square && square.pawn) {
-          // console.log(`Pole ${targetSquare} jest zajęte przez pionka: ${square.pawn.pawnName}, kolor: ${square.pawn.pawnColor}`);
-
           if (square.pawn.pawnColor === pawn.pawnColor) {
-            // console.log(`Pole ${targetSquare} jest zajęte przez swojego pionka, pomijam.`);
             continue;
           }
         } else {
-          // console.log(`Pole ${targetSquare} jest puste.`);
         }
-
         moves.push(targetSquare);
       }
     }
-
-    // console.log('Możliwe ruchy skoczka:', moves);
     return moves;
   }
-
-
   getPawnMoves(pawn: any, chessBoard: any, jsonResponse: any) {
     const combinedBoard = chessBoard.map((square: any) => {
       const correspondingPawn = jsonResponse.find((s: any) => s.pawnPlacement === square.square);
@@ -709,50 +690,41 @@ export class ChessBoardComponent {
         pawn: correspondingPawn ? correspondingPawn : null
       };
     });
-
     let moves = [];
     const currentPosition = pawn.pawnPlacement;
     const currentRow = parseInt(currentPosition[1]);
     const currentCol = currentPosition[0];
-
     const isOpponentPawn = (row: number, col: string) => {
       const targetSquare = col + row;
       const square = combinedBoard.find((s: any) => s.square === targetSquare);
       return square && square.pawn && square.pawn.pawnColor !== pawn.pawnColor;
     };
-
     const isSameColorPawn = (row: number, col: string) => {
       const targetSquare = col + row;
       const square = combinedBoard.find((s: any) => s.square === targetSquare);
       return square && square.pawn && square.pawn.pawnColor === pawn.pawnColor;
     };
-
     const isBlocked = (row: number, col: string) => {
       const targetSquare = col + row;
       const square = combinedBoard.find((s: any) => s.square === targetSquare);
       return square && square.pawn !== null;
     };
-
     if (pawn.pawnColor === 'white') {
       const newRow = currentRow + 1;
       if (!isBlocked(newRow, currentCol) && !isSameColorPawn(newRow, currentCol)) {
         moves.push(currentCol + newRow);
       }
-
       if (currentRow === 2) {
         const firstMoveRow = currentRow + 2;
         if (!isBlocked(newRow, currentCol) && !isBlocked(firstMoveRow, currentCol) && !isSameColorPawn(firstMoveRow, currentCol)) {
           moves.push(currentPosition[0] + firstMoveRow);
         }
       }
-
       const leftCol = String.fromCharCode(currentCol.charCodeAt(0) - 1);
       const rightCol = String.fromCharCode(currentCol.charCodeAt(0) + 1);
-
       if (isOpponentPawn(newRow, leftCol)) {
         moves.push(leftCol + newRow);
       }
-
       if (isOpponentPawn(newRow, rightCol)) {
         moves.push(rightCol + newRow);
       }
@@ -761,31 +733,24 @@ export class ChessBoardComponent {
       if (!isBlocked(newRow, currentCol) && !isSameColorPawn(newRow, currentCol)) {
         moves.push(currentCol + newRow);
       }
-
       if (currentRow === 7) {
         const firstMoveRow = currentRow - 2;
         if (!isBlocked(newRow, currentCol) && !isBlocked(firstMoveRow, currentCol) && !isSameColorPawn(firstMoveRow, currentCol)) {
           moves.push(currentPosition[0] + firstMoveRow);
         }
       }
-
       const leftCol = String.fromCharCode(currentCol.charCodeAt(0) - 1);
       const rightCol = String.fromCharCode(currentCol.charCodeAt(0) + 1);
-
       if (isOpponentPawn(newRow, leftCol)) {
         moves.push(leftCol + newRow);
       }
-
       if (isOpponentPawn(newRow, rightCol)) {
         moves.push(rightCol + newRow);
       }
     }
-    // console.log('Możliwe ruchy Pionka:', moves);
     return moves;
   }
-
-
-  ProceedMove(moveDetails :any, square: any){
+  ProceedMove(moveDetails: any, square: any) {
     const originalPosition = this.selectedPawnInfo.pawnPlacement;
     const originalBoardPosition = this.jsonResponse;
     let whiteKingPosition = '';
@@ -794,6 +759,12 @@ export class ChessBoardComponent {
     let blackKingBeforeNewPosition = '';
     let kingCanBeSaved = false;
     const PawnTableBeforeMove = this.jsonResponse;
+    const currentPlayerTour = this.playerTour;
+    if (this.playerColor !== currentPlayerTour) {
+      // console.warn('Nie jest twoja tura! ', moveDetails, square);
+        return; 
+    }
+    const JSONbefore = this.jsonResponse
     this.jsonResponse.forEach((pawn: any) => {
       if (pawn.pawnName === 'king') {
         if (pawn.pawnColor === 'white') {
@@ -824,16 +795,11 @@ export class ChessBoardComponent {
     } else {
       moveSound = new Audio('/move-sound.wav');
     }
-
     const allWhiteMoves: string[] = [];
     const allBlackMoves: string[] = [];
-
-
-
     this.jsonResponse.forEach((pawn: any) => {
       if (pawn) {
         const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, this.jsonResponse);
-        // console.log('POSSIBLE MOVES',possibleMoves)
         if (pawn.pawnName === 'king' && pawn.pawnColor === 'white') {
           whiteKingPosition = pawn.pawnPlacement;
         }
@@ -847,31 +813,15 @@ export class ChessBoardComponent {
         }
       }
     });
-
-
     if ((moveDetails.pawnColor === 'white' && allBlackMoves.includes(whiteKingPosition)) || (moveDetails.pawnColor === 'black' && allWhiteMoves.includes(blackKingPosition))) {
       moveSound = new Audio('/error.wav');
       moveSound.volume = 0.05;
       moveSound.play();
-      // console.log(PawnTableBeforeMove)
-      // console.log(whiteKingBeforeNewPosition, ' white')
-      // console.log(blackKingBeforeNewPosition, 'black')
       const testBlack = blackKingBeforeNewPosition;
       const testWhite = whiteKingBeforeNewPosition;
-      this.jsonResponse.forEach((pawn: any) => {
-        if (pawn.pawnName === 'king') {
-          if (pawn.pawnColor === 'white') {
-            // console.log(`Updating white king from ${pawn.pawnPlacement} to ${testWhite}`);
-            pawn.pawnPlacement = testWhite;
-          } else if (pawn.pawnColor === 'black') {
-            // console.log(`Updating black king from ${pawn.pawnPlacement} to ${testBlack}`);
-            pawn.pawnPlacement = testBlack; 
-          }
-        }
-      });
       const whiteMovesMap: { [key: string]: string[] } = {};
       const blackMovesMap: { [key: string]: string[] } = {};
-
+      this.jsonResponse = JSONbefore
       this.jsonResponse.forEach((pawn: any) => {
         if (pawn) {
           const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, PawnTableBeforeMove);
@@ -892,9 +842,6 @@ export class ChessBoardComponent {
           }
         }
       });
-
-      // console.log("White Pawns and their possible moves:", whiteMovesMap);
-      // console.log("Black Pawns and their possible moves:", blackMovesMap);
       const isKingUnderThreatAfterOpponentMoves = (
         kingColor: string,
         whiteMovesMap: { [key: string]: string[] },
@@ -905,23 +852,17 @@ export class ChessBoardComponent {
 
         const opponentMovesMap = kingColor === 'white' ? blackMovesMap : whiteMovesMap;
         const kingPosition = kingColor === 'white' ? whiteKingBeforeNewPosition : blackKingBeforeNewPosition;
-
-        // console.log(`Checking if ${kingColor === 'white' ? 'white' : 'black'} king is under threat at ${kingPosition}`);
-
-        let attackingPawnKey = ''; 
+        let attackingPawnKey = '';
 
         for (const [pawnKey, possibleMoves] of Object.entries(opponentMovesMap)) {
-          // console.log(`${pawnKey} can move to:`, possibleMoves);
 
           if (possibleMoves.includes(kingPosition)) {
-            // console.log(`King is under threat from ${pawnKey} moving to ${kingPosition}`);
-            attackingPawnKey = pawnKey; 
+            attackingPawnKey = pawnKey;
             break;
           }
         }
 
         if (!attackingPawnKey) {
-          // console.log('No immediate threats to the king.');
           return false;
         }
 
@@ -930,20 +871,15 @@ export class ChessBoardComponent {
         for (const [yourPawnKey, possibleMoves] of Object.entries(yourMovesMap)) {
           const yourPawnDetails = this.parsePawnKey(yourPawnKey);
           for (const move of possibleMoves) {
-            // console.log(testWhite, ' white111')
-            // console.log(testBlack, 'black111')
             this.jsonResponse.forEach((pawn: any) => {
               if (pawn.pawnName === 'king') {
                 if (pawn.pawnColor === 'white') {
-                  // console.log(`Updating white king from ${pawn.pawnPlacement} to ${testWhite}`);
-                  pawn.pawnPlacement = testWhite; 
+                  pawn.pawnPlacement = testWhite;
                 } else if (pawn.pawnColor === 'black') {
-                  // console.log(`Updating black king from ${pawn.pawnPlacement} to ${testBlack}`);
-                  pawn.pawnPlacement = testBlack; 
+                  pawn.pawnPlacement = testBlack;
                 }
               }
             });
-            // console.log(this.jsonResponse)
             // console.log(`${yourPawnDetails.pawnName} (${yourPawnDetails.pawnColor}) is trying to MOVE to ${move}`);
             let simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
             const originalPosition = yourPawnDetails.pawnPlacement;
@@ -952,19 +888,17 @@ export class ChessBoardComponent {
             if (pieceIndex !== -1) {
               simulatedJsonResponse.splice(pieceIndex, 1);
             }
-        
+
             const newPositionIndex = simulatedJsonResponse.findIndex((pawn: any) => pawn.pawnPlacement === move);
             if (newPositionIndex !== -1) {
-              simulatedJsonResponse.splice(newPositionIndex, 1); 
+              simulatedJsonResponse.splice(newPositionIndex, 1);
             }
-        
+
             simulatedJsonResponse.push({
               pawnName: yourPawnDetails.pawnName,
               pawnColor: yourPawnDetails.pawnColor,
               pawnPlacement: move
             });
-
-            // console.log("Simulated jsonResponse after the move:", simulatedJsonResponse);
 
             const allWhiteMovesCheck: string[] = [];
             const allBlackMovesCheck: string[] = [];
@@ -975,13 +909,13 @@ export class ChessBoardComponent {
             simulatedJsonResponse.forEach((pawn: any) => {
               if (pawn) {
                 const possibleMoves = this.getAllPossibleMoves(pawn, this.chessBoard, simulatedJsonResponse);
-            
+
                 if (pawn.pawnName === 'king') {
                   if (pawn.pawnColor === 'white') {
-                    whiteKingPositionCheck = pawn.pawnPlacement; 
+                    whiteKingPositionCheck = pawn.pawnPlacement;
                     allWhiteMovesCheck.push(...possibleMoves);
                   } else if (pawn.pawnColor === 'black') {
-                    blackKingPositionCheck = pawn.pawnPlacement; 
+                    blackKingPositionCheck = pawn.pawnPlacement;
                     allBlackMovesCheck.push(...possibleMoves);
                   }
                 } else {
@@ -993,10 +927,7 @@ export class ChessBoardComponent {
                 }
               }
             });
-            
-            // console.log(allBlackMovesCheck, 'BLACK CHECK')
-            // console.log(allWhiteMovesCheck, 'WHITE CHECK')
-            console.log(blackKingPositionCheck);
+
             if ((whiteKingPositionCheck && allBlackMovesCheck.includes(whiteKingPositionCheck)) || (blackKingPositionCheck && allWhiteMovesCheck.includes(blackKingPositionCheck))) {
               // console.log('This move cant save you')
               simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
@@ -1010,10 +941,8 @@ export class ChessBoardComponent {
           }
         }
         if (kingCanBeSaved) {
-          // console.log('The game can go on. A move has been found to save the king.');
         } else {
-          // console.log('Checkmate! No move can save the king.');
-          this.resetGame();
+          this.EndGameInfoToBackend(kingColor);
           return false;
         }
         return false;
@@ -1022,12 +951,6 @@ export class ChessBoardComponent {
 
       const isWhiteKingInCheck = isKingUnderThreatAfterOpponentMoves('white', whiteMovesMap, blackMovesMap, whiteKingPosition, blackKingPosition);
       const isBlackKingInCheck = isKingUnderThreatAfterOpponentMoves('black', whiteMovesMap, blackMovesMap, whiteKingPosition, blackKingPosition);
-
-      // Log results
-      // console.log(`Is the White King in check? ${isWhiteKingInCheck ? 'Yes' : 'No'}`);
-      // console.log(`Is the Black King in check? ${isBlackKingInCheck ? 'Yes' : 'No'}`);
-
-
 
       if (moveDetails.pawnColor === 'black') {
         this.checkmateSquare = blackKingBeforeNewPosition;
@@ -1038,18 +961,12 @@ export class ChessBoardComponent {
       this.jsonResponse = JSON.parse(JSON.stringify(originalBoardPosition));
       return;
     }
-    this.dataService.sendMoveDetails(moveDetails,this.gameId).subscribe(
+    this.dataService.sendMoveDetails(moveDetails, this.gameId).subscribe(
       (response) => {
-        // console.log('Move details sent successfully:', response);
         this.moveCounter++;
-        this.moveHistory.push(moveDetails);
         this.scrollToBottom();
         moveSound.volume = 0.1;
         moveSound.play();
-        
-      },
-      (error) => {
-        console.error('Error sending move details:', error);
       }
     );
   }

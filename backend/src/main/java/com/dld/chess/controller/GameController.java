@@ -32,7 +32,6 @@ public class GameController {
         session.setAttribute("playerColor", "white");
         return ResponseEntity.ok(gameManageService.createNewGame());
     }
-    //there starts white, we take gameId from DTO and connecting it with @MessageMapping("/ws/subscribe/game/{gameId}")
 
 
     @PostMapping("/join-game/{gameId}")
@@ -43,7 +42,6 @@ public class GameController {
 
         return ResponseEntity.ok("User has joined to the game");
     }
-    //sub  @MessageMapping("/ws/update-game/{gameId}")
 
 
     //ws
@@ -57,6 +55,7 @@ public class GameController {
 
         if (game != null) {
             gameService.processMove(moveDTO, game);
+            gameService.addMoveToGameHistory(moveDTO, game);
             gameService.nextTour(game);
             String destination = "/game/refresh/" + gameId;
             simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
@@ -71,20 +70,4 @@ public class GameController {
         Game game = GameManageService.getGameById(gameId);
         return ResponseEntity.ok(gameService.getGameStatement(game));
     }
-
-
-    //TODO delete below methods
-//    @GetMapping("/gameInfo/{gameId}")
-//    @ResponseBody
-//    public String printInfoAboutGame(@PathVariable String gameId) {
-//        Game game = gameManageService.getGameById(gameId);
-//        return "ID- " + game.getId() + "  playersSize- " + game.getPlayers().size() + " gameCurrentPlayerTour- " + game.getCurrentTour();
-//    }
-
-
-    @GetMapping("/allGames")
-    public int getAllGames() {
-        return gameManageService.getAllGames().size();
-    }
-
 }

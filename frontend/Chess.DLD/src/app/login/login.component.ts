@@ -17,17 +17,17 @@ export class LoginComponent {
   constructor(private router: Router, private dataService: DataService) {}
 
   onSubmit() {
-    console.log('Username:', this.username);
-    console.log('Password:', this.password);
 
     this.dataService.GetLogin(this.username, this.password).subscribe(
       (response: any) => {
-        console.log('Login successful:', response);
-        this.router.navigate(['/home']);
+        if (response === "{message : failure}") {
+          // console.log("jaki straszny blad")
+        } else {
+          this.router.navigate(['/home']);
+        }
       },
       (error: any) => {
-        console.error('Login failed:', error);
-        alert('Invalid credentials');
+        // console.error('Login failed:', error);
       }
     );
   }

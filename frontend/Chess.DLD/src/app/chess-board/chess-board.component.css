@@ -21,7 +21,16 @@
     background-color: #4B4B4B;
     position: relative; 
   }
-  
+  .flipped {
+    transform: rotate(180deg);
+  }
+  .flipped img {
+    transform: rotate(180deg);
+  }
+  .flipped .MRS,
+.flipped .font1 {
+  transform: rotate(180deg);
+}
   .highlighted.white::after,
   .highlighted.black::after {
     content: '';
@@ -80,12 +89,188 @@ font-style: normal;
 .highlight-class {
   color: inherit;
 }
+.testHistory{
+  flex-wrap: wrap-reverse;
+  margin-right: 30px;
+}
+.widthauto{
+  width: 600px;
+}
+.Minh{
+  min-width: 75px;
+    min-height: 75px;
+    max-width: 75px;
+    max-height: 75px;
+}
+.MR{
+  margin-right: 75px;
+}
+.MRS{
+  margin-right: 20px;
+}
+.MRT{
+  margin-top: 20px;
+}
+.toggle-history {
+  display: none;
+}
+ .flipped-image {
+  transform: translate(-110%, -10%) rotate(180deg) !important;
+}
+.HistoryTurnInfo{
+  width: 600px;
+  display: inline-flex;
+}
+.testtt{
+  margin-right: 30px;
+}
+@media (max-width: 1500px) {
+  .ImgHide{
+    display: none;
+  }
+  .testtt{
+    margin-right: 320px;
+  }
+}
+@media (max-width: 1100px) {
+  .history-container,
+  .hidden-title {
+    display: none;
+  }
+  .testtt{
+    margin-right: 0px;
+  }
+  .MR{
+    margin-right: 50px;
+  }
+  .toggle-history {
+    display: block;
+  }
+  .history-container {
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    margin-top: 15%;
+    box-shadow: 0 0 200px 50px #201e27;
+  }
+  .hiddenn{
+    display: block !important;
+  }
+}
+.hiddenn {
+  display: block;
+}
 
+@media (max-width: 800px) {
+  .chessboard-container {
+    width: 400px !important;
+  }
+.HistoryTurnInfo{
+  width: 400px;
+}
+  .chessboard-container .grid-cols-8 > div {
+    min-width: 50px;
+    min-height: 50px;
+    max-width: 50px;
+    max-height: 50px;
+  }
+  .chessboard-container .grid-cols-8 img {
+    max-width: 50px;
+    max-height: 50px;
+  }
+  .widthauto{
+    width: 400px;
+  }
+  .Minh{
+    min-width: 50px;
+      min-height: 50px;
+      max-width: 50px;
+      max-height: 50px;
+  }
+  .MR{
+    margin-right: 25px;
+  }
+  .MRS{
+    margin-right: 0px;
+  }
+  .history-container {
+    margin-top: 20%;
+  }
+}
 
+.overlay {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: rgba(178, 156, 255, 0.8);
+  backdrop-filter: blur(5px); 
+  z-index: 1000;
+  display: flex;
+}
 
+.home-button {
+  width: 300px;
+  height: 100px;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #856F28; 
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 50px;
+}
 
-
-
+.home-button:hover {
+  background-color: #64541f;
+}
+.upperButton {
+  @apply w-[120px] bg-[#A58CFF] rounded-lg shadow-top inner-shadow p-2;
+}
+@media (max-width: 540px) {
+  .upperButton {
+    @apply w-[80px];
+    font-size: 10px !important;
+  }
+  .chessboard-container {
+    width: 300px !important;
+  }
+  .HistoryTurnInfo{
+    width: 300px;
+  }
+  .chessboard-container .grid-cols-8 > div {
+    min-width: 37.5px;
+    min-height: 37.5px;
+    max-width: 37.5px;
+    max-height: 37.5px;
+  }
+  .chessboard-container .grid-cols-8 img {
+    max-width: 37.5px;
+    max-height: 37.5px;
+  }
+  .widthauto{
+    width: 300px;
+  }
+  .Minh{
+    min-width: 37.5px;
+      min-height: 37.5px;
+      max-width: 37.5px;
+      max-height: 37.5px;
+  }
+  .MR{
+    margin-right: 17px;
+  }
+  .MRS{
+    margin-right: 0px;
+  }
+  .history-container {
+    margin-top: 25%;
+  }
+  .textTurn{
+    font-size: 10px;
+  }
+}
 
 
 
