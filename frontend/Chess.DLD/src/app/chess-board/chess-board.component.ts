@@ -53,7 +53,7 @@ export class ChessBoardComponent {
   }
   ngOnInit() {
     // this.checkmateSquare = 'b3';
-    localStorage.setItem('Color', 'white');
+    // localStorage.setItem('Color', 'white');
     this.playerColor = localStorage.getItem('Color');
 
     if (this.playerColor === 'black') {
@@ -118,7 +118,7 @@ export class ChessBoardComponent {
         this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
           // console.log('Received message:', message.body);
           const response = JSON.parse(message.body);
-          console.log('Received message:', response);
+          // console.log('Received message:', response);
           if (response.gameHistory) {
             this.moveHistory = response.gameHistory.map((move: any) => ({
               moveFrom: move.moveFrom,
