@@ -23,8 +23,8 @@ export class HomeComponent {
       this.gameId = response.gameId;
       this.router.navigate([`/game/${this.gameId}`]);
     }, error => {
-      console.error('Error creating game:', error);
-    });
+      console.log(error)
+      this.router.navigate([`/login`]);   });
   }
   joinGame() {
     this.showModal = true;
@@ -37,5 +37,4 @@ export class HomeComponent {
     this.showModal = false;
     this.gameId = '';
   }
-  
 }
