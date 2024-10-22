@@ -3,6 +3,7 @@ package com.dld.chess.controller;
 import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.model.Game;
+import com.dld.chess.model.Player;
 import com.dld.chess.service.GameManageService;
 import com.dld.chess.service.GameService;
 import jakarta.servlet.http.HttpSession;
@@ -33,19 +34,14 @@ public class GameController {
     }
 
 
+    @PostMapping("/api/join-game/{gameId}")
+    public ResponseEntity<Player> joinGame(@PathVariable String gameId, HttpSession session) {
 
-    @GetMapping("/api/join-game/{gameId}")
-    public ResponseEntity<String> joinGame(@PathVariable String gameId, HttpSession session) {
-
-        try {
-            gameManageService.addLoggedPlayerToGame(gameId, session);
-        }catch (Exception ex){
-            return ResponseEntity.ok("room is full");
-        }
+        gameManageService.addLoggedPlayerToGame(gameId, session);
 
         log.info("USER HAS JOINED:)!");
         gameService.startGameIf2PlayersJoined(gameId);
-        return ResponseEntity.ok("User has joined to the game");
+        return ResponseEntity.ok(gameManageService.addLoggedPlayerToGame(gameId, session));
     }
 
 
