@@ -4,6 +4,7 @@ import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.model.Game;
 import com.dld.chess.model.GameManage;
 import com.dld.chess.model.Player;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class GameManageService {
     }
 
 
-    public GameStatementDTO createNewGame() {
+    public GameStatementDTO createNewGame(HttpSession session) {
         Game game = gameService.createNewGame();
 
         log.info("GAME CREATED: ID {}", game.getId());
@@ -32,8 +33,7 @@ public class GameManageService {
         List<Game> gameList = gameManage.getGames();
         gameList.add(game);
         gameManage.setGames(gameList);
-
-//        addLoggedPlayerToGame("white", game.getId());
+        addLoggedPlayerToGame(game.getId(), session);
         log.info("Games active {}", gameList.size());
 
         return gameService.getGameStatement(game);
@@ -55,22 +55,24 @@ public class GameManageService {
     }
 
 
-    public void addLoggedPlayerToGame(String color, String gameId) {
-        Game game = getGameById(gameId);
-
+    public void addLoggedPlayerToGame(String gameId, HttpSession session) {
         String usernameLoggedUser = SecurityContextHolder.getContext().getAuthentication().getName();
-        Player player = new Player(color);
-        player.setUsername(usernameLoggedUser);
+        Game game = getGameById(gameId);
+        List<Player> playerList = game.getPlayers();
 
-        List<Player> players = game.getPlayers();
-
-        if (players.size() < 2) {
-            players.add(player);
-            game.setPlayers(players);
+        if (playerList.isEmpty()) {
+            playerList.add(new Player("white", usernameLoggedUser));
+            session.setAttribute("playerColor", "white");
+            log.info("ADDED 1ST PLAYER");
+        } else if (playerList.size() == 1) {
+            playerList.add(new Player("black", usernameLoggedUser));
+            session.setAttribute("playerColor", "black");
+            log.info("ADDED 2ND PLAYER");
         }
-//        }else{
-//            throw new Exception("already 2 players in game."); TODO
+//        else {
+//            throw new Exception("already 2 players in game.");
 //        }
+        game.setPlayers(playerList);
     }
 
 }

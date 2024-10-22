@@ -29,17 +29,21 @@ public class GameController {
 
     @PostMapping("/game/create-game")
     public ResponseEntity<GameStatementDTO> createNewGame(HttpSession session) {
-        session.setAttribute("playerColor", "white");
-        return ResponseEntity.ok(gameManageService.createNewGame());
+        return ResponseEntity.ok(gameManageService.createNewGame(session));
     }
 
 
-    @PostMapping("/join-game/{gameId}")
-    public ResponseEntity<String> joinGame(@PathVariable String gameId, HttpSession session) {
-        session.setAttribute("playerColor", "black");
-        gameManageService.addLoggedPlayerToGame("black", gameId);
-        gameService.startGameIf2PlayersJoined(gameId);
 
+    @GetMapping("/join-game/{gameId}")
+    public ResponseEntity<String> joinGame(@PathVariable String gameId, HttpSession session) {
+
+        try {
+            gameManageService.addLoggedPlayerToGame(gameId, session);
+        }catch (Exception ex){
+            return ResponseEntity.ok("room is full");
+        }
+
+        gameService.startGameIf2PlayersJoined(gameId);
         return ResponseEntity.ok("User has joined to the game");
     }
 
