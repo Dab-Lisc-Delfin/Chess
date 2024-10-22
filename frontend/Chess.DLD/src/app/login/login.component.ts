@@ -23,7 +23,7 @@ export class LoginComponent {
     this.dataService.GetLogin(this.username, this.password).subscribe(
       (response: any) => {
         console.log('Login successful:', response);
-        this.router.navigate(['/home']);
+        // this.router.navigate(['/home']);
       },
       (error: any) => {
         console.error('Login failed:', error);

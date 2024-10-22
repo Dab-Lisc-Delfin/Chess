@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -31,9 +31,17 @@ export class DataService {
     return this.http.post<any>(this.apiCreateGame, {});
   }
   GetLogin(username: string, password: string) {
-    const loginData = { username, password };
-    return this.http.post<any>(this.apiLogin,loginData, {});
-  }
+    const loginData = new HttpParams()
+        .set('username', username)
+        .set('password', password);
+
+    return this.http.post(this.apiLogin, loginData, {responseType : 'text',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+}
+
+
+  
   GetTest(gameId: string){
     return this.http.post<any>(this.apiTEST(gameId), {});
   }
