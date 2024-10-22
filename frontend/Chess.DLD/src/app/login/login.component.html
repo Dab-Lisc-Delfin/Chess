@@ -1,8 +1,6 @@
 
 
 
-
-
 <div class="flex flex-col items-center  min-h-screen bg-white inner-shadow"[ngStyle]="{'background-image': 'url(' + imageUrl + ')'}">
     <div class="mb-[50px]">
         <span class="font  text-[120px]">C H E S S</span>
@@ -35,7 +33,16 @@
                     class="pl-4 border-[5px] border-black mt-1 font block w-full rounded-[50px] p-2"
                 />
             </div>
-            <div class="flex justify-between mt-[100px]">
+            <div>
+                <ng-container *ngIf="wrongLogin; else placeholder">
+                    <p class="font text-red-500">Wrong login or password</p>
+                </ng-container>
+                
+                <ng-template #placeholder>
+                    <div style="min-height: 24px;"></div>
+                </ng-template>
+            </div>
+            <div class="flex justify-between mt-[70px]">
                 <div class="content-center">
                     <a class="font underline" href="./register">Don't have an account?</a>
                 </div>
@@ -43,6 +50,7 @@
                     Login
                 </button>
             </div>
+            
         </form>
     </div>
 </div>
