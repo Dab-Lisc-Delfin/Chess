@@ -27,9 +27,7 @@ public class SecurityConfig {
                         .requestMatchers("/home").permitAll()
                         .anyRequest().authenticated())
 
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/create-user"))  // Disable CSRF for specific endpoint
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/login","/perform_login"))
-                .csrf(csrf -> csrf.ignoringRequestMatchers("/current-user"));
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/**"));
 
         http.formLogin(Customizer.withDefaults());
 
