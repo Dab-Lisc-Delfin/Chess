@@ -44,6 +44,7 @@ export class ChessBoardComponent {
   playerColor: string | null = '';
   playerTour: string | null = null;
   isMyTurn: boolean = false;
+  waiting: boolean = true;
   @ViewChild('historyContainer') historyContainer!: ElementRef;
   constructor(private router: Router, private route: ActivatedRoute, private dataService: DataService) {
   }
@@ -52,6 +53,7 @@ export class ChessBoardComponent {
     this.isHistoryHidden = !this.isHistoryHidden;
   }
   ngOnInit() {
+    
     // this.checkmateSquare = 'b3';
     // localStorage.setItem('Color', 'white');
     this.playerColor = localStorage.getItem('Color');
