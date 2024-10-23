@@ -37,7 +37,7 @@ public class UserController {
 
 
     @PostMapping("/api/players-ranking")
-    public RankingDTO getPlayersRanking() {
-        return userService.getRankingDTO();
+    public ResponseEntity<RankingDTO> getPlayersRanking() {
+        return ResponseEntity.ok(userService.getRankingDTO());
     }
 }
