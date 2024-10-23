@@ -29,6 +29,13 @@ export class HomeComponent {
         this.router.navigate(['/login']);
     });
   }
+  joinGame() {
+    this.showModal = true;
+    if (this.gameId) {
+      this.router.navigate(['/game', this.gameId]);
+      this.closeModal();
+    }
+  }
   createGame() {
     this.dataService.getJsonData().subscribe((response: any) => {
       this.gameId = response.gameId;
@@ -38,13 +45,7 @@ export class HomeComponent {
       this.router.navigate([`/login`]);
     });
   }
-  joinGame() {
-    this.showModal = true;
-    if (this.gameId) {
-      this.router.navigate(['/game', this.gameId]);
-      this.closeModal();
-    }
-  }
+  
   closeModal() {
     this.showModal = false;
     this.gameId = '';
