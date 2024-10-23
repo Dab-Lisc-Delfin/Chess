@@ -3,6 +3,7 @@ package com.dld.chess.service;
 import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.dto.SquareDTO;
+import com.dld.chess.entity.User;
 import com.dld.chess.model.*;
 import com.dld.chess.model.pawns.*;
 import jakarta.servlet.http.HttpSession;
@@ -15,6 +16,12 @@ import java.util.List;
 @Service
 @Slf4j
 public class GameService {
+
+    private final UserService userService;
+
+    public GameService(UserService userService) {
+        this.userService = userService;
+    }
 
     //TODO OPTIMIZE METHODS AFTER DELETING HEAD DATA "Game"
 
@@ -350,9 +357,22 @@ public class GameService {
     }
 
 
-    public void finishGame(String gameId){
+    public void finishGame(String gameId) {
         Game game = GameManageService.getGameById(gameId);
         game.setActive(false);
+    }
+
+
+    public void managePlayerPoints(Game game, String loserColor) {
+        List<Player> playerList = game.getPlayers();
+
+        for (Player player : playerList) {
+            if (player.getColor().equals(loserColor)) {
+                userService.updateUserPoints(player.getUsername(), -10);
+            }else{
+                userService.updateUserPoints(player.getUsername(), 10);
+            }
+        }
     }
 
 }

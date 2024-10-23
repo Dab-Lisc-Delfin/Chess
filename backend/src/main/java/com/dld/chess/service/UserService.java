@@ -42,4 +42,11 @@ public class UserService {
         userRepository.save(user);
     }
 
+
+    public void updateUserPoints(String username, int points){
+        User user = userRepository.findByUsername(username);
+        user.setPoints(user.getPoints() + (points));
+        userRepository.save(user);
+    }
+
 }
