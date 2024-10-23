@@ -350,7 +350,7 @@ public class GameService {
     }
 
 
-    public void finishGame(String gameId, String color){
+    public void finishGame(String gameId){
         Game game = GameManageService.getGameById(gameId);
         game.setActive(false);
     }

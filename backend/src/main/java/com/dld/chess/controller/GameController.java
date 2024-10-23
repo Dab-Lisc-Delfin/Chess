@@ -94,6 +94,7 @@ public class GameController {
     @PostMapping("/api/game-finish/{gameId}")
     public ResponseEntity<Void> setGameFinished(@PathVariable String gameId) {
         Game game = GameManageService.getGameById(gameId);
+        gameService.finishGame(gameId);
         String destination = "/game/refresh/" + gameId;
         simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
         return ResponseEntity.ok().build();
