@@ -32,10 +32,8 @@ export class HomeComponent {
   getRanking(){
     this.dataService.getRankingData().subscribe((response:any)=>{
       if(response){
-        console.log(response)
         this.playersRankingList = response.playersRankingList;
       }else (error:any) =>{
-       console.log(error) 
       }
     })
   }
@@ -60,7 +58,6 @@ export class HomeComponent {
       this.gameId = response.gameId;
       this.router.navigate([`/game/${this.gameId}`]);
     }, error => {
-      console.log(error)
       this.router.navigate([`/login`]);
     });
   }

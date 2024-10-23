@@ -16,22 +16,25 @@ export class RegisterComponent {
   password: string = '';
   imageUrl: string = './BGlogin.png';
   userExist:boolean = false
+  usergood:boolean = false
   constructor(private router: Router, private dataService: DataService) {}
 
   onSubmit() {
     this.dataService.GetRegister(this.username, this.password, this.email).subscribe(
       response => {
-        if(response === 'User already exist'){
-          console.log(response,this.username)
+        if (response.trim() === 'User already exist') {
           this.userExist = true;
           this.username = '';
-        }else{
-          console.log(response)
+        } else {
+          this.username = '';
+          this.password = '';
+          this.email = '';
+          this.userExist = false;
+          this.usergood = true;
         }
-      }, error =>{
-        // console.log(error)
+      },
+      error => {
       }
     );
-    
   }
 }

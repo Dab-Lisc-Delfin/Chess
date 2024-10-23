@@ -49,6 +49,9 @@
                 <div class="test" *ngIf="userExist; else placeholder">
                     <p class="font">This Username already exists</p>
                 </div>
+                <div class="test" *ngIf="usergood; else placeholder">
+                    <p class="font text-[#66ff00]">Account created !</p>
+                </div>
                 <ng-template #placeholder>
                     <div style="min-height: 6px;"></div>
                 </ng-template>

@@ -65,7 +65,6 @@ export class ChessBoardComponent {
       if (this.gameId) {
         this.dataService.GetJoinData(this.gameId).subscribe(
           (response: any) => {
-            // console.log(response)
             if (response && response.color) {
               localStorage.setItem('Color', response.color);
             }
@@ -195,6 +194,9 @@ export class ChessBoardComponent {
   }
   EndGame() {
     this.isGameEnded = true;
+    setTimeout(() => {
+      this.router.navigate(['/home']);
+    }, 5000);
   }
   surrender() {
     const game = this.gameId
@@ -212,13 +214,11 @@ export class ChessBoardComponent {
   EndGameInfoToBackend(kingColor: string) {
     const game = this.gameId
     this.SurrenderColor = kingColor
-    console.log(this.SurrenderColor, 'king cannot be saved');
     if(this.SurrenderColor){
       this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
         (response) => {
           this.winnerColor = this.getWinnerColor(this.SurrenderColor as string);
         },(error) => {
-          console.log(error,"error MSG")
         }
       );
     }
@@ -951,7 +951,6 @@ export class ChessBoardComponent {
                 }
               }
             });
-            // console.log(`${yourPawnDetails.pawnName} (${yourPawnDetails.pawnColor}) is trying to MOVE to ${move}`);
             let simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
             const originalPosition = yourPawnDetails.pawnPlacement;
 
@@ -1000,11 +999,9 @@ export class ChessBoardComponent {
             });
 
             if ((whiteKingPositionCheck && allBlackMovesCheck.includes(whiteKingPositionCheck)) || (blackKingPositionCheck && allWhiteMovesCheck.includes(blackKingPositionCheck))) {
-              // console.log('This move cant save you')
               simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
               continue;
             } else {
-              // console.log('this move can save you')
               simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
               kingCanBeSaved = true;
               break;

@@ -47,10 +47,12 @@
               <li class="flex justify-between">
                 <span>Ranking</span>
               </li>
-              <li *ngFor="let player of playersRankingList; let i = index" class="flex justify-between">
+              <li *ngFor="let player of playersRankingList.slice(0, 5); let i = index" class="flex justify-between">
                 <div>
                   <span class="text-black">{{i + 1}}. </span>
-                  <span class="text-black">{{player.nickname}}</span>
+                  <span class="text-black">
+                    {{player.nickname.length > 5 ? (player.nickname | slice:0:5) + '...' : player.nickname}}
+                  </span>
                 </div>
                 <span class="text-[#856F28]">{{player.points}} p</span>
               </li>
@@ -60,11 +62,6 @@
       </div>
     </div>
   </div>
-
-
-
-
-
   <div *ngIf="showModal" class="fixed inset-0 flex items-center justify-center z-50">
     <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md"></div>
   
