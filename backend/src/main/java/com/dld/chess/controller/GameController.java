@@ -1,5 +1,6 @@
 package com.dld.chess.controller;
 
+import com.dld.chess.dto.ColorDTO;
 import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.model.Game;
@@ -92,11 +93,12 @@ public class GameController {
 
 
     @PostMapping("/api/game-finish/{gameId}")
-    public ResponseEntity<Void> setGameFinished(@PathVariable String gameId, @RequestBody String color) {
+    public ResponseEntity<Void> setGameFinished(@PathVariable String gameId, @RequestBody ColorDTO colorDTO) {
         Game game = GameManageService.getGameById(gameId);
-        gameService.managePlayerPoints(game, color);
-        log.info("TAKI KOLOR JULEK MI WYSLAL: {}", color);
-        gameService.finishGame(gameId);
+        gameService.managePlayerPoints(game, colorDTO.getColor());
+        log.info("TAKI KOLOR JULEK MI WYSLAL: {}", colorDTO.getColor());
+        gameService.setGameWinner(game, colorDTO.getColor());
+        gameService.finishGame(game);
         String destination = "/game/refresh/" + gameId;
         simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
         return ResponseEntity.ok().build();

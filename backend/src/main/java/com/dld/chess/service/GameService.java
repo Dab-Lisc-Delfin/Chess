@@ -3,10 +3,8 @@ package com.dld.chess.service;
 import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.dto.SquareDTO;
-import com.dld.chess.entity.User;
 import com.dld.chess.model.*;
 import com.dld.chess.model.pawns.*;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -180,6 +178,11 @@ public class GameService {
         gameStatementDTO.setGameId(game.getId());
         gameStatementDTO.setGameHistory(game.getGameHistory());
         gameStatementDTO.setWaiting(game.isWaiting());
+
+        if(game.getWinner() != null){
+            gameStatementDTO.setWinnerColor(game.getWinner().getColor());
+        }
+
         return gameStatementDTO;
     }
 
@@ -357,11 +360,19 @@ public class GameService {
     }
 
 
-    public void finishGame(String gameId) {
-        Game game = GameManageService.getGameById(gameId);
+    public void finishGame(Game game) {
         game.setActive(false);
     }
 
+
+    public void setGameWinner(Game game, String loserColor) {
+        List<Player> playerList = game.getPlayers();
+        for (Player player : playerList) {
+            if (!player.getColor().equals(loserColor)) {
+                game.setWinner(player);
+            }
+        }
+    }
 
     public void managePlayerPoints(Game game, String loserColor) {
         List<Player> playerList = game.getPlayers();
@@ -369,10 +380,11 @@ public class GameService {
         for (Player player : playerList) {
             if (player.getColor().equals(loserColor)) {
                 userService.updateUserPoints(player.getUsername(), -10);
-            }else{
+            } else {
                 userService.updateUserPoints(player.getUsername(), 10);
             }
         }
     }
+
 
 }
