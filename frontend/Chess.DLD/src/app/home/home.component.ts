@@ -29,6 +29,15 @@ export class HomeComponent {
         this.router.navigate(['/login']);
     });
   }
+  logout(){
+    this.dataService.getLogout().subscribe((response:any)=>{
+      this.router.navigate([`/login`]);
+
+
+    }, error =>{
+      this.router.navigate([`/login`]);
+    })
+  }
   joinGame() {
     this.showModal = true;
     if (this.gameId) {

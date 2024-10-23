@@ -45,6 +45,8 @@ export class ChessBoardComponent {
   playerTour: string | null = null;
   isMyTurn: boolean = false;
   waiting: boolean = false;
+  winnerColor: any;
+  SurrenderColor: string | null = null;
   @ViewChild('historyContainer') historyContainer!: ElementRef;
   constructor(private router: Router, private route: ActivatedRoute, private dataService: DataService) {
   }
@@ -89,7 +91,6 @@ export class ChessBoardComponent {
               this.router.navigate(['/home']);
               return;
             }
-            console.log(res)
             this.jsonResponse = res.chessBoard.map((pawn: any) => ({
               pawnName: pawn.name,
               pawnColor: pawn.color,
@@ -136,8 +137,8 @@ export class ChessBoardComponent {
       onConnect: (frame) => {
         // console.log('Connected: ' + frame);
         this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
-          console.log('Received message:', message.body);
-          console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
+          // console.log('Received message:', message.body);
+          // console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
           const response = JSON.parse(message.body);
           // console.log('Received message:', response);
           if(response.waiting === true){
@@ -171,7 +172,7 @@ export class ChessBoardComponent {
               pawnPlacement: pawn.square
             }));
 
-            this.jsonResponse = updatedChessBoardData;;
+            this.jsonResponse = updatedChessBoardData;
           } else {
           }
         });
@@ -191,23 +192,38 @@ export class ChessBoardComponent {
     }
   }
   EndGame() {
-    const game = this.gameId
-    console.log(game,"<= game id")
     this.isGameEnded = true;
   }
   surrender() {
     const game = this.gameId
-    console.log(game,"<= game id")
-    const SurrenderColor = localStorage.getItem('Color')
-    console.log(SurrenderColor)
-    this.isGameEnded = true;
+    this.SurrenderColor = localStorage.getItem('Color')
+    console.log(this.SurrenderColor)
+    if(this.SurrenderColor){
+      this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
+        (response) => {
+          this.winnerColor = this.getWinnerColor(this.SurrenderColor as string);
+        },(error) => {
+          console.log(error,"error MSG")
+        }
+      );
+    }
   }
   EndGameInfoToBackend(kingColor: string) {
     const game = this.gameId
-    console.log(game,"<= game id")
-    const SurrenderColor = kingColor
-    console.log(SurrenderColor, 'king cannot be saved');
-    this.isGameEnded = true;
+    this.SurrenderColor = kingColor
+    console.log(this.SurrenderColor, 'king cannot be saved');
+    if(this.SurrenderColor){
+      this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
+        (response) => {
+          this.winnerColor = this.getWinnerColor(this.SurrenderColor as string);
+        },(error) => {
+          console.log(error,"error MSG")
+        }
+      );
+    }
+  }
+  getWinnerColor(surrenderingColor: string): string {
+    return surrenderingColor === 'white' ? 'black' : 'white';
   }
   handleCheckmate(square: string) {
     this.checkmateSquare = square;

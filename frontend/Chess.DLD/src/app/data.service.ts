@@ -15,14 +15,22 @@ export class DataService {
   private apiRegister = `${this.baseUrl}/api/create-user`;
   private apiVerify = `${this.baseUrl}/api/verify-user`;
   private apiJoinGame = (gameId: string) => `${this.baseUrl}/api/join-game/${gameId}`;
+  private apiEndGame = (gameId: string) => `${this.baseUrl}/api/game-finish/${gameId}`;
+  private apiLogout = `${this.baseUrl}/logout`;
 
   constructor(private http: HttpClient) { }
 
   getJsonData() {
     return this.http.post<any>(this.apiUrlCreateGame, {});
   }
+  getLogout() {
+    return this.http.post<any>(this.apiLogout, {});
+  }
   GetJoinData(gameId: string) {
     return this.http.post<any>(this.apiJoinGame(gameId), {});
+  }
+  GetFinish(gameId: string,color:any) {
+    return this.http.post<any>(this.apiEndGame(gameId),color);
   }
   getVerification() {
     return this.http.post<any>(this.apiVerify, {});
