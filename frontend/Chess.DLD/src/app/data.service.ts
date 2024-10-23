@@ -17,11 +17,15 @@ export class DataService {
   private apiJoinGame = (gameId: string) => `${this.baseUrl}/api/join-game/${gameId}`;
   private apiEndGame = (gameId: string) => `${this.baseUrl}/api/game-finish/${gameId}`;
   private apiLogout = `${this.baseUrl}/logout`;
+  private apiRanking = `${this.baseUrl}/api/players-ranking`;
 
   constructor(private http: HttpClient) { }
 
   getJsonData() {
     return this.http.post<any>(this.apiUrlCreateGame, {});
+  }
+  getRankingData(){
+    return this.http.post<any>(this.apiRanking,{});
   }
   getLogout() {
     return this.http.post<any>(this.apiLogout, {});
@@ -30,7 +34,10 @@ export class DataService {
     return this.http.post<any>(this.apiJoinGame(gameId), {});
   }
   GetFinish(gameId: string,color:any) {
-    return this.http.post<any>(this.apiEndGame(gameId),color);
+    const body = { color: color };
+    return this.http.post<any>(this.apiEndGame(gameId),body,{
+      headers:{'Content-Type': 'application/json'}
+    });
   }
   getVerification() {
     return this.http.post<any>(this.apiVerify, {});

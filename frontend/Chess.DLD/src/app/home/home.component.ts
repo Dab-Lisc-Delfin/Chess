@@ -16,18 +16,28 @@ export class HomeComponent {
   showModal: boolean = false;
   gameId: string = '';
   imageUrl: string = './BG.png';
+  playersRankingList: any[] = [];
   constructor(private router: Router, private dataService: DataService) { }
   ngOnInit() {
     localStorage.removeItem('Color');
     localStorage.removeItem('Username');
     this.dataService.getVerification().subscribe(
       (response: any) => {
-        // console.log(response)
-        // console.log('hej tak sobie sie onInituje')
+        this.getRanking();
       },
       (error: any) => {
         this.router.navigate(['/login']);
     });
+  }
+  getRanking(){
+    this.dataService.getRankingData().subscribe((response:any)=>{
+      if(response){
+        console.log(response)
+        this.playersRankingList = response.playersRankingList;
+      }else (error:any) =>{
+       console.log(error) 
+      }
+    })
   }
   logout(){
     this.dataService.getLogout().subscribe((response:any)=>{

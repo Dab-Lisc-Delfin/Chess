@@ -140,7 +140,7 @@ export class ChessBoardComponent {
           // console.log('Received message:', message.body);
           // console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
           const response = JSON.parse(message.body);
-          // console.log('Received message:', response);
+          console.log('Received message:', response);
           if(response.waiting === true){
             console.log(response.waiting)
             this.waiting = true
@@ -162,9 +162,11 @@ export class ChessBoardComponent {
             this.playerTour = response.playerTour;
             this.isMyTurn = (this.playerColor === this.playerTour);
           }
-          if (response.gameActive === false) {
+          if(response.winnerColor === 'white' || response.winnerColor === 'black' && response.gameActive === false){
+            this.winnerColor = response.winnerColor;
             this.EndGame();
           }
+          
           if (response.chessBoard) {
             const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
               pawnName: pawn.name,
@@ -201,7 +203,6 @@ export class ChessBoardComponent {
     if(this.SurrenderColor){
       this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
         (response) => {
-          this.winnerColor = this.getWinnerColor(this.SurrenderColor as string);
         },(error) => {
           console.log(error,"error MSG")
         }

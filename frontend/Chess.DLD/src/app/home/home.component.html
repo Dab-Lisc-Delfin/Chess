@@ -45,32 +45,18 @@
             
             <ol class="space-y-1 text-left text-[30px] w-[200px] mt-[10px]">
               <li class="flex justify-between">
-                <span >Ranking</span>
+                <span>Ranking</span>
               </li>
-              <li class="flex justify-between">
-                <span class="text-[#856F28]">1.</span>
-                <span class="text-[#856F28]">YOU</span>
-              </li>
-              <li class="flex justify-between">
-                <span>2.</span>
-                <span>MAREK</span>
-              </li>
-              <li class="flex justify-between">
-                <span>3.</span>
-                <span>JAREK</span>
-              </li>
-              <li class="flex justify-between">
-                <span>4.</span>
-                <span>AREK</span>
-              </li>
-              <li class="flex justify-between">
-                <span>5.</span>
-                <span>xXxXD123</span>
+              <li *ngFor="let player of playersRankingList; let i = index" class="flex justify-between">
+                <div>
+                  <span class="text-black">{{i + 1}}. </span>
+                  <span class="text-black">{{player.nickname}}</span>
+                </div>
+                <span class="text-[#856F28]">{{player.points}} p</span>
               </li>
             </ol>
           </div>
         </div>
-        
       </div>
     </div>
   </div>
