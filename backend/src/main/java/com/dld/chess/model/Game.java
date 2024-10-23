@@ -19,12 +19,11 @@ public class Game {
 
     private Square[][] squares = new Square[8][8];
     private String id;
-    private boolean isActive = true; //TODO isFinished
-
+    private boolean isActive = true;
     private List<Player> players = new ArrayList<>();
     private String currentTour;
     private boolean isWaiting = true;
     private List<Move> gameHistory = new ArrayList<>();
-
+    private Player winner;
 
 }

@@ -15,4 +15,5 @@ public class GameStatementDTO {
     private String playerTour = "white";
     private List<Move> gameHistory;
     private boolean isWaiting;
+    private String winnerColor = "none";
 }

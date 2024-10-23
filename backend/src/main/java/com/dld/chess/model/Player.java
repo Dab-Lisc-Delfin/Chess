@@ -3,7 +3,6 @@ package com.dld.chess.model;
 import lombok.Getter;
 import lombok.Setter;
 
-//new
 @Getter
 @Setter
 public class Player {

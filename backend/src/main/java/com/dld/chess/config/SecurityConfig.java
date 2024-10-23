@@ -32,6 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/join-game/**").authenticated()
                         .requestMatchers("/game/**").authenticated()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/game-finish/{gameId}").permitAll()
                         .anyRequest().authenticated())
 
                 .csrf(csrf -> csrf.ignoringRequestMatchers("/**"))
