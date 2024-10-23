@@ -18,15 +18,14 @@ export class HomeComponent {
   imageUrl: string = './BG.png';
   constructor(private router: Router, private dataService: DataService) { }
   ngOnInit() {
-    console.log(sessionStorage.getItem('playerColor')," wow to ten kolor com mial byc")
-    // console.log('on init test')
+    localStorage.removeItem('Color');
+    localStorage.removeItem('Username');
     this.dataService.getVerification().subscribe(
       (response: any) => {
         // console.log(response)
         // console.log('hej tak sobie sie onInituje')
       },
       (error: any) => {
-        console.error(error);
         this.router.navigate(['/login']);
     });
   }
