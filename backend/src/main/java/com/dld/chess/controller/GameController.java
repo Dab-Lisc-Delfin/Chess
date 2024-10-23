@@ -21,6 +21,7 @@ public class GameController {
     private final GameService gameService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
+
     public GameController(GameManageService gameManageService, GameService gameService, SimpMessagingTemplate simpMessagingTemplate) {
         this.gameManageService = gameManageService;
         this.simpMessagingTemplate = simpMessagingTemplate;
@@ -43,18 +44,18 @@ public class GameController {
 
     @PostMapping("/api/join-game/{gameId}")
     public ResponseEntity<Player> joinGame(@PathVariable String gameId, HttpSession session) {
-            Player player = gameManageService.addLoggedPlayerToGame(gameId, session);
-            gameService.startGameIf2PlayersJoined(gameId);
-            Game game = GameManageService.getGameById(gameId);
+        Player player = gameManageService.addLoggedPlayerToGame(gameId, session);
+        gameService.startGameIf2PlayersJoined(gameId);
+        Game game = GameManageService.getGameById(gameId);
 
-            if (game != null) {
-                String destination = "/game/refresh/" + gameId;
-                simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
-                log.info("game isWaiting? {}555 ", game.isWaiting());
-            }
+        if (game != null) {
+            String destination = "/game/refresh/" + gameId;
+            simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+            log.info("game isWaiting? {}555 ", game.isWaiting());
+        }
 
-            log.info("CALLED: {} ", "joinGame");
-            return ResponseEntity.ok(player);
+        log.info("CALLED: {} ", "joinGame");
+        return ResponseEntity.ok(player);
     }
 
 
@@ -88,4 +89,14 @@ public class GameController {
 
         return ResponseEntity.ok(gameService.getGameStatement(game));
     }
+
+
+    @PostMapping("/api/game-finish/{gameId}")
+    public ResponseEntity<Void> setGameFinished(@PathVariable String gameId) {
+        Game game = GameManageService.getGameById(gameId);
+        String destination = "/game/refresh/" + gameId;
+        simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+        return ResponseEntity.ok().build();
+    }
+
 }

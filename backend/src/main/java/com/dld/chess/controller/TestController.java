@@ -1,8 +1,5 @@
 package com.dld.chess.controller;
 
-import com.dld.chess.dto.GameInviteDTO;
-import com.dld.chess.model.Game;
-import com.dld.chess.model.Player;
 import com.dld.chess.service.GameManageService;
 import com.dld.chess.service.GameService;
 import jakarta.servlet.http.HttpSession;
