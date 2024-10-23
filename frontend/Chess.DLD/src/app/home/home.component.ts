@@ -26,7 +26,6 @@ export class HomeComponent {
         // console.log('hej tak sobie sie onInituje')
       },
       (error: any) => {
-        console.error(error);
         this.router.navigate(['/login']);
     });
   }

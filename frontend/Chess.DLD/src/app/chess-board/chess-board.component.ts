@@ -143,6 +143,10 @@ export class ChessBoardComponent {
             console.log(response.waiting)
             this.waiting = true
           }
+          if(response.waiting === false){
+            console.log(response.waiting)
+            this.waiting = false
+          }
           if (response.gameHistory) {
             this.moveHistory = response.gameHistory.map((move: any) => ({
               moveFrom: move.moveFrom,
@@ -189,12 +193,13 @@ export class ChessBoardComponent {
     this.isGameEnded = true;
   }
   surrender() {
-    //Do backendu wysłac info o kolorze ktory sie poddał
+    const SurrenderColor = localStorage.getItem('Color')
+    console.log(SurrenderColor)
     this.isGameEnded = true;
   }
   EndGameInfoToBackend(kingColor: string) {
-    //Do backendu wysłac info o królu który nie ma ucieczki
-    console.log(`${kingColor}`, 'king cannot be saved');
+    const SurrenderColor = kingColor
+    console.log(SurrenderColor, 'king cannot be saved');
     this.isGameEnded = true;
   }
   handleCheckmate(square: string) {
@@ -241,57 +246,71 @@ export class ChessBoardComponent {
     if (!this.isGameActive) {
       return;
     }
-    const pawnInfo = this.getPawnOnSquare(square.square);
-    const playerColor = localStorage.getItem('Color');
-    if (this.highlightedSquares.includes(square.square)) {
-      if (this.selectedPawnInfo) {
-        if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
-          const moveDetails = {
-            moveFrom: this.selectedPawnInfo.pawnPlacement,
-            moveTo: square.square,
-            pawnName: this.selectedPawnInfo.pawnName,
-            pawnColor: this.selectedPawnInfo.pawnColor
-          };
-          this.ProceedMove(moveDetails, square);
-          this.selectedPawnInfo = null;
-          this.highlightedSquares = [];
-          return;
-        } else if (!pawnInfo) {
-          const moveDetails = {
-            moveFrom: this.selectedPawnInfo.pawnPlacement,
-            moveTo: square.square,
-            pawnName: this.selectedPawnInfo.pawnName,
-            pawnColor: this.selectedPawnInfo.pawnColor
-          };
-          this.ProceedMove(moveDetails, square);
-          this.selectedPawnInfo = null;
-          this.highlightedSquares = [];
-          return;
-        } else {
-          return;
+    this.dataService.GetTest(this.gameId).subscribe(
+      (res: any) => {
+        if(res.waiting === true){
+          return
         }
-      }
-    }
-    if (pawnInfo) {
-      if (pawnInfo.pawnColor !== playerColor) {
-        return;
-      } else {
-        this.selectedPawnInfo = pawnInfo;
-        this.originalPosition = pawnInfo.pawnPlacement || '';
-        this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
-        this.highlightedSquares = this.availableMoves;
-        return;
-      }
-    }
-    this.selectedPawnInfo = null;
-    this.highlightedSquares = [];
-    this.availableMoves = [];
+        const pawnInfo = this.getPawnOnSquare(square.square);
+        const playerColor = localStorage.getItem('Color');
+        if (this.highlightedSquares.includes(square.square)) {
+          if (this.selectedPawnInfo) {
+            if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
+              const moveDetails = {
+                moveFrom: this.selectedPawnInfo.pawnPlacement,
+                moveTo: square.square,
+                pawnName: this.selectedPawnInfo.pawnName,
+                pawnColor: this.selectedPawnInfo.pawnColor
+              };
+              this.ProceedMove(moveDetails, square);
+              this.selectedPawnInfo = null;
+              this.highlightedSquares = [];
+              return;
+            } else if (!pawnInfo) {
+              const moveDetails = {
+                moveFrom: this.selectedPawnInfo.pawnPlacement,
+                moveTo: square.square,
+                pawnName: this.selectedPawnInfo.pawnName,
+                pawnColor: this.selectedPawnInfo.pawnColor
+              };
+              this.ProceedMove(moveDetails, square);
+              this.selectedPawnInfo = null;
+              this.highlightedSquares = [];
+              return;
+            } else {
+              return;
+            }
+          }
+        }
+        if (pawnInfo) {
+          if (pawnInfo.pawnColor !== playerColor) {
+            return;
+          } else {
+            this.selectedPawnInfo = pawnInfo;
+            this.originalPosition = pawnInfo.pawnPlacement || '';
+            this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
+            this.highlightedSquares = this.availableMoves;
+            return;
+          }
+        }
+        this.selectedPawnInfo = null;
+        this.highlightedSquares = [];
+        this.availableMoves = [];
+      },
+      
+    );
+   
   }
   showSquareDetails(square: any) {
     if (!this.isGameActive) {
       return;
     }
-    const pawnInfo = this.getPawnOnSquare(square.square);
+    this.dataService.GetTest(this.gameId).subscribe(
+      (res: any) => {
+        if(res.waiting === true){
+          return
+        }
+        const pawnInfo = this.getPawnOnSquare(square.square);
     const playerColor = localStorage.getItem('Color');
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
@@ -336,6 +355,10 @@ export class ChessBoardComponent {
     this.selectedPawnInfo = null;
     this.highlightedSquares = [];
     this.availableMoves = [];
+      }
+
+    );
+    
   }
 
   parsePawnKey = (pawnKey: string) => {
