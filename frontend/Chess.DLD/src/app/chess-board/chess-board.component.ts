@@ -190,14 +190,20 @@ export class ChessBoardComponent {
     }
   }
   EndGame() {
+    const game = this.gameId
+    console.log(game,"<= game id")
     this.isGameEnded = true;
   }
   surrender() {
+    const game = this.gameId
+    console.log(game,"<= game id")
     const SurrenderColor = localStorage.getItem('Color')
     console.log(SurrenderColor)
     this.isGameEnded = true;
   }
   EndGameInfoToBackend(kingColor: string) {
+    const game = this.gameId
+    console.log(game,"<= game id")
     const SurrenderColor = kingColor
     console.log(SurrenderColor, 'king cannot be saved');
     this.isGameEnded = true;
