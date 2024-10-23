@@ -35,8 +35,6 @@ public class GameController {
 
         String destination = "/game/refresh/" + gameStatementDTO.getGameId();
         simpMessagingTemplate.convertAndSend(destination, gameStatementDTO);
-        log.info("game isWaiting? {} ", gameStatementDTO.isWaiting());
-        log.info("CALLED: {} ", "createNewGame");
         return ResponseEntity.ok(gameStatementDTO);
 
     }
@@ -51,42 +49,15 @@ public class GameController {
         if (game != null) {
             String destination = "/game/refresh/" + gameId;
             simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
-            log.info("game isWaiting? {}555 ", game.isWaiting());
         }
 
-        log.info("CALLED: {} ", "joinGame");
         return ResponseEntity.ok(player);
-    }
-
-
-    //ws
-    @PostMapping("/update-game/{gameId}")
-    public ResponseEntity<Void> updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
-        System.out.println("gameId: " + gameId);
-        System.out.println("moveDTO: " + moveDTO);
-
-        Game game = GameManageService.getGameById(gameId);
-        System.out.println("NULL game?: " + game);
-
-        if (game != null) {
-            gameService.processMove(moveDTO, game);
-            gameService.addMoveToGameHistory(moveDTO, game);
-            gameService.nextTour(game);
-            String destination = "/game/refresh/" + gameId;
-            simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
-        }
-
-        log.info("CALLED: {} ", "updateGame");
-
-        return ResponseEntity.ok().build();
     }
 
 
     @PostMapping("/game-statement/{gameId}")
     public ResponseEntity<GameStatementDTO> getGameStatement(@PathVariable String gameId) {
         Game game = GameManageService.getGameById(gameId);
-        log.info("CALLED: {} ", "gameStatement");
-
         return ResponseEntity.ok(gameService.getGameStatement(game));
     }
 
@@ -95,10 +66,25 @@ public class GameController {
     public ResponseEntity<Void> setGameFinished(@PathVariable String gameId, @RequestBody String color) {
         Game game = GameManageService.getGameById(gameId);
         gameService.managePlayerPoints(game, color);
-        log.info("TAKI KOLOR JULEK MI WYSLAL: {}", color);
         gameService.finishGame(gameId);
         String destination = "/game/refresh/" + gameId;
         simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+        return ResponseEntity.ok().build();
+    }
+
+
+    //ws
+    @PostMapping("/update-game/{gameId}")
+    public ResponseEntity<Void> updateGame(@PathVariable String gameId, @RequestBody MoveDTO moveDTO) {
+        Game game = GameManageService.getGameById(gameId);
+
+        if (game != null) {
+            gameService.processMove(moveDTO, game);
+            gameService.addMoveToGameHistory(moveDTO, game);
+            gameService.nextTour(game);
+            String destination = "/game/refresh/" + gameId;
+            simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+        }
         return ResponseEntity.ok().build();
     }
 }
