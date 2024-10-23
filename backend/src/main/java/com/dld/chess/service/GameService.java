@@ -374,6 +374,7 @@ public class GameService {
         }
     }
 
+
     public void managePlayerPoints(Game game, String loserColor) {
         List<Player> playerList = game.getPlayers();
 
@@ -385,6 +386,4 @@ public class GameService {
             }
         }
     }
-
-
 }
