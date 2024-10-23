@@ -14,7 +14,7 @@ import java.util.UUID;
 public class Game {
 
     public Game() {
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID().toString().substring(0, 5);
     }
 
     private Square[][] squares = new Square[8][8];

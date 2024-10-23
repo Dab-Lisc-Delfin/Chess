@@ -12,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.sql.SQLIntegrityConstraintViolationException;
+
 @Controller
 @Slf4j
 public class UserController {
@@ -31,7 +33,11 @@ public class UserController {
 
     @PostMapping("/api/create-user")
     public ResponseEntity<String> createNewUser(@RequestBody UserDTO userDTO) {
-        userService.saveUser(userDTO);
-        return ResponseEntity.ok("OK");
+        try {
+            userService.saveUser(userDTO);
+            return ResponseEntity.ok("OK");
+        }catch (Exception ex){
+            return ResponseEntity.ok("User already exist");
+        }
     }
 }

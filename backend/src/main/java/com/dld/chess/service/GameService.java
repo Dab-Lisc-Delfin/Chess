@@ -350,18 +350,9 @@ public class GameService {
     }
 
 
-//    public void addPlayerToGame(String gameId, String username, HttpSession session) {
-//        Game game = GameManageService.getGameById(gameId);
-//
-//        List<Player> players = game.getPlayers();
-//
-//        if (game.getPlayers().size() == 0) {
-//            players.add(new Player("white", username));
-//            session.setAttribute("playerColor", "white");
-//        } else if (game.getPlayers().size() == 1) {
-//            players.add(new Player("black", username));
-//            session.setAttribute("playerColor", "black");
-//        }
-//    }
+    public void finishGame(String gameId, String color){
+        Game game = GameManageService.getGameById(gameId);
+        game.setActive(false);
+    }
 
 }
