@@ -49,11 +49,6 @@ public class GameManageService {
     }
 
 
-    public List<Game> getAllGames() {
-        return gameManage.getGames();
-    }
-
-
     public Player addLoggedPlayerToGame(String gameId, HttpSession session){
         String usernameLoggedUser = SecurityContextHolder.getContext().getAuthentication().getName();
         Game game = getGameById(gameId);
@@ -85,5 +80,4 @@ public class GameManageService {
 
         return player;
     }
-
 }
