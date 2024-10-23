@@ -144,6 +144,10 @@ export class ChessBoardComponent {
             console.log(response.waiting)
             this.waiting = true
           }
+          if(response.waiting === false){
+            console.log(response.waiting)
+            this.waiting = false
+          }
           if (response.gameHistory) {
             this.moveHistory = response.gameHistory.map((move: any) => ({
               moveFrom: move.moveFrom,

@@ -54,11 +54,18 @@ public class GameManageService {
     }
 
 
-    public Player addLoggedPlayerToGame(String gameId, HttpSession session) {
+    public Player addLoggedPlayerToGame(String gameId, HttpSession session){
         String usernameLoggedUser = SecurityContextHolder.getContext().getAuthentication().getName();
         Game game = getGameById(gameId);
         List<Player> playerList = game.getPlayers();
         Player player;
+
+        for(int i = 0; i < playerList.size(); i++){
+            if(playerList.get(i).getUsername().equals(usernameLoggedUser)){
+                log.info("Player already in game - rejoining");
+                return playerList.get(i);
+            }
+        }
 
         if (playerList.isEmpty()) {
             player = new Player("white", usernameLoggedUser);

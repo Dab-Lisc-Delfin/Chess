@@ -43,19 +43,18 @@ public class GameController {
 
     @PostMapping("/api/join-game/{gameId}")
     public ResponseEntity<Player> joinGame(@PathVariable String gameId, HttpSession session) {
-        Player player = gameManageService.addLoggedPlayerToGame(gameId, session);
-        gameService.startGameIf2PlayersJoined(gameId);
-        Game game = GameManageService.getGameById(gameId);
+            Player player = gameManageService.addLoggedPlayerToGame(gameId, session);
+            gameService.startGameIf2PlayersJoined(gameId);
+            Game game = GameManageService.getGameById(gameId);
 
+            if (game != null) {
+                String destination = "/game/refresh/" + gameId;
+                simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
+                log.info("game isWaiting? {}555 ", game.isWaiting());
+            }
 
-        if (game != null) {
-            String destination = "/game/refresh/" + gameId;
-            simpMessagingTemplate.convertAndSend(destination, gameService.getGameStatement(game));
-            log.info("game isWaiting? {}555 ", game.isWaiting());
-        }
-        log.info("CALLED: {} ", "joinGame");
-
-        return ResponseEntity.ok(player);
+            log.info("CALLED: {} ", "joinGame");
+            return ResponseEntity.ok(player);
     }
 
 
