@@ -24,6 +24,6 @@ public class Game {
     private String currentTour;
     private boolean isWaiting = true;
     private List<Move> gameHistory = new ArrayList<>();
-
+    private Player winner;
 
 }
