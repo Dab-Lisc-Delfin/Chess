@@ -8,6 +8,7 @@ import com.dld.chess.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -29,7 +30,7 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public void saveUser(UserDTO userDTO) {
+    public void saveUser(UserDTO userDTO) throws SQLIntegrityConstraintViolationException{
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
