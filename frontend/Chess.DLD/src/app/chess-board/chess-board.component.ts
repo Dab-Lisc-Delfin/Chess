@@ -338,7 +338,7 @@ export class ChessBoardComponent {
     const playerColor = localStorage.getItem('Color');
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
-        if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
+        if (pawnInfo) {
           const moveDetails = {
             moveFrom: this.selectedPawnInfo.pawnPlacement,
             moveTo: square.square,
@@ -574,6 +574,7 @@ export class ChessBoardComponent {
         }
       }
     }
+    console.log(moves,"ruchy")
     return moves;
   }
   isSquareOccupied(board: any, square: string): boolean {
@@ -822,6 +823,7 @@ export class ChessBoardComponent {
     return moves;
   }
   ProceedMove(moveDetails: any, square: any) {
+    console.log(moveDetails,square, "sprawdzam")
     const originalPosition = this.selectedPawnInfo.pawnPlacement;
     const originalBoardPosition = this.jsonResponse;
     let whiteKingPosition = '';
@@ -832,7 +834,6 @@ export class ChessBoardComponent {
     const PawnTableBeforeMove = this.jsonResponse;
     const currentPlayerTour = this.playerTour;
     if (this.playerColor !== currentPlayerTour) {
-      // console.warn('Nie jest twoja tura! ', moveDetails, square);
       return;
     }
     const JSONbefore = this.jsonResponse
