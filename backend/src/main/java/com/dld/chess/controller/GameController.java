@@ -11,11 +11,11 @@ import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@CrossOrigin(origins = "http://localhost:4200")
 @Slf4j
 public class GameController {
     private final GameManageService gameManageService;
@@ -31,11 +31,13 @@ public class GameController {
 
 
     @PostMapping("/game/create-game")
-    public ResponseEntity<GameStatementDTO> createNewGame() {
+    public ResponseEntity<GameStatementDTO> createNewGame(Authentication authentication) {
         GameStatementDTO gameStatementDTO = gameManageService.createNewGame();
 
         String destination = "/game/refresh/" + gameStatementDTO.getGameId();
         simpMessagingTemplate.convertAndSend(destination, gameStatementDTO);
+
+
         return ResponseEntity.ok(gameStatementDTO);
 
     }
