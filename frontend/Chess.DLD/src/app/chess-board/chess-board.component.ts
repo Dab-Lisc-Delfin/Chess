@@ -83,7 +83,7 @@ export class ChessBoardComponent {
         this.dataService.GetTest(this.gameId).subscribe(
           (res: any) => {
             if(res.waiting === true){
-              console.log(res.waiting)
+              // console.log(res.waiting)
               this.waiting = true
             }
             if (!res) {
@@ -129,7 +129,7 @@ export class ChessBoardComponent {
   }
 
   initializeWebSocketConnection() {
-    const socket = new SockJS('http://localhost:8080/ws');
+    const socket = new SockJS('13.60.28.122:8080/ws');
     this.stompClient = new Client({
       webSocketFactory: () => socket,
       debug: (str) => { },
@@ -139,13 +139,13 @@ export class ChessBoardComponent {
           // console.log('Received message:', message.body);
           // console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
           const response = JSON.parse(message.body);
-          console.log('Received message:', response);
+          // console.log('Received message:', response);
           if(response.waiting === true){
-            console.log(response.waiting)
+            // console.log(response.waiting)
             this.waiting = true
           }
           if(response.waiting === false){
-            console.log(response.waiting)
+            // console.log(response.waiting)
             this.waiting = false
           }
           if (response.gameHistory) {
@@ -201,7 +201,7 @@ export class ChessBoardComponent {
   surrender() {
     const game = this.gameId
     this.SurrenderColor = localStorage.getItem('Color')
-    console.log(this.SurrenderColor)
+    // console.log(this.SurrenderColor)
     if(this.SurrenderColor){
       this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
         (response) => {
@@ -574,7 +574,7 @@ export class ChessBoardComponent {
         }
       }
     }
-    console.log(moves,"ruchy")
+    // console.log(moves,"ruchy")
     return moves;
   }
   isSquareOccupied(board: any, square: string): boolean {
@@ -823,7 +823,6 @@ export class ChessBoardComponent {
     return moves;
   }
   ProceedMove(moveDetails: any, square: any) {
-    console.log(moveDetails,square, "sprawdzam")
     const originalPosition = this.selectedPawnInfo.pawnPlacement;
     const originalBoardPosition = this.jsonResponse;
     let whiteKingPosition = '';
