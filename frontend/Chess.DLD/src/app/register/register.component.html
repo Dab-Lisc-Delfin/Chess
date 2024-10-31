@@ -30,7 +30,9 @@
                     placeholder="email"
                     name="email"
                     class="pl-4 border-[5px] border-black mt-1 font block w-full rounded-[50px] p-2"
-                />
+                    #emailField="ngModel"
+                    email
+                    />
             </div>
             <div class="mb-4">
                 <input
@@ -43,7 +45,21 @@
                     class="pl-4 border-[5px] border-black mt-1 font block w-full rounded-[50px] p-2"
                 />
             </div>
-            <div class="flex justify-between mt-[40px]">
+            <div>
+                <div class="test" *ngIf="userExist; else placeholder">
+                    <p class="font">This Username already exists</p>
+                </div>
+                <div class="test" *ngIf="usergood; else placeholder">
+                    <p class="font text-[#66ff00]">Account created !</p>
+                </div>
+                <ng-template #placeholder>
+                    <div style="min-height: 6px;"></div>
+                </ng-template>
+                <div class="test" *ngIf="emailField.invalid && emailField.touched; else placeholder">
+                    <p class="font" *ngIf="emailField.errors?.['email']">Invalid email format</p>
+                </div>
+            </div>
+            <div class="flex justify-between mt-[20px]">
                 <div class="content-center">
                     <a class="font underline" href="./login">Already have an account?</a>
                 </div>
@@ -52,9 +68,5 @@
                 </button>
             </div>
         </form>
-        
-        <div *ngIf="registrationSuccess" class="font mt-[40px] text-green-600 text-center">
-            <p>Your account has been successfully created!</p>
-        </div>
     </div>
 </div>

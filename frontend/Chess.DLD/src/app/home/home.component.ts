@@ -16,18 +16,37 @@ export class HomeComponent {
   showModal: boolean = false;
   gameId: string = '';
   imageUrl: string = './BG.png';
+  playersRankingList: any[] = [];
   constructor(private router: Router, private dataService: DataService) { }
   ngOnInit() {
     localStorage.removeItem('Color');
     localStorage.removeItem('Username');
-    this.dataService.getVerification().subscribe(
-      (response: any) => {
-        // console.log(response)
-        // console.log('hej tak sobie sie onInituje')
-      },
-      (error: any) => {
-        this.router.navigate(['/login']);
-    });
+    // this.dataService.getVerification().subscribe(
+      // (response: any) => {
+        this.getRanking();
+        // console.log(response, "!response!")
+      // },
+      // (error: any) => {
+        // this.router.navigate(['/login']);
+        // console.log(error, "!error!")
+    // });
+  }
+  getRanking(){
+    this.dataService.getRankingData().subscribe((response:any)=>{
+      if(response){
+        this.playersRankingList = response.playersRankingList;
+      }else (error:any) =>{
+      }
+    })
+  }
+  logout(){
+    this.dataService.getLogout().subscribe((response:any)=>{
+      this.router.navigate([`/login`]);
+
+
+    }, error =>{
+      this.router.navigate([`/login`]);
+    })
   }
   joinGame() {
     this.showModal = true;
@@ -37,14 +56,17 @@ export class HomeComponent {
     }
   }
   createGame() {
-    this.dataService.getJsonData().subscribe((response: any) => {
-      this.gameId = response.gameId;
-      this.router.navigate([`/game/${this.gameId}`]);
-    }, error => {
-      console.log(error)
-      this.router.navigate([`/login`]);
-    });
+    this.dataService.getJsonData().subscribe(
+      (response: any) => {
+        this.gameId = response.gameId;
+        this.router.navigate([`/game/${this.gameId}`]);
+      }, 
+      error => {
+        this.router.navigate([`/login`]);
+      }
+    );
   }
+  
   
   closeModal() {
     this.showModal = false;

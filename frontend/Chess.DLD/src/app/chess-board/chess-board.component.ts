@@ -45,6 +45,8 @@ export class ChessBoardComponent {
   playerTour: string | null = null;
   isMyTurn: boolean = false;
   waiting: boolean = false;
+  winnerColor: any;
+  SurrenderColor: string | null = null;
   @ViewChild('historyContainer') historyContainer!: ElementRef;
   constructor(private router: Router, private route: ActivatedRoute, private dataService: DataService) {
   }
@@ -63,7 +65,6 @@ export class ChessBoardComponent {
       if (this.gameId) {
         this.dataService.GetJoinData(this.gameId).subscribe(
           (response: any) => {
-            // console.log(response)
             if (response && response.color) {
               localStorage.setItem('Color', response.color);
             }
@@ -82,14 +83,13 @@ export class ChessBoardComponent {
         this.dataService.GetTest(this.gameId).subscribe(
           (res: any) => {
             if(res.waiting === true){
-              console.log(res.waiting)
+              // console.log(res.waiting)
               this.waiting = true
             }
             if (!res) {
               this.router.navigate(['/home']);
               return;
             }
-            console.log(res)
             this.jsonResponse = res.chessBoard.map((pawn: any) => ({
               pawnName: pawn.name,
               pawnColor: pawn.color,
@@ -129,23 +129,23 @@ export class ChessBoardComponent {
   }
 
   initializeWebSocketConnection() {
-    const socket = new SockJS('http://localhost:8080/ws');
+    const socket = new SockJS('13.60.28.122:8080/ws');
     this.stompClient = new Client({
       webSocketFactory: () => socket,
       debug: (str) => { },
       onConnect: (frame) => {
         // console.log('Connected: ' + frame);
         this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
-          console.log('Received message:', message.body);
-          console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
+          // console.log('Received message:', message.body);
+          // console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
           const response = JSON.parse(message.body);
           // console.log('Received message:', response);
           if(response.waiting === true){
-            console.log(response.waiting)
+            // console.log(response.waiting)
             this.waiting = true
           }
           if(response.waiting === false){
-            console.log(response.waiting)
+            // console.log(response.waiting)
             this.waiting = false
           }
           if (response.gameHistory) {
@@ -161,9 +161,11 @@ export class ChessBoardComponent {
             this.playerTour = response.playerTour;
             this.isMyTurn = (this.playerColor === this.playerTour);
           }
-          if (response.gameActive === false) {
+          if(response.winnerColor === 'white' || response.winnerColor === 'black' && response.gameActive === false){
+            this.winnerColor = response.winnerColor;
             this.EndGame();
           }
+          
           if (response.chessBoard) {
             const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
               pawnName: pawn.name,
@@ -171,7 +173,7 @@ export class ChessBoardComponent {
               pawnPlacement: pawn.square
             }));
 
-            this.jsonResponse = updatedChessBoardData;;
+            this.jsonResponse = updatedChessBoardData;
           } else {
           }
         });
@@ -191,23 +193,38 @@ export class ChessBoardComponent {
     }
   }
   EndGame() {
-    const game = this.gameId
-    console.log(game,"<= game id")
     this.isGameEnded = true;
+    setTimeout(() => {
+      this.router.navigate(['/home']);
+    }, 5000);
   }
   surrender() {
     const game = this.gameId
-    console.log(game,"<= game id")
-    const SurrenderColor = localStorage.getItem('Color')
-    console.log(SurrenderColor)
-    this.isGameEnded = true;
+    this.SurrenderColor = localStorage.getItem('Color')
+    // console.log(this.SurrenderColor)
+    if(this.SurrenderColor){
+      this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
+        (response) => {
+        },(error) => {
+          console.log(error,"error MSG")
+        }
+      );
+    }
   }
   EndGameInfoToBackend(kingColor: string) {
     const game = this.gameId
-    console.log(game,"<= game id")
-    const SurrenderColor = kingColor
-    console.log(SurrenderColor, 'king cannot be saved');
-    this.isGameEnded = true;
+    this.SurrenderColor = kingColor
+    if(this.SurrenderColor){
+      this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
+        (response) => {
+          this.winnerColor = this.getWinnerColor(this.SurrenderColor as string);
+        },(error) => {
+        }
+      );
+    }
+  }
+  getWinnerColor(surrenderingColor: string): string {
+    return surrenderingColor === 'white' ? 'black' : 'white';
   }
   handleCheckmate(square: string) {
     this.checkmateSquare = square;
@@ -321,7 +338,7 @@ export class ChessBoardComponent {
     const playerColor = localStorage.getItem('Color');
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
-        if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
+        if (pawnInfo) {
           const moveDetails = {
             moveFrom: this.selectedPawnInfo.pawnPlacement,
             moveTo: square.square,
@@ -557,6 +574,7 @@ export class ChessBoardComponent {
         }
       }
     }
+    // console.log(moves,"ruchy")
     return moves;
   }
   isSquareOccupied(board: any, square: string): boolean {
@@ -815,7 +833,6 @@ export class ChessBoardComponent {
     const PawnTableBeforeMove = this.jsonResponse;
     const currentPlayerTour = this.playerTour;
     if (this.playerColor !== currentPlayerTour) {
-      // console.warn('Nie jest twoja tura! ', moveDetails, square);
       return;
     }
     const JSONbefore = this.jsonResponse
@@ -934,7 +951,6 @@ export class ChessBoardComponent {
                 }
               }
             });
-            // console.log(`${yourPawnDetails.pawnName} (${yourPawnDetails.pawnColor}) is trying to MOVE to ${move}`);
             let simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
             const originalPosition = yourPawnDetails.pawnPlacement;
 
@@ -983,11 +999,9 @@ export class ChessBoardComponent {
             });
 
             if ((whiteKingPositionCheck && allBlackMovesCheck.includes(whiteKingPositionCheck)) || (blackKingPositionCheck && allWhiteMovesCheck.includes(blackKingPositionCheck))) {
-              // console.log('This move cant save you')
               simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
               continue;
             } else {
-              // console.log('this move can save you')
               simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
               kingCanBeSaved = true;
               break;

@@ -144,15 +144,16 @@
             </div>
         </div>
     </div>
-    <div *ngIf="isGameEnded" class="overlay flex  justify-center h-full font text-[80px]">
+    <div *ngIf="isGameEnded" class="overlay flex justify-center h-full font text-[80px]">
         <div class="text-white flex flex-col items-center mt-[150px]">
-            <p>Checkmate</p>
-            <p>Black WINS!</p>
-            <button routerLink="/home" class="home-button mt-4 px-4 py-2 rounded">
-                Go to Home
-            </button>
+          <p>Checkmate</p>
+          <p>{{ winnerColor }} WINS!</p>
+          <button routerLink="/home" class="home-button mt-4 px-4 py-2 rounded">
+            Go to Home
+          </button>
         </div>
-    </div>
+      </div>
+      
     <ng-container *ngIf="waiting">
         <div class="waiting_room font text-[36px]">
           <div class="waiting-content">
