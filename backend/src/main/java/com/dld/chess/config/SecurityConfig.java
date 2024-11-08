@@ -38,6 +38,7 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/api/game-finish/{gameId}").permitAll()
                         .requestMatchers("/api/players-ranking").permitAll()
+                        .requestMatchers("/api/game-finish/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
@@ -76,5 +77,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }

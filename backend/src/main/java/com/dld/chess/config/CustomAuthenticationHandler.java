@@ -24,11 +24,6 @@ public class CustomAuthenticationHandler implements AuthenticationSuccessHandler
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.getWriter().write("{message : success}");
-
-        HttpSession session = request.getSession();
-        session.setAttribute("gay", "antyGay");
-
-        log.info("TAAAKJEST! request {} , response {}  authentication {} ", request, request, authentication);
     }
 
 
@@ -37,7 +32,5 @@ public class CustomAuthenticationHandler implements AuthenticationSuccessHandler
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.getWriter().write("{message : failure}");
-        log.info("OHHHHHNIE!:( request {} , response {}  authentication {} ", request, request, exception);
-
     }
 }

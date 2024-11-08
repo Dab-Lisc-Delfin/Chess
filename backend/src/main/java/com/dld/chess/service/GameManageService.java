@@ -14,7 +14,6 @@ import java.util.List;
 
 @Service
 @Slf4j
-@CrossOrigin(origins = "http://localhost:4200")
 public class GameManageService {
     private static GameManage gameManage;
     private GameService gameService;

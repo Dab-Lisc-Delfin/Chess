@@ -5,12 +5,12 @@ import { HttpClient, HttpParams,HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class DataService {
-  private baseUrl = 'http://13.60.28.122:8080';
+  private baseUrl = 'http://localhost:8080';
   private apiUrlCreateGame = `${this.baseUrl}/game/create-game`;
   private apiUrlMove = (gameId: string) => `${this.baseUrl}/update-game/${gameId}`;
   private apiBoard = (gameId: string) => `${this.baseUrl}/game/refresh/${gameId}`;
-  private apiCreateGame = 'http://13.60.28.122:8080/game/create-game'
-  private apiTEST = (gameId: string) => `http://13.60.28.122:8080/game-statement/${gameId}`
+  private apiCreateGame = 'http://localhost:8080/game/create-game'
+  private apiTEST = (gameId: string) => `http://localhost:8080/game-statement/${gameId}`
   private apiLogin = `${this.baseUrl}/login`;
   private apiRegister = `${this.baseUrl}/api/create-user`;
   private apiVerify = `${this.baseUrl}/api/verify-user`;
@@ -65,7 +65,7 @@ export class DataService {
     const body = { color: color };
     return this.http.post<any>(this.apiEndGame(gameId),body,{
       
-      headers:{'Content-Type': 'application/x-www-form-urlencoded', responseType: 'text',}
+      headers:{'Content-Type': 'application/x-www-form-urlencoded', responseType: 'text',},
     });
   }
 
