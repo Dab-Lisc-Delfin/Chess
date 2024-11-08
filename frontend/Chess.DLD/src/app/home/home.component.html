@@ -15,7 +15,7 @@
         <span class="font text-5xl">CHESS</span>
       </div>
       <div class="w-1/3 text-right">
-        <span class="font text-lg"><a href="./login">logout</a></span>
+        <span class="font text-lg logout" (click)="logout()">logout</span>
       </div>
     </div>
     <div class="WidthEmptyPlace flex inline-grid">
@@ -45,40 +45,23 @@
             
             <ol class="space-y-1 text-left text-[30px] w-[200px] mt-[10px]">
               <li class="flex justify-between">
-                <span >Ranking</span>
+                <span>Ranking</span>
               </li>
-              <li class="flex justify-between">
-                <span class="text-[#856F28]">1.</span>
-                <span class="text-[#856F28]">YOU</span>
-              </li>
-              <li class="flex justify-between">
-                <span>2.</span>
-                <span>MAREK</span>
-              </li>
-              <li class="flex justify-between">
-                <span>3.</span>
-                <span>JAREK</span>
-              </li>
-              <li class="flex justify-between">
-                <span>4.</span>
-                <span>AREK</span>
-              </li>
-              <li class="flex justify-between">
-                <span>5.</span>
-                <span>xXxXD123</span>
+              <li *ngFor="let player of playersRankingList.slice(0, 5); let i = index" class="flex justify-between">
+                <div>
+                  <span class="text-black">{{i + 1}}. </span>
+                  <span class="text-black">
+                    {{player.nickname.length > 5 ? (player.nickname | slice:0:5) + '...' : player.nickname}}
+                  </span>
+                </div>
+                <span class="text-[#856F28]">{{player.points}} p</span>
               </li>
             </ol>
           </div>
         </div>
-        
       </div>
     </div>
   </div>
-
-
-
-
-
   <div *ngIf="showModal" class="fixed inset-0 flex items-center justify-center z-50">
     <div class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md"></div>
   

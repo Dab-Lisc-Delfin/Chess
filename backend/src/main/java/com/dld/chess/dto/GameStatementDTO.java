@@ -12,8 +12,8 @@ public class GameStatementDTO {
     private List<SquareDTO> chessBoard;
     private boolean isGameActive;
     private String gameId;
-
-    //new
     private String playerTour = "white";
     private List<Move> gameHistory;
+    private boolean isWaiting;
+    private String winnerColor = "none";
 }

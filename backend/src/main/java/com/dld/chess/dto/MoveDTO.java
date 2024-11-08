@@ -10,8 +10,6 @@ public class MoveDTO {
     protected String moveTo;
     protected String pawnName;
     protected String pawnColor;
-
-    //new
     protected String playerColor;
 
     @Override

@@ -5,8 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GameInviteDTO {
-    String gameId;
-    String linkToInviteFriend;
-
+public class ColorDTO {
+    private String color;
 }

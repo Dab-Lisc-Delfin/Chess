@@ -14,16 +14,27 @@ export class RegisterComponent {
   username: string = '';
   email: string = '';
   password: string = '';
-  registrationSuccess: boolean = false;
   imageUrl: string = './BGlogin.png';
-
+  userExist:boolean = false
+  usergood:boolean = false
   constructor(private router: Router, private dataService: DataService) {}
 
   onSubmit() {
     this.dataService.GetRegister(this.username, this.password, this.email).subscribe(
       response => {
+        if (response.trim() === 'User already exist') {
+          this.userExist = true;
+          this.username = '';
+        } else {
+          this.username = '';
+          this.password = '';
+          this.email = '';
+          this.userExist = false;
+          this.usergood = true;
+        }
+      },
+      error => {
       }
     );
-    
   }
 }

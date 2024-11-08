@@ -15,9 +15,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String username;
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false, unique = true)
     private String email;
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinTable(
@@ -26,5 +28,5 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles;
-    private String currentGameId;
+    private int points;
 }
