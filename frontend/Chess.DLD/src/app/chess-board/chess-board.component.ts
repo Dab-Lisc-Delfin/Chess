@@ -129,7 +129,7 @@ export class ChessBoardComponent {
   }
 
   initializeWebSocketConnection() {
-    const socket = new SockJS('13.60.28.122:8080/ws');
+    const socket = new SockJS('http://localhost:8080/ws');
     this.stompClient = new Client({
       webSocketFactory: () => socket,
       debug: (str) => { },

@@ -21,15 +21,15 @@ export class HomeComponent {
   ngOnInit() {
     localStorage.removeItem('Color');
     localStorage.removeItem('Username');
-    // this.dataService.getVerification().subscribe(
-      // (response: any) => {
+    this.dataService.getVerification().subscribe(
+      (response: any) => {
         this.getRanking();
         // console.log(response, "!response!")
-      // },
-      // (error: any) => {
-        // this.router.navigate(['/login']);
-        // console.log(error, "!error!")
-    // });
+      },
+      (error: any) => {
+        this.router.navigate(['/login']);
+        console.log(error, "!error!")
+    });
   }
   getRanking(){
     this.dataService.getRankingData().subscribe((response:any)=>{
@@ -56,13 +56,14 @@ export class HomeComponent {
     }
   }
   createGame() {
-    this.dataService.getJsonData().subscribe(
-      (response: any) => {
+    this.dataService.getJsonData().subscribe((response: any) => {
+      if(response){
         this.gameId = response.gameId;
         this.router.navigate([`/game/${this.gameId}`]);
+      }
       }, 
       error => {
-        this.router.navigate([`/login`]);
+        // this.router.navigate([`/login`]);
       }
     );
   }
