@@ -44,6 +44,9 @@ export class ChessBoardComponent {
   playerColor: string | null = '';
   playerTour: string | null = null;
   isMyTurn: boolean = false;
+  waiting: boolean = false;
+  winnerColor: any;
+  SurrenderColor: string | null = null;
   @ViewChild('historyContainer') historyContainer!: ElementRef;
   constructor(private router: Router, private route: ActivatedRoute, private dataService: DataService) {
   }
@@ -52,24 +55,41 @@ export class ChessBoardComponent {
     this.isHistoryHidden = !this.isHistoryHidden;
   }
   ngOnInit() {
+    
     // this.checkmateSquare = 'b3';
     // localStorage.setItem('Color', 'white');
-    this.playerColor = localStorage.getItem('Color');
 
-    if (this.playerColor === 'black') {
-      this.flipBoard();
-    }
     this.route.params.subscribe(params => {
       this.gameId = params['gameId'];
 
       if (this.gameId) {
+        this.dataService.GetJoinData(this.gameId).subscribe(
+          (response: any) => {
+            if (response && response.color) {
+              localStorage.setItem('Color', response.color);
+            }
+        
+            if (response && response.username) {
+              localStorage.setItem('Username', response.username);
+            }
+
+            this.playerColor = localStorage.getItem('Color');
+
+            if (this.playerColor === 'black') {
+              this.flipBoard();
+            }
+          },
+        );
         this.dataService.GetTest(this.gameId).subscribe(
           (res: any) => {
+            if(res.waiting === true){
+              // console.log(res.waiting)
+              this.waiting = true
+            }
             if (!res) {
               this.router.navigate(['/home']);
               return;
             }
-
             this.jsonResponse = res.chessBoard.map((pawn: any) => ({
               pawnName: pawn.name,
               pawnColor: pawn.color,
@@ -117,8 +137,17 @@ export class ChessBoardComponent {
         // console.log('Connected: ' + frame);
         this.stompClient.subscribe(`/game/refresh/${this.gameId}`, (message: any) => {
           // console.log('Received message:', message.body);
+          // console.log('siema wlasnie wpadl ode mnie twoj json, dzieki!')
           const response = JSON.parse(message.body);
           // console.log('Received message:', response);
+          if(response.waiting === true){
+            // console.log(response.waiting)
+            this.waiting = true
+          }
+          if(response.waiting === false){
+            // console.log(response.waiting)
+            this.waiting = false
+          }
           if (response.gameHistory) {
             this.moveHistory = response.gameHistory.map((move: any) => ({
               moveFrom: move.moveFrom,
@@ -132,9 +161,11 @@ export class ChessBoardComponent {
             this.playerTour = response.playerTour;
             this.isMyTurn = (this.playerColor === this.playerTour);
           }
-          if (response.gameActive === false) {
-              this.EndGame();
+          if(response.winnerColor === 'white' || response.winnerColor === 'black' && response.gameActive === false){
+            this.winnerColor = response.winnerColor;
+            this.EndGame();
           }
+          
           if (response.chessBoard) {
             const updatedChessBoardData = response.chessBoard.map((pawn: any) => ({
               pawnName: pawn.name,
@@ -142,7 +173,7 @@ export class ChessBoardComponent {
               pawnPlacement: pawn.square
             }));
 
-            this.jsonResponse = updatedChessBoardData;;
+            this.jsonResponse = updatedChessBoardData;
           } else {
           }
         });
@@ -163,15 +194,37 @@ export class ChessBoardComponent {
   }
   EndGame() {
     this.isGameEnded = true;
+    setTimeout(() => {
+      this.router.navigate(['/home']);
+    }, 5000);
   }
   surrender() {
-    //Do backendu wysłac info o kolorze ktory sie poddał
-    this.isGameEnded = true;
-}
+    const game = this.gameId
+    this.SurrenderColor = localStorage.getItem('Color')
+    // console.log(this.SurrenderColor)
+    if(this.SurrenderColor){
+      this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
+        (response) => {
+        },(error) => {
+          console.log(error,"error MSG")
+        }
+      );
+    }
+  }
   EndGameInfoToBackend(kingColor: string) {
-    //Do backendu wysłac info o królu który nie ma ucieczki
-    console.log(`${kingColor}`, 'king cannot be saved');
-    this.isGameEnded = true;
+    const game = this.gameId
+    this.SurrenderColor = kingColor
+    if(this.SurrenderColor){
+      this.dataService.GetFinish(game,this.SurrenderColor).subscribe(
+        (response) => {
+          this.winnerColor = this.getWinnerColor(this.SurrenderColor as string);
+        },(error) => {
+        }
+      );
+    }
+  }
+  getWinnerColor(surrenderingColor: string): string {
+    return surrenderingColor === 'white' ? 'black' : 'white';
   }
   handleCheckmate(square: string) {
     this.checkmateSquare = square;
@@ -217,61 +270,75 @@ export class ChessBoardComponent {
     if (!this.isGameActive) {
       return;
     }
-    const pawnInfo = this.getPawnOnSquare(square.square);
-    const playerColor = localStorage.getItem('Color');
-    if (this.highlightedSquares.includes(square.square)) {
-      if (this.selectedPawnInfo) {
-        if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
-          const moveDetails = {
-            moveFrom: this.selectedPawnInfo.pawnPlacement,
-            moveTo: square.square,
-            pawnName: this.selectedPawnInfo.pawnName,
-            pawnColor: this.selectedPawnInfo.pawnColor
-          };
-          this.ProceedMove(moveDetails, square);
-          this.selectedPawnInfo = null;
-          this.highlightedSquares = [];
-          return;
-        } else if (!pawnInfo) {
-          const moveDetails = {
-            moveFrom: this.selectedPawnInfo.pawnPlacement,
-            moveTo: square.square,
-            pawnName: this.selectedPawnInfo.pawnName,
-            pawnColor: this.selectedPawnInfo.pawnColor
-          };
-          this.ProceedMove(moveDetails, square);
-          this.selectedPawnInfo = null;
-          this.highlightedSquares = [];
-          return;
-        } else {
-          return;
+    this.dataService.GetTest(this.gameId).subscribe(
+      (res: any) => {
+        if(res.waiting === true){
+          return
         }
-      }
-    }
-    if (pawnInfo) {
-      if (pawnInfo.pawnColor !== playerColor) {
-        return;
-      } else {
-        this.selectedPawnInfo = pawnInfo;
-        this.originalPosition = pawnInfo.pawnPlacement || '';
-        this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
-        this.highlightedSquares = this.availableMoves;
-        return;
-      }
-    }
-    this.selectedPawnInfo = null;
-    this.highlightedSquares = [];
-    this.availableMoves = [];
+        const pawnInfo = this.getPawnOnSquare(square.square);
+        const playerColor = localStorage.getItem('Color');
+        if (this.highlightedSquares.includes(square.square)) {
+          if (this.selectedPawnInfo) {
+            if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
+              const moveDetails = {
+                moveFrom: this.selectedPawnInfo.pawnPlacement,
+                moveTo: square.square,
+                pawnName: this.selectedPawnInfo.pawnName,
+                pawnColor: this.selectedPawnInfo.pawnColor
+              };
+              this.ProceedMove(moveDetails, square);
+              this.selectedPawnInfo = null;
+              this.highlightedSquares = [];
+              return;
+            } else if (!pawnInfo) {
+              const moveDetails = {
+                moveFrom: this.selectedPawnInfo.pawnPlacement,
+                moveTo: square.square,
+                pawnName: this.selectedPawnInfo.pawnName,
+                pawnColor: this.selectedPawnInfo.pawnColor
+              };
+              this.ProceedMove(moveDetails, square);
+              this.selectedPawnInfo = null;
+              this.highlightedSquares = [];
+              return;
+            } else {
+              return;
+            }
+          }
+        }
+        if (pawnInfo) {
+          if (pawnInfo.pawnColor !== playerColor) {
+            return;
+          } else {
+            this.selectedPawnInfo = pawnInfo;
+            this.originalPosition = pawnInfo.pawnPlacement || '';
+            this.availableMoves = this.getPossibleMoves(pawnInfo, this.chessBoard);
+            this.highlightedSquares = this.availableMoves;
+            return;
+          }
+        }
+        this.selectedPawnInfo = null;
+        this.highlightedSquares = [];
+        this.availableMoves = [];
+      },
+      
+    );
+   
   }
   showSquareDetails(square: any) {
     if (!this.isGameActive) {
       return;
     }
-    const pawnInfo = this.getPawnOnSquare(square.square);
+    this.dataService.GetTest(this.gameId).subscribe(
+      (res: any) => {
+        if(res.waiting === true){
+          return
+        }
+        const pawnInfo = this.getPawnOnSquare(square.square);
     const playerColor = localStorage.getItem('Color');
     if (this.highlightedSquares.includes(square.square)) {
       if (this.selectedPawnInfo) {
-        if (pawnInfo && pawnInfo.pawnColor !== playerColor) {
+        if (pawnInfo) {
           const moveDetails = {
             moveFrom: this.selectedPawnInfo.pawnPlacement,
             moveTo: square.square,
@@ -312,6 +379,10 @@ export class ChessBoardComponent {
     this.selectedPawnInfo = null;
     this.highlightedSquares = [];
     this.availableMoves = [];
+      }
+
+    );
+    
   }
 
   parsePawnKey = (pawnKey: string) => {
@@ -503,6 +574,7 @@ export class ChessBoardComponent {
         }
       }
     }
+    // console.log(moves,"ruchy")
     return moves;
   }
   isSquareOccupied(board: any, square: string): boolean {
@@ -761,8 +833,7 @@ export class ChessBoardComponent {
     const PawnTableBeforeMove = this.jsonResponse;
     const currentPlayerTour = this.playerTour;
     if (this.playerColor !== currentPlayerTour) {
-      // console.warn('Nie jest twoja tura! ', moveDetails, square);
-        return; 
+      return;
     }
     const JSONbefore = this.jsonResponse
     this.jsonResponse.forEach((pawn: any) => {
@@ -880,7 +951,6 @@ export class ChessBoardComponent {
                 }
               }
             });
-            // console.log(`${yourPawnDetails.pawnName} (${yourPawnDetails.pawnColor}) is trying to MOVE to ${move}`);
             let simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
             const originalPosition = yourPawnDetails.pawnPlacement;
 
@@ -929,11 +999,9 @@ export class ChessBoardComponent {
             });
 
             if ((whiteKingPositionCheck && allBlackMovesCheck.includes(whiteKingPositionCheck)) || (blackKingPositionCheck && allWhiteMovesCheck.includes(blackKingPositionCheck))) {
-              // console.log('This move cant save you')
               simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
               continue;
             } else {
-              // console.log('this move can save you')
               simulatedJsonResponse = JSON.parse(JSON.stringify(this.jsonResponse));
               kingCanBeSaved = true;
               break;

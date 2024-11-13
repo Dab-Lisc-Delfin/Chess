@@ -1,6 +1,5 @@
 package com.dld.chess.model;
 
-import com.dld.chess.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
@@ -15,17 +14,16 @@ import java.util.UUID;
 public class Game {
 
     public Game() {
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID().toString().substring(0, 5);
     }
 
     private Square[][] squares = new Square[8][8];
     private String id;
-    private boolean isActive = true; //TODO isFinished
-
+    private boolean isActive = true;
     private List<Player> players = new ArrayList<>();
     private String currentTour;
-    private boolean isStarted = false;
+    private boolean isWaiting = true;
     private List<Move> gameHistory = new ArrayList<>();
-
+    private Player winner;
 
 }

@@ -1,13 +1,10 @@
 package com.dld.chess.controller;
 
+import com.dld.chess.dto.RankingDTO;
 import com.dld.chess.dto.UserDTO;
 import com.dld.chess.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,10 +25,19 @@ public class UserController {
     }
 
 
-
     @PostMapping("/api/create-user")
     public ResponseEntity<String> createNewUser(@RequestBody UserDTO userDTO) {
-        userService.saveUser(userDTO);
-        return ResponseEntity.ok("OK");
+        try {
+            userService.saveUser(userDTO);
+            return ResponseEntity.ok("OK");
+        } catch (Exception ex) {
+            return ResponseEntity.ok("User already exist");
+        }
+    }
+
+
+    @PostMapping("/api/players-ranking")
+    public ResponseEntity<RankingDTO> getPlayersRanking() {
+        return ResponseEntity.ok(userService.getRankingDTO());
     }
 }

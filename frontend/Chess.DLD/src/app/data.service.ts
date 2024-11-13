@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams,HttpHeaders } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -14,44 +14,76 @@ export class DataService {
   private apiLogin = `${this.baseUrl}/login`;
   private apiRegister = `${this.baseUrl}/api/create-user`;
   private apiVerify = `${this.baseUrl}/api/verify-user`;
+  private apiJoinGame = (gameId: string) => `${this.baseUrl}/api/join-game/${gameId}`;
+  private apiEndGame = (gameId: string) => `${this.baseUrl}/api/game-finish/${gameId}`;
+  private apiLogout = `${this.baseUrl}/logout`;
+  private apiRanking = `${this.baseUrl}/api/players-ranking`;
 
   constructor(private http: HttpClient) { }
 
   getJsonData() {
-    return this.http.post<any>(this.apiUrlCreateGame, {});
+    return this.http.post<any>(this.apiUrlCreateGame, {}, { withCredentials: true });
   }
+
+  GetJoinData(gameId: string) {
+    return this.http.post<any>(this.apiJoinGame(gameId), {}, { withCredentials: true });
+  }
+
   getVerification() {
-    return this.http.post<any>(this.apiVerify, {});
+    return this.http.post<any>(this.apiVerify, {}, { withCredentials: true });
   }
+
   sendMoveDetails(moveDetails: any, gameId: string) {
-    return this.http.post(this.apiUrlMove(gameId), moveDetails);
+    return this.http.post(this.apiUrlMove(gameId), moveDetails, { withCredentials: true });
   }
 
   GetBoardDetails(gameId: string) {
-    return this.http.post<any>(this.apiBoard(gameId), {});
+    return this.http.post<any>(this.apiBoard(gameId), {}, { withCredentials: true });
   }
-  GetGameId() {
-    return this.http.post<any>(this.apiCreateGame, {});
-  }
-  GetLogin(username: string, password: string) {
 
+  GetGameId() {
+    return this.http.post<any>(this.apiCreateGame, {}, { withCredentials: true });
+  }
+
+  GetLogin(username: string, password: string) {
     const loginData = new HttpParams()
       .set('username', username)
       .set('password', password);
 
     return this.http.post(this.apiLogin, loginData, {
       responseType: 'text',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      withCredentials: true
     });
   }
+
   GetRegister(username: string, password: string, email: string) {
     const RegisterData = { username, email, password };
-    return this.http.post(this.apiRegister, RegisterData, { responseType: 'text' });
+    return this.http.post(this.apiRegister, RegisterData, { responseType: 'text', withCredentials: true });
+  }
+  GetFinish(gameId: string,color:any) {
+    const body = { color: color };
+    return this.http.post<any>(this.apiEndGame(gameId),body,{
+      
+      headers:{'Content-Type': 'application/x-www-form-urlencoded', responseType: 'text',},
+    });
   }
 
-
+getRankingData(){
+    return this.http.post<any>(this.apiRanking,{
+      responseType: 'text',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      withCredentials: true 
+    });
+  }
+getLogout() {
+    return this.http.post<any>(this.apiLogout, {
+      responseType: 'text',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      withCredentials: true 
+    });
+  }
   GetTest(gameId: string) {
-    return this.http.post<any>(this.apiTEST(gameId), {});
+    return this.http.post<any>(this.apiTEST(gameId), {}, { withCredentials: true });
   }
 }
-

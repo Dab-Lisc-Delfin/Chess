@@ -3,10 +3,7 @@ package com.dld.chess.service;
 import com.dld.chess.dto.GameStatementDTO;
 import com.dld.chess.dto.MoveDTO;
 import com.dld.chess.dto.SquareDTO;
-import com.dld.chess.model.Chessboard;
-import com.dld.chess.model.Game;
-import com.dld.chess.model.Move;
-import com.dld.chess.model.Square;
+import com.dld.chess.model.*;
 import com.dld.chess.model.pawns.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +14,12 @@ import java.util.List;
 @Service
 @Slf4j
 public class GameService {
+
+    private final UserService userService;
+
+    public GameService(UserService userService) {
+        this.userService = userService;
+    }
 
     //TODO OPTIMIZE METHODS AFTER DELETING HEAD DATA "Game"
 
@@ -174,6 +177,12 @@ public class GameService {
         gameStatementDTO.setPlayerTour(game.getCurrentTour());
         gameStatementDTO.setGameId(game.getId());
         gameStatementDTO.setGameHistory(game.getGameHistory());
+        gameStatementDTO.setWaiting(game.isWaiting());
+
+        if(game.getWinner() != null){
+            gameStatementDTO.setWinnerColor(game.getWinner().getColor());
+        }
+
         return gameStatementDTO;
     }
 
@@ -205,7 +214,8 @@ public class GameService {
     public void startGameIf2PlayersJoined(String gameId) {
         Game game = GameManageService.getGameById(gameId);
         if (game.getPlayers().size() == 2) {
-            game.setStarted(true);
+            game.setWaiting(false);
+            log.info("SET WAITING FALSE");
         }
     }
 
@@ -349,4 +359,31 @@ public class GameService {
         game.setGameHistory(gameHistory);
     }
 
+
+    public void finishGame(Game game) {
+        game.setActive(false);
+    }
+
+
+    public void setGameWinner(Game game, String loserColor) {
+        List<Player> playerList = game.getPlayers();
+        for (Player player : playerList) {
+            if (!player.getColor().equals(loserColor)) {
+                game.setWinner(player);
+            }
+        }
+    }
+
+
+    public void managePlayerPoints(Game game, String loserColor) {
+        List<Player> playerList = game.getPlayers();
+
+        for (Player player : playerList) {
+            if (player.getColor().equals(loserColor)) {
+                userService.updateUserPoints(player.getUsername(), -10);
+            } else {
+                userService.updateUserPoints(player.getUsername(), 10);
+            }
+        }
+    }
 }
