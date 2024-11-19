@@ -29,16 +29,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/admin/*").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/create-user").permitAll()
                         .requestMatchers("/game/create-game").authenticated()
                         .requestMatchers("/api/verify-user").authenticated()
                         .requestMatchers("/api/join-game/**").authenticated()
                         .requestMatchers("/game/**").authenticated()
                         .requestMatchers("/ws/**").permitAll()
-                        .requestMatchers("/api/game-finish/{gameId}").permitAll()
                         .requestMatchers("/api/players-ranking").permitAll()
-                        .requestMatchers("/api/game-finish/**").permitAll()
                         .anyRequest().authenticated()
                 )
 

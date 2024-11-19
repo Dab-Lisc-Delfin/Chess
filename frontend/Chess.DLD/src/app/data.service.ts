@@ -64,8 +64,9 @@ export class DataService {
   GetFinish(gameId: string,color:any) {
     const body = { color: color };
     return this.http.post<any>(this.apiEndGame(gameId),body,{
-      
-      headers:{'Content-Type': 'application/x-www-form-urlencoded', responseType: 'text',},
+      responseType: 'text' as 'json',
+      // headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      withCredentials: true
     });
   }
 
