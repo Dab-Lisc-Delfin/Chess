@@ -4,7 +4,7 @@
 **Clone the Repository:**
 ```bash
 git clone git@github.com:Dab-Lisc-Delfin/Chess.git
-cd ChessDLD
+cd Chess
 ```
 
 **Run the Application:**
