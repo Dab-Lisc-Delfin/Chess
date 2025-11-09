@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @Slf4j
+@CrossOrigin(origins = "http://localhost:4200")
 public class GameController {
     private final GameManageService gameManageService;
     private final GameService gameService;
